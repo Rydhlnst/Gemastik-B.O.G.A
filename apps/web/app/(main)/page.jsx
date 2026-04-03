@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button } from "@repo/ui/button";
+import { Button } from "@repo/shared/components/ui/button";
 import styles from "./page.module.css";
 
 const ThemeImage = (props) => {
@@ -58,8 +58,8 @@ export default function Home() {
             Read our docs
           </a>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
+        <Button variant="default" className="w-full sm:w-auto">
+          Shared Shadcn Button
         </Button>
       </main>
       <footer className={styles.footer}>

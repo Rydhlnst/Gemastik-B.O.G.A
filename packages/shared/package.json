@@ -1,0 +1,24 @@
+{
+  "name": "@repo/shared",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./utils": "./src/lib/utils.js",
+    "./components/*": "./src/components/*.jsx",
+    "./tailwind.config": "./tailwind.config.js"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0",
+    "class-variance-authority": "^0.7.0",
+    "lucide-react": "^0.395.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.4",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}

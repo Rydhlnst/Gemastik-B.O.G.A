@@ -29,8 +29,8 @@ export default function Navbar() {
   const isLogistik = location.startsWith("/logistik");
   const NAV_LINKS = isLogistik ? LOGISTIK_NAV_LINKS : DEFAULT_NAV_LINKS;
 
-  // Halaman dashboard dengan sidebar sendiri — Navbar tidak diperlukan
-  const SIDEBAR_ROUTES = ["/goverment", "/supplier", "/vendor"];
+  // Halaman dashboard dengan sidebar sendiri atau navbar khusus — Navbar global tidak diperlukan
+  const SIDEBAR_ROUTES = ["/goverment", "/supplier", "/vendor", "/logistik"];
   const hasSidebar = SIDEBAR_ROUTES.some((r) => location.startsWith(r));
 
   const [scrolled, setScrolled] = useState(false);
@@ -314,7 +314,7 @@ export default function Navbar() {
                         <p className="text-[10px] uppercase font-bold tracking-widest text-indigo-500 mb-0.5">Role Pengguna</p>
                         <p className="text-sm font-bold text-gray-800 capitalize">{userRole || "User"}</p>
                       </div>
-                      <Link href={`/${userRole}`} className="block px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 transition-colors">
+                      <Link href={`/${userRole}/dashboard`} className="block px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 transition-colors">
                         Dasbor Saya
                       </Link>
                       <button 

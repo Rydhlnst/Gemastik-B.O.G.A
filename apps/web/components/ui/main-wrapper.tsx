@@ -34,7 +34,8 @@ function Footer() {
 export default function MainWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const hasSidebar = SIDEBAR_ROUTES.some((r) => pathname.startsWith(r));
-
+  const isLogistik = pathname.startsWith("/logistik");
+  
   if (hasSidebar) {
     // Halaman dashboard: full screen, tanpa padding, tanpa footer
     return <main className="flex-1 w-full h-screen overflow-hidden">{children}</main>;
@@ -42,8 +43,8 @@ export default function MainWrapper({ children }: { children: React.ReactNode })
 
   return (
     <>
-      <main className="flex-1 w-full pt-[100px]">{children}</main>
-      <Footer />
+      <main className={`flex-1 w-full ${isLogistik ? "pt-0" : "pt-[100px]"}`}>{children}</main>
+      {!isLogistik && <Footer />}
     </>
   );
 }

@@ -33,11 +33,18 @@
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   /* --font-mono: var(--app-font-mono); */
-  
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Logistik Glass Dashboard Tokens */
+  --color-brand-green: #00e57a;
+  --color-brand-cyan: #00c8ff;
+  --background-image-logistik-hero: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --background-image-logistik-accent: linear-gradient(90deg, #00e57a, #00c8ff);
+  --animate-pulse-slow: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 :root {
@@ -65,14 +72,22 @@
 
   --app-font-sans: 'Plus Jakarta Sans', sans-serif;
   --app-font-serif: 'Georgia', serif;
-  /* --app-font-mono: Menlo, monospace; */ 
+  /* --app-font-mono: Menlo, monospace; */
   --radius: 0.5rem;
 }
 
 @layer base {
-  * { @apply border-border; }
-  body { @apply font-sans antialiased bg-background text-foreground; }
-  html { scroll-behavior: smooth; }
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer utilities {
@@ -82,5 +97,146 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
+  }
+
+  /* ── Logistik Green Theme (#2c6e49) ── */
+  .logistik-badge {
+    background-color: #2c6e49;
+    color: #ffffff;
+  }
+
+  .logistik-text {
+    color: #2c6e49;
+  }
+
+  .logistik-bg {
+    background-color: #2c6e49;
+  }
+
+  .logistik-bg-light {
+    background-color: #2c6e49;
+  }
+
+  .logistik-border {
+    border-color: #2c6e49;
+  }
+
+  .logistik-ring:focus {
+    outline: none;
+    border-color: #2c6e49;
+    box-shadow: 0 0 0 2px rgba(44, 110, 73, 0.25);
+  }
+
+  .logistik-gradient {
+    background-color: #2c6e49;
+  }
+
+  .logistik-hero-gradient {
+    background-color: #2c6e49;
+  }
+
+  .logistik-pulse {
+    background-color: #2c6e49;
+  }
+
+  /* ── New Logistik Glassmorphism & Fluid Utilities ── */
+  .glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+  }
+
+  .glass-bright {
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .glass-top-line::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+    pointer-events: none;
+  }
+
+  .nav-pill-active {
+    background: rgba(0, 229, 122, 0.18);
+    color: #00e57a;
+    border: 1px solid rgba(0, 229, 122, 0.25);
+    border-radius: 9999px;
+  }
+
+  /* Fluid Scaling Helpers */
+  .fluid-padding {
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+  
+  .fluid-gap {
+    gap: clamp(0.5rem, 2vw, 1.5rem);
+  }
+
+  .metric-value {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+  }
+
+  .caption-text {
+    font-size: clamp(0.75rem, 2vw, 1.25rem);
+  }
+}
+
+/* ─── Custom scrollbar for the dark page ─────────────────────────── */
+.logistik-page ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.logistik-page ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.logistik-page ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+.logistik-page ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Unified Dashboard Utilities ── */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Ant-Path Flow Animation */
+  @keyframes line-flow {
+    from {
+      stroke-dashoffset: 24;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .ant-path-flow {
+    stroke-dasharray: 12, 12;
+    animation: line-flow 1s linear infinite;
+  }
+
+  /* Smooth reveal for modules */
+  .module-reveal {
+    animation: reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

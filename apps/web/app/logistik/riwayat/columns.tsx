@@ -46,7 +46,7 @@ export const columns: ColumnDef<LogistikDelivery>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("porsi"))
       // Tambahkan padding proporsional agar tidak terlalu berdekatan
-      return <div className="font-medium text-indigo-600 pl-3">{amount} Porsi</div>
+      return <div className="font-medium pl-3" style={{ color: '#2c6e49' }}>{amount} Porsi</div>
     },
   },
   {
@@ -72,7 +72,7 @@ export const columns: ColumnDef<LogistikDelivery>[] = [
       const status = row.getValue("status") as string;
       let badgeColor = "bg-gray-100 text-gray-800";
       
-      if (status === "Selesai") badgeColor = "bg-green-100 text-green-800 border-green-200";
+      if (status === "Selesai") badgeColor = "bg-[#eaf4ee] text-[#2c6e49] border-[#2c6e49]/20";
       else if (status === "Sedang Dikirim") badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
       else if (status === "Kendala") badgeColor = "bg-red-100 text-red-800 border-red-200";
       else if (status === "Diproses") badgeColor = "bg-orange-100 text-orange-800 border-orange-200";

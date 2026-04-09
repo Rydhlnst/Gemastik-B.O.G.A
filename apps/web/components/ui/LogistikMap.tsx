@@ -111,7 +111,16 @@ export default function LogistikMap() {
   const [mounted, setMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isExpanded, setIsExpanded] = useState(false);
   const PAGE_SIZE = 3;
+
+  useEffect(() => {
+    if (isExpanded) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isExpanded]);
 
   useEffect(() => {
     setMounted(true);
@@ -162,7 +171,24 @@ export default function LogistikMap() {
     <div className="w-full relative z-0 flex flex-col gap-6">
       
       {/* Container Peta */}
-      <div style={{ height: "600px", width: "100%", position: "relative" }} className="rounded-2xl overflow-hidden shadow-sm border border-gray-200">
+      <div 
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{ 
+          height: isExpanded ? "min(80vh, 800px)" : "clamp(12rem, 30vw, 40rem)", 
+          width: "100%", 
+          position: "relative" 
+        }} 
+        className={`
+          rounded-2xl overflow-hidden shadow-sm border border-gray-200 transition-all duration-500 ease-in-out cursor-pointer group
+          ${isExpanded ? "z-[70] shadow-2xl" : "z-0"}
+        `}
+      >
+        {/* Expansion Overlay Indicator */}
+        {!isExpanded && (
+          <div className="absolute inset-0 bg-transparent z-[5] group-hover:bg-black/5 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+             <span className="bg-white/90 backdrop-blur px-4 py-2 rounded-full text-xs font-bold text-gray-800 shadow-xl border border-white">Buka Peta Live</span>
+          </div>
+        )}
         <MapContainer
           center={[-6.205, 106.838]}
           zoom={12}
@@ -177,6 +203,17 @@ export default function LogistikMap() {
             maxZoom={19}
           />
           <MapScrollHandler />
+          <div className="absolute top-4 right-12 z-[1000] pointer-events-auto">
+             <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                className={`bg-white/90 backdrop-blur p-2 rounded-xl shadow-lg border border-black/5 hover:bg-white transition-all ${isExpanded ? "rotate-180" : ""}`}
+             >
+                <Search className="w-4 h-4 text-gray-600" />
+             </button>
+          </div>
 
           {/* Render SEMUA Sekolah dan Jalur Vendornya */}
           {filteredSchools.map(({ school, vendors, originalIdx }) => (

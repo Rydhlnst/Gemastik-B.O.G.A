@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Truck, Zap, Package, ArrowRight, ShieldCheck, Map as MapIcon, BarChart3, Clock, HelpCircle, Camera, X, Maximize } from "lucide-react";
+import { type Sekolah } from "@/lib/mbgdummydata";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { AmbientBlobs } from "@/components/ui/AmbientBlobs";
 import { LogistikNavbar } from "@/components/ui/LogistikNavbar";
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/carousel";
 import { deliveryList, vendorSekolahList, vendorList, sekolahList } from "@/lib/mbgdummydata";
 
-const MapLogistikThemed = dynamic(() => import("@/components/ui/MapLogistikThemed"), {
+const MapLibreLogistik = dynamic(() => import("@/components/ui/MapLibreLogistik"), {
   ssr: false,
   loading: () => <div className="w-full h-[400px] bg-white animate-pulse rounded-3xl" />
 });
@@ -76,8 +77,15 @@ export default function UnifiedLogistikDashboard() {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [isMobile, setIsMobile] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Section Refs for Desktop Scrolling
   const sectionRefs = {
@@ -249,8 +257,17 @@ export default function UnifiedLogistikDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                  {/* Metric 1: Avg Time */}
-                  <div className="p-4 lg:p-5 rounded-3xl bg-white border border-white/80 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.06)] hover:bg-white transition-all group/metric flex items-start justify-between">
+                  {isLoading ? (
+                    <>
+                      <div className="h-32 bg-slate-200 animate-pulse rounded-3xl" />
+                      <div className="h-32 bg-slate-200 animate-pulse rounded-3xl" />
+                      <div className="h-32 bg-slate-200 animate-pulse rounded-3xl" />
+                      <div className="h-32 bg-slate-200 animate-pulse rounded-3xl" />
+                    </>
+                  ) : (
+                    <>
+                      {/* Metric 1: Avg Time */}
+                      <div className="p-4 lg:p-5 rounded-3xl bg-white border border-white/80 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.06)] hover:bg-white transition-all group/metric flex items-start justify-between">
                     <div className="flex gap-3">
                       <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600">
                         <Clock className="w-5 h-5" />
@@ -329,8 +346,10 @@ export default function UnifiedLogistikDashboard() {
                         <ArrowRight className="w-3 h-3 text-emerald-600 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
+            </div>
+          </div>
 
               {/* Right Side: Fleet Preview Carousel */}
               <div className="lg:col-span-5 bg-white/50 backdrop-blur-md rounded-[44px] p-6 lg:p-8 border border-white/80 shadow-[0_60px_120px_-30px_rgba(0,0,0,0.08)] mt-8 lg:mt-0 h-fit self-start overflow-hidden">
@@ -344,40 +363,48 @@ export default function UnifiedLogistikDashboard() {
                   </div>
                   
                   <CarouselContent className="-mt-3 h-[360px] pb-4">
-                    {dynamicFleetPreview.map(f => (
-                      <CarouselItem key={f.id} className="pt-3 basis-1/3">
-                        <div 
-                          onClick={() => handleNavigate("Armada")}
-                          className="relative flex items-center gap-3 p-3 lg:p-4 bg-[#344e41]/90 rounded-[24px] border border-emerald-400/40 shadow-[0_0_15px_rgba(52,211,153,0.3)] hover:shadow-[0_0_25px_rgba(52,211,153,0.5)] transition-all group cursor-pointer h-full"
-                        >
-                          {/* Left Accent Bar - Mapped by School Category */}
-                          <div className={`absolute left-0 top-[25%] bottom-[25%] w-1 rounded-r-full shadow-lg ${
-                            f.color === 'red' ? 'bg-red-500 shadow-red-500/50' : 
-                            f.color === 'blue' ? 'bg-blue-500 shadow-blue-500/50' : 
-                            'bg-slate-400 shadow-slate-400/50'
-                          }`} />
-                          
-                          {/* Area GlassIcons */}
-                          <div className="flex-shrink-0 text-[10px] pointer-events-none pl-5">
-                            <GlassIcons 
-                              items={[{ 
-                                icon: <Truck className="w-8 h-8 text-white" />, 
-                                color: f.color,
-                                label: '' 
-                              }]} 
-                            />
-                          </div>
+                    {isLoading ? (
+                      [1, 2, 3].map(i => (
+                        <CarouselItem key={i} className="pt-3 basis-1/3">
+                          <div className="h-full bg-slate-200/50 animate-pulse rounded-[24px] border border-slate-100" />
+                        </CarouselItem>
+                      ))
+                    ) : (
+                      dynamicFleetPreview.map(f => (
+                        <CarouselItem key={f.id} className="pt-3 basis-1/3">
+                          <div 
+                            onClick={() => handleNavigate("Armada")}
+                            className="relative flex items-center gap-3 p-3 lg:p-4 bg-[#52b788]/90 rounded-[24px] border border-[#52b788]/40 shadow-[0_0_15px_rgba(82,183,136,0.3)] hover:shadow-[0_0_25px_rgba(82,183,136,0.5)] transition-all group cursor-pointer h-full"
+                          >
+                            {/* Left Accent Bar - Mapped by School Category */}
+                            <div className={`absolute left-0 top-[25%] bottom-[25%] w-1 rounded-r-full shadow-lg ${
+                              f.color === 'red' ? 'bg-red-500 shadow-red-500/50' : 
+                              f.color === 'blue' ? 'bg-blue-500 shadow-blue-500/50' : 
+                              'bg-slate-400 shadow-slate-400/50'
+                            }`} />
+                            
+                            {/* Area GlassIcons */}
+                            <div className="flex-shrink-0 text-[10px] pointer-events-none pl-5">
+                              <GlassIcons 
+                                items={[{ 
+                                  icon: <Truck className="w-8 h-8 text-white" />, 
+                                  color: f.color,
+                                  label: '' 
+                                }]} 
+                              />
+                            </div>
 
-                          {/* Teks ID dan Route */}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-base font-black text-white leading-none mb-1 truncate">{f.id}</p>
-                            <p className="text-[9px] text-white/70 font-bold uppercase tracking-tight truncate">{f.route}</p>
-                          </div>
+                            {/* Teks ID dan Route */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-base font-black text-white leading-none mb-1 truncate">{f.id}</p>
+                              <p className="text-[9px] text-white/70 font-bold uppercase tracking-tight truncate">{f.route}</p>
+                            </div>
 
-                          <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0 ml-auto" />
-                        </div>
-                      </CarouselItem>
-                    ))}
+                            <ArrowRight className="w-4 h-4 text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0 ml-auto" />
+                          </div>
+                        </CarouselItem>
+                      ))
+                    )}
                   </CarouselContent>
                 </Carousel>
               </div>
@@ -399,7 +426,9 @@ export default function UnifiedLogistikDashboard() {
                 <p className="text-xs lg:text-sm text-black/40 font-bold">Klik vendor untuk mengaktifkan animasi "Live Tracking"</p>
               </div>
             </div>
-            <MapLogistikThemed />
+            <div className="w-full h-auto rounded-3xl overflow-hidden border border-slate-100 shadow-sm">
+              <MapLibreLogistik />
+            </div>
           </section>
 
           {/* Module: Rute (Riwayat) */}
@@ -407,7 +436,7 @@ export default function UnifiedLogistikDashboard() {
             ref={sectionRefs.Rute}
             style={{ display: isMobile && activeTab !== "Rute" ? "none" : "block" }}
           >
-            <HistorySection />
+            <HistorySection isLoading={isLoading} />
           </section>
 
           {/* Module: Laporan (Analytics) */}
@@ -415,7 +444,7 @@ export default function UnifiedLogistikDashboard() {
             ref={sectionRefs.Laporan}
             style={{ display: isMobile && activeTab !== "Laporan" ? "none" : "block" }}
           >
-            <AnalyticsModule />
+            <AnalyticsModule isLoading={isLoading} />
           </section>
 
           {/* Module: Bantuan (Support) */}

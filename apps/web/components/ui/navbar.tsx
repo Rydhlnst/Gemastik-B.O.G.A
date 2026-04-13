@@ -7,10 +7,10 @@ import { useState, useEffect } from "react";
 import { MobileNavCards } from "./MobileCardNav";
 
 const DEFAULT_NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/sekolah/mitra", label: "Mitra" },
-  { href: "/sekolah/about", label: "About Us" },
-  { href: "/sekolah/contact", label: "Contact" },
+  { href: "#home", label: "Home" },
+  { href: "#about", label: "About Us" },
+  { href: "#vendor", label: "Vendor" },
+  { href: "#contact", label: "Contact" },
 ];
 
 const LOGISTIK_NAV_LINKS = [
@@ -25,7 +25,7 @@ const POSITION: NavPosition = "left";
 
 export default function Navbar() {
   const location = usePathname();
-  
+
   const isLogistik = location.startsWith("/logistik");
   const NAV_LINKS = isLogistik ? LOGISTIK_NAV_LINKS : DEFAULT_NAV_LINKS;
 
@@ -40,8 +40,39 @@ export default function Navbar() {
   const [isAuth, setIsAuth] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [activeSection, setActiveSection] = useState("");
 
   const isExpanded = scrolled || expandedByClick;
+  const isHomePage = location === "/";
+
+  // ScrollSpy Logic
+  useEffect(() => {
+    if (!isHomePage) return;
+
+    const observerOptions = {
+      root: null,
+      rootMargin: "-45% 0px -45% 0px",
+      threshold: 0,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const sections = ["home", "about", "vendor", "contact"];
+    
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [isHomePage, location]);
 
   useEffect(() => {
     const authStatus = localStorage.getItem("boga_is_auth");
@@ -94,21 +125,21 @@ export default function Navbar() {
   const wrapperStyle: React.CSSProperties =
     POSITION === "center"
       ? {
-          position: "fixed",
-          top: 20,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 50,
-          pointerEvents: "none",
-        }
+        position: "fixed",
+        top: 20,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 50,
+        pointerEvents: "none",
+      }
       : {
-          position: "fixed",
-          top: 20,
-          left: 20,
-          right: 20,
-          zIndex: 50,
-          pointerEvents: "none",
-        };
+        position: "fixed",
+        top: 20,
+        left: 20,
+        right: 20,
+        zIndex: 50,
+        pointerEvents: "none",
+      };
 
   // Jangan render Navbar di halaman dashboard yang punya sidebar sendiri
   if (hasSidebar) return null;
@@ -222,20 +253,21 @@ export default function Navbar() {
                 }}
               >
                 {NAV_LINKS.map(({ href, label }) => {
-                  const isExactOnly = href === "/" || href === "/logistik";
-                  const active =
-                    location === href ||
-                    (!isExactOnly && location.startsWith(href));
+                  const sectionId = href.startsWith("#") ? href.substring(1) : "";
+                  const active = activeSection === sectionId || (location === href && !sectionId);
+                  
                   return (
                     <Link
                       key={href}
-                      href={href}
+                      href={isHomePage ? href : (href.startsWith("#") ? `/${href}` : href)}
                       style={{
                         fontSize: 13,
-                        fontWeight: active ? 600 : 500,
+                        fontWeight: active ? 700 : 500,
                         color: active ? "#4f46e5" : "#4b5563",
                         textDecoration: "none",
-                        transition: "color 0.2s",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        opacity: active ? 1 : 0.7,
+                        transform: active ? "scale(1.05)" : "scale(1)",
                       }}
                     >
                       {label}
@@ -294,15 +326,15 @@ export default function Navbar() {
               {isAuth ? (
                 <>
                   {/* Avatar User */}
-                  <div 
+                  <div
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                     className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-sm border-2 border-white cursor-pointer hover:shadow-md hover:scale-105 transition-all relative overflow-hidden"
                   >
-                    <Image 
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userRole || "Felix"}`} 
-                      alt="User Avatar" 
-                      width={32} 
-                      height={32} 
+                    <Image
+                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userRole || "Felix"}`}
+                      alt="User Avatar"
+                      width={32}
+                      height={32}
                       className="rounded-full"
                     />
                   </div>
@@ -317,7 +349,7 @@ export default function Navbar() {
                       <Link href={`/${userRole}/dashboard`} className="block px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 transition-colors">
                         Dasbor Saya
                       </Link>
-                      <button 
+                      <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50/50 transition-colors"
                       >
@@ -350,7 +382,7 @@ export default function Navbar() {
             </div>
           </nav>
 
-        {/* ── MOBILE: CardNav GSAP ── */}
+          {/* ── MOBILE: CardNav GSAP ── */}
           {isMobile && isExpanded && (
             <div style={{ borderTop: mobileMenuOpen ? "0.5px solid rgba(0,0,0,0.06)" : "none" }}>
               <MobileNavCards
@@ -358,9 +390,10 @@ export default function Navbar() {
                 onLinkClick={() => setMobileMenuOpen(false)}
                 cards={NAV_LINKS.map((l, i) => {
                   const bogaStops = ["#6366f1", "#4480e7", "#259bdd", "#06b6d4"];
+                  const targetHref = isHomePage ? l.href : (l.href.startsWith("#") ? `/${l.href}` : l.href);
                   return {
                     label: l.label,
-                    href: l.href,
+                    href: targetHref,
                     bgColor: bogaStops[i] ?? bogaStops[bogaStops.length - 1],
                     textColor: "#ffffff",
                   };

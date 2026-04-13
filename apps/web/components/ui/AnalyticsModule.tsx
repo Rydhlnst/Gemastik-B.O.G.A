@@ -30,7 +30,7 @@ const ZONE_DATA = [
   { name: "Jak-Pas", value: 68, color: "#ffb020" },
 ];
 
-export function AnalyticsModule() {
+export function AnalyticsModule({ isLoading = false }: { isLoading?: boolean }) {
   const [timeframe, setTimeframe] = useState<"weekly" | "monthly">("weekly");
   const data = timeframe === "weekly" ? WEEKLY_DATA : MONTHLY_DATA;
 
@@ -77,47 +77,51 @@ export function AnalyticsModule() {
             <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Tren Pengiriman</h3>
           </div>
           <div className="h-[280px] min-h-[200px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id="colorDeliv" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
-                <XAxis 
-                  dataKey="day" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{fill: 'rgba(15, 23, 42, 0.4)', fontSize: 10, fontWeight: 700}} 
-                />
-                <YAxis 
-                   axisLine={false} 
-                   tickLine={false} 
-                   tick={{fill: 'rgba(15, 23, 42, 0.4)', fontSize: 10}}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)', 
-                    borderRadius: '16px', 
-                    border: '1px solid rgba(255,255,255,0.5)', 
-                    backdropFilter: 'blur(16px)',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.1)' 
-                  }}
-                  itemStyle={{ fontSize: '11px', fontWeight: 'bold', color: '#0f172a' }}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="deliveries" 
-                  stroke="#10b981" 
-                  strokeWidth={3} 
-                  fillOpacity={1} 
-                  fill="url(#colorDeliv)" 
-                  animationDuration={1500}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {isLoading ? (
+              <div className="w-full h-full bg-slate-200/40 animate-pulse rounded-2xl" />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data}>
+                  <defs>
+                    <linearGradient id="colorDeliv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.05)" />
+                  <XAxis 
+                    dataKey="day" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{fill: 'rgba(15, 23, 42, 0.4)', fontSize: 10, fontWeight: 700}} 
+                  />
+                  <YAxis 
+                     axisLine={false} 
+                     tickLine={false} 
+                     tick={{fill: 'rgba(15, 23, 42, 0.4)', fontSize: 10}}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'rgba(255, 255, 255, 0.7)', 
+                      borderRadius: '16px', 
+                      border: '1px solid rgba(255,255,255,0.5)', 
+                      backdropFilter: 'blur(16px)',
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.1)' 
+                    }}
+                    itemStyle={{ fontSize: '11px', fontWeight: 'bold', color: '#0f172a' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="deliveries" 
+                    stroke="#10b981" 
+                    strokeWidth={3} 
+                    fillOpacity={1} 
+                    fill="url(#colorDeliv)" 
+                    animationDuration={1500}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -132,20 +136,26 @@ export function AnalyticsModule() {
             </div>
             
             <div className="space-y-6 flex-1">
-              {ZONE_DATA.map((z) => (
-                <div key={z.name} className="group/stat">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{z.name}</span>
-                    <span className="text-[10px] font-black text-slate-900">{z.value}%</span>
+              {isLoading ? (
+                [1, 2, 3, 4].map(i => (
+                  <div key={i} className="h-4 bg-slate-200/50 animate-pulse rounded-full" />
+                ))
+              ) : (
+                ZONE_DATA.map((z) => (
+                  <div key={z.name} className="group/stat">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{z.name}</span>
+                      <span className="text-[10px] font-black text-slate-900">{z.value}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000 ease-out" 
+                        style={{ width: `${z.value}%`, backgroundColor: z.color, opacity: 0.9 }} 
+                      />
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full rounded-full transition-all duration-1000 ease-out" 
-                      style={{ width: `${z.value}%`, backgroundColor: z.color, opacity: 0.9 }} 
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             <div className="mt-10 pt-8 border-t border-slate-100 -mx-8 -mb-8 p-8 rounded-b-3xl bg-white/40 backdrop-blur-md">

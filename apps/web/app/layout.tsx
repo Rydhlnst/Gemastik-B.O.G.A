@@ -1,4 +1,6 @@
 import "./globals.css";
+import "@fontsource/space-grotesk/500.css";
+import "@fontsource/space-grotesk/700.css";
 import Navbar from "@/components/ui/navbar";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";

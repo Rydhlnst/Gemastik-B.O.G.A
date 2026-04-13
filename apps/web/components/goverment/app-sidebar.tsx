@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import {
   ChevronsUpDown,
   ChevronRight,
@@ -16,6 +17,7 @@ import {
   LogOut,
   Settings,
   Bell,
+  PanelLeft,
 } from "lucide-react"
 
 import {
@@ -32,6 +34,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  useSidebar,
+  SidebarRail,
 } from "@/components/ui/sidebar"
 
 import {
@@ -142,22 +146,31 @@ function NavItem({ item }: { item: (typeof NAV_MAIN)[number] }) {
   if (item.sub) {
     return (
       <Collapsible defaultOpen={isActive} className="group/collapsible">
-        <SidebarMenuItem>
+        <SidebarMenuItem className="group/menu-item">
           <CollapsibleTrigger asChild>
             <SidebarMenuButton
               isActive={isActive}
               tooltip={item.label}
+              className={cn(
+                "transition-all overflow-hidden",
+                "group-hover/menu-item:bg-gradient-to-r group-hover/menu-item:from-indigo-500 group-hover/menu-item:to-cyan-400 group-hover/menu-item:text-white",
+                "data-[active=true]:bg-gradient-to-r data-[active=true]:from-indigo-500 data-[active=true]:to-cyan-400 data-[active=true]:text-white"
+              )}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
-              <span>{item.label}</span>
-              <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+              <item.icon className="h-4 w-4 shrink-0 transition-colors group-hover/menu-item:text-white data-[active=true]:text-white" />
+              <span className="group-hover/menu-item:text-white data-[active=true]:text-white mb-0">{item.label}</span>
+              <ChevronRight className="ml-auto h-4 w-4 transition-all duration-200 group-data-[state=open]/collapsible:rotate-90 group-hover/menu-item:text-white data-[active=true]:text-white" />
             </SidebarMenuButton>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <SidebarMenuSub>
               {item.sub.map((s) => (
                 <SidebarMenuSubItem key={s.href}>
-                  <SidebarMenuSubButton asChild isActive={pathname === s.href}>
+                  <SidebarMenuSubButton 
+                    asChild 
+                    isActive={pathname === s.href}
+                    className="hover:bg-gradient-to-r hover:from-indigo-500 hover:to-cyan-400 hover:text-white transition-all data-[active=true]:bg-indigo-50 data-[active=true]:text-indigo-600"
+                  >
                     <Link href={s.href}>{s.label}</Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -170,11 +183,20 @@ function NavItem({ item }: { item: (typeof NAV_MAIN)[number] }) {
   }
 
   return (
-    <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+    <SidebarMenuItem className="group/menu-item">
+      <SidebarMenuButton
+        asChild
+        isActive={isActive}
+        tooltip={item.label}
+        className={cn(
+          "transition-all overflow-hidden",
+          "group-hover/menu-item:bg-gradient-to-r group-hover/menu-item:from-indigo-500 group-hover/menu-item:to-cyan-400 group-hover/menu-item:text-white",
+          "data-[active=true]:bg-gradient-to-r data-[active=true]:from-indigo-500 data-[active=true]:to-cyan-400 data-[active=true]:text-white"
+        )}
+      >
         <Link href={item.href}>
-          <item.icon className="h-4 w-4 shrink-0" />
-          <span>{item.label}</span>
+          <item.icon className="h-4 w-4 shrink-0 transition-colors group-hover/menu-item:text-white data-[active=true]:text-white" />
+          <span className="group-hover/menu-item:text-white data-[active=true]:text-white mb-0">{item.label}</span>
         </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
@@ -183,6 +205,8 @@ function NavItem({ item }: { item: (typeof NAV_MAIN)[number] }) {
 
 // ── Main Sidebar Component ─────────────────────────────────────────────────
 export function AppSidebar() {
+  const { toggleSidebar } = useSidebar()
+  const pathname = usePathname()
   const router = useRouter()
 
   const handleLogout = () => {
@@ -196,43 +220,26 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
 
-      {/* ── HEADER — Brand + workspace dropdown ── */}
+      {/* ── HEADER — Brand + Collapse Toggle ── */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-8"
-                >
-                  <BogaLogo size={16} />
-                  <div className="flex flex-col gap-0.5 leading-none min-w-0">
-                    <span className="font-extrabold text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
-                      B.O.G.A
-                    </span>
-                    <span className="text-[11px] text-muted-foreground truncate">
-                      Portal Pemerintah
-                    </span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto h-4 w-4 text-muted-foreground shrink-0" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-popper-anchor-width]"
-                align="start"
-              >
-                <DropdownMenuLabel className="text-xs text-muted-foreground">
-                  Instansi
-                </DropdownMenuLabel>
-                <DropdownMenuItem className="gap-2">
-                  <BogaLogo size={20} />
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-sm">B.O.G.A</span>
-                    <span className="text-xs text-muted-foreground">Portal Pemerintah</span>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton
+              onClick={toggleSidebar}
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-8"
+              tooltip="Toggle Sidebar"
+            >
+              <BogaLogo size={16} />
+              <div className="flex flex-col gap-0.5 leading-none min-w-0">
+                <span className="font-extrabold text-sm bg-gradient-to-r from-indigo-500 to-cyan-500 bg-clip-text text-transparent">
+                  B.O.G.A
+                </span>
+                <span className="text-[11px] text-muted-foreground truncate">
+                  Portal Pemerintah
+                </span>
+              </div>
+              <PanelLeft className="ml-auto h-4 w-4 text-muted-foreground shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -257,11 +264,19 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV_SECONDARY.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild tooltip={item.label}>
+                <SidebarMenuItem key={item.href} className="group/menu-item">
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.label}
+                    className={cn(
+                      "transition-all overflow-hidden",
+                      "group-hover/menu-item:bg-gradient-to-r group-hover/menu-item:from-indigo-500 group-hover/menu-item:to-cyan-400 group-hover/menu-item:text-white",
+                      pathname === item.href && "bg-gradient-to-r from-indigo-500 to-cyan-400 text-white"
+                    )}
+                  >
                     <Link href={item.href}>
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      <span>{item.label}</span>
+                      <item.icon className="h-4 w-4 shrink-0 transition-colors group-hover/menu-item:text-white" />
+                      <span className="group-hover/menu-item:text-white mb-0">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -323,6 +338,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
 
+      <SidebarRail />
     </Sidebar>
   )
 }

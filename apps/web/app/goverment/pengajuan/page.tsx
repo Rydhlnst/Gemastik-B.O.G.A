@@ -512,14 +512,14 @@ export default function PengajuanPage() {
 
             {/* Block Log Table */}
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+              <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-red-50/60">
                 <div>
                   <p className="text-sm font-black text-gray-900">Log Pemblokiran</p>
-                  <p className="text-[9px] text-gray-400 font-medium">Penawaran yang melebihi batas HET</p>
+                  <p className="text-[9px] text-red-400 font-medium">Penawaran yang melebihi batas HET</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Filter className="w-3.5 h-3.5 text-gray-400" />
-                  <div className="flex gap-1 bg-gray-50 border border-gray-100 p-1 rounded-xl">
+                  <Filter className="w-3.5 h-3.5 text-red-300" />
+                  <div className="flex gap-1 bg-white/70 border border-red-100 p-1 rounded-xl">
                     {["SEMUA", ...Object.keys(HET_PRICES)].slice(0, 4).map(k => (
                       <button
                         key={k}
@@ -536,9 +536,7 @@ export default function PengajuanPage() {
                 {filteredLogs.map((log, i) => (
                   <div
                     key={log.id}
-                    className={`px-6 py-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors ${
-                      log.markup === highestMarkup ? "bg-red-50/50 border-l-2 border-red-400" : ""
-                    }`}
+                    className="px-6 py-4 flex items-center gap-4 hover:bg-red-50/40 transition-colors"
                   >
                     <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
                       <ShieldX className="w-4 h-4 text-red-500" />

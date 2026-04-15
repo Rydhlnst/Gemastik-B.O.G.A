@@ -16,9 +16,16 @@ import { GlassCard } from "./GlassCard";
 interface DriverControlPanelProps {
   onToggleTrip: (isActive: boolean) => void;
   isTripActive: boolean;
+  destination?: string;
+  estimatedTime?: string;
 }
 
-export function DriverControlPanel({ onToggleTrip, isTripActive }: DriverControlPanelProps) {
+export function DriverControlPanel({ 
+  onToggleTrip, 
+  isTripActive, 
+  destination = "SDN Cempaka → Dapur A",
+  estimatedTime = "07:15 WIB"
+}: DriverControlPanelProps) {
   const [isGpsEnabled, setIsGpsEnabled] = useState(false);
 
   return (
@@ -54,8 +61,8 @@ export function DriverControlPanel({ onToggleTrip, isTripActive }: DriverControl
                 <MapPin className="w-4 h-4 text-emerald-400" />
                 <p className="text-[10px] font-bold text-white uppercase tracking-widest">Rute Aktif</p>
              </div>
-             <p className="text-xs font-black text-emerald-100">SDN Cempaka → Dapur A</p>
-             <p className="text-[10px] text-white/40 mt-1 italic">Estimasi Tiba: 07:15 WIB</p>
+             <p className="text-xs font-black text-emerald-100">{destination}</p>
+             <p className="text-[10px] text-white/40 mt-1 italic">Estimasi Tiba: {estimatedTime}</p>
           </div>
 
           <Button 
@@ -84,17 +91,17 @@ export function DriverControlPanel({ onToggleTrip, isTripActive }: DriverControl
       </div>
 
       {/* Info Status Cards */}
-      <GlassCard className="py-4 border-none bg-white/5 backdrop-blur-md">
+      <div className="p-4 rounded-3xl bg-white/90 backdrop-blur-md border border-white shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+          <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600">
             <CheckCircle2 className="w-4 h-4" />
           </div>
           <div>
-            <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Status Manifest</p>
-            <p className="text-[11px] font-black text-white">Sudah Terverifikasi</p>
+            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none mb-1">Status Manifest</p>
+            <p className="text-[11px] font-black text-slate-900">Sudah Terverifikasi</p>
           </div>
         </div>
-      </GlassCard>
+      </div>
     </div>
   );
 }

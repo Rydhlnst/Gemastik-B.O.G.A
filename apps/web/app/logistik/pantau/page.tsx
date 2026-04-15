@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { AnimatedScene } from "@/components/ui/animatedbg";
 import dynamic from "next/dynamic";
+import { type Sekolah } from "@/lib/mbgdummydata";
 
-const SchoolMap = dynamic(() => import("@/components/ui/SchoolMap"), { ssr: false });
+const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: false });
 
 export default function PantauRutePage() {
+  const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
   return (
     <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">
       
@@ -30,8 +33,11 @@ export default function PantauRutePage() {
       </div>
 
       <div className="container max-w-7xl mx-auto pt-10 px-6">
-        <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-          <SchoolMap />
+        <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-[600px]">
+          <MapLibreMap 
+            selectedSchool={selectedSchool}
+            onSchoolSelect={setSelectedSchool}
+          />
         </div>
       </div>
 

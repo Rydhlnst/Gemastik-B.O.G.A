@@ -59,63 +59,72 @@ export interface Delivery {
   bukti_url: string | null;
 }
 
+export interface Material {
+  id: number;
+  name: string;
+  type: string;
+  price: number;
+  rating: number;
+  reviews: number;
+}
+
 export const sekolahList: Sekolah[] = [
-  { id: 1, nama: "SMPN 5 Jakarta Pusat",  jenjang: "SMP", kelurahan: "Kebon Sirih",  kecamatan: "Menteng",   kota: "Jakarta Pusat",   lat: -6.1854, lng: 106.8321, total_siswa: 680, mulai_mbg: "2025-02-01" },
-  { id: 2, nama: "SDN Gondangdia 01",      jenjang: "SD",  kelurahan: "Gondangdia",   kecamatan: "Menteng",   kota: "Jakarta Pusat",   lat: -6.1887, lng: 106.8365, total_siswa: 320, mulai_mbg: "2025-01-15" },
-  { id: 3, nama: "SDN Menteng 01",         jenjang: "SD",  kelurahan: "Menteng",      kecamatan: "Menteng",   kota: "Jakarta Pusat",   lat: -6.1943, lng: 106.8341, total_siswa: 410, mulai_mbg: "2025-02-10" },
-  { id: 4, nama: "SDN Cikini 01",          jenjang: "SD",  kelurahan: "Cikini",       kecamatan: "Menteng",   kota: "Jakarta Pusat",   lat: -6.1971, lng: 106.8440, total_siswa: 290, mulai_mbg: "2025-03-01" },
-  { id: 5, nama: "SDN Pegangsaan 02",      jenjang: "SD",  kelurahan: "Pegangsaan",   kecamatan: "Menteng",   kota: "Jakarta Pusat",   lat: -6.2012, lng: 106.8378, total_siswa: 360, mulai_mbg: "2025-01-20" },
-  { id: 6, nama: "SMAN 68 Jakarta",        jenjang: "SMA", kelurahan: "Menteng Atas", kecamatan: "Setiabudi", kota: "Jakarta Selatan", lat: -6.2089, lng: 106.8298, total_siswa: 820, mulai_mbg: "2025-02-05" },
+  { id: 1, nama: "SMAN 3 Bandung",        jenjang: "SMA", kelurahan: "Merdeka",      kecamatan: "Sumur Bandung", kota: "Bandung", lat: -6.9135, lng: 107.6186, total_siswa: 920, mulai_mbg: "2025-02-01" },
+  { id: 2, nama: "SMPN 2 Bandung",        jenjang: "SMP", kelurahan: "Citarum",      kecamatan: "Bandung Wetan", kota: "Bandung", lat: -6.9104, lng: 107.6141, total_siswa: 750, mulai_mbg: "2025-01-15" },
+  { id: 3, nama: "SDN 061 Cirengel",      jenjang: "SD",  kelurahan: "Cipaganti",    kecamatan: "Coblong",       kota: "Bandung", lat: -6.9015, lng: 107.6112, total_siswa: 410, mulai_mbg: "2025-02-10" },
+  { id: 4, nama: "SMPN 5 Bandung",        jenjang: "SMP", kelurahan: "Merdeka",      kecamatan: "Sumur Bandung", kota: "Bandung", lat: -6.9112, lng: 107.6125, total_siswa: 810, mulai_mbg: "2025-03-01" },
+  { id: 5, nama: "SDN 164 Karang Pawulang",jenjang: "SD",  kelurahan: "Turangga",     kecamatan: "Lengkong",      kota: "Bandung", lat: -6.9247, lng: 107.6321, total_siswa: 460, mulai_mbg: "2025-01-20" },
+  { id: 6, nama: "SMAN 20 Bandung",       jenjang: "SMA", kelurahan: "Citarum",      kecamatan: "Bandung Wetan", kota: "Bandung", lat: -6.9078, lng: 107.6212, total_siswa: 880, mulai_mbg: "2025-02-05" },
 ];
 
 export const vendorList: Vendor[] = [
   {
-    id: 1, nama: "CV Nusantara Pangan Sejahtera", kategori: "katering", status: "aktif",
-    rating: 4.8, kontak_pic: "Budi Santoso", no_telp: "0812-3456-7890",
-    email: "ops@nusantarapangan.co.id", alamat: "Jl. Kramat Raya No. 45, Jakarta Pusat",
-    lat: -6.1780, lng: 106.8450,
+    id: 1, nama: "CV Katering Bandung Juara", kategori: "katering", status: "aktif",
+    rating: 4.9, kontak_pic: "Dadang Hermawan", no_telp: "0812-2233-4455",
+    email: "ops@bdgjuara.id", alamat: "Jl. Dago No. 102, Bandung",
+    lat: -6.8850, lng: 107.6130,
     sertifikasi: ["Halal MUI", "BPOM", "ISO 22000"],
-    bergabung_sejak: "2024-11-01", total_pengiriman: 312, on_time_rate: 97.4,
+    bergabung_sejak: "2024-11-01", total_pengiriman: 442, on_time_rate: 98.2,
   },
   {
-    id: 2, nama: "PT Gizi Maju Indonesia", kategori: "katering", status: "aktif",
-    rating: 4.5, kontak_pic: "Siti Rahayu", no_telp: "0813-9988-7766",
-    email: "halo@gizimaju.id", alamat: "Jl. Salemba Raya No. 12, Jakarta Pusat",
-    lat: -6.2050, lng: 106.8520,
+    id: 2, nama: "PT Gizi Priangan Utama", kategori: "katering", status: "aktif",
+    rating: 4.6, kontak_pic: "Euis Rosita", no_telp: "0813-1122-3344",
+    email: "admin@gizipriangan.com", alamat: "Jl. Soekarno Hatta No. 456, Bandung",
+    lat: -6.9450, lng: 107.6320,
     sertifikasi: ["Halal MUI", "BPOM"],
-    bergabung_sejak: "2024-12-15", total_pengiriman: 198, on_time_rate: 94.9,
+    bergabung_sejak: "2024-12-15", total_pengiriman: 215, on_time_rate: 96.1,
   },
   {
-    id: 3, nama: "UD Berkah Logistik", kategori: "logistik", status: "aktif",
-    rating: 4.6, kontak_pic: "Agus Wijaya", no_telp: "0821-5566-4433",
-    email: "fleet@berkahlogistik.com", alamat: "Jl. Cikini No. 88, Jakarta Pusat",
-    lat: -6.1920, lng: 106.8280,
+    id: 3, nama: "Logistik Parahyangan Express", kategori: "logistik", status: "aktif",
+    rating: 4.7, kontak_pic: "Asep Sunandar", no_telp: "0821-4455-6677",
+    email: "fleet@paraexpress.co.id", alamat: "Jl. Pasteur No. 12, Bandung",
+    lat: -6.8980, lng: 107.5950,
     sertifikasi: ["ISO 9001"],
-    bergabung_sejak: "2025-01-05", total_pengiriman: 156, on_time_rate: 98.1,
+    bergabung_sejak: "2025-01-05", total_pengiriman: 312, on_time_rate: 98.8,
   },
   {
-    id: 4, nama: "PT Agro Segar Nusantara", kategori: "supplier_bahan", status: "aktif",
-    rating: 4.3, kontak_pic: "Dewi Kartika", no_telp: "0819-2233-5577",
-    email: "supply@agrosegar.co.id", alamat: "Jl. Pasar Rumput No. 5, Jakarta Selatan",
-    lat: -6.2200, lng: 106.8390,
-    sertifikasi: ["Halal MUI", "SNI"],
-    bergabung_sejak: "2025-01-20", total_pengiriman: 89, on_time_rate: 91.0,
+    id: 4, nama: "Agro Lembang Segar", kategori: "supplier_bahan", status: "aktif",
+    rating: 4.5, kontak_pic: "Cecep Mulyana", no_telp: "0819-7788-9900",
+    email: "supply@agrolembang.id", alamat: "Jl. Raya Lembang No. 54, Lembang",
+    lat: -6.8150, lng: 107.6180,
+    sertifikasi: ["Halal MUI", "Organic Certified"],
+    bergabung_sejak: "2025-01-20", total_pengiriman: 167, on_time_rate: 93.4,
   },
   {
-    id: 5, nama: "CV Menteng Katering", kategori: "katering", status: "aktif",
-    rating: 4.7, kontak_pic: "Rini Astuti", no_telp: "0856-7788-9900",
-    email: "order@mentengkatering.id", alamat: "Jl. Besuki No. 22, Menteng",
-    lat: -6.1860, lng: 106.8310,
+    id: 5, nama: "Katering Pasundan Berkah", kategori: "katering", status: "aktif",
+    rating: 4.8, kontak_pic: "Yanti Marlina", no_telp: "0856-2233-4455",
+    email: "order@pasundanberkah.id", alamat: "Jl. Buah Batu No. 201, Bandung",
+    lat: -6.9380, lng: 107.6250,
     sertifikasi: ["Halal MUI", "BPOM", "ISO 22000"],
-    bergabung_sejak: "2024-10-10", total_pengiriman: 421, on_time_rate: 96.2,
+    bergabung_sejak: "2024-10-10", total_pengiriman: 512, on_time_rate: 97.4,
   },
   {
-    id: 6, nama: "PT Sejahtera Food Hub", kategori: "katering", status: "suspend",
-    rating: 3.2, kontak_pic: "Hendra Gunawan", no_telp: "0878-1122-3344",
-    email: "info@sejahterafood.com", alamat: "Jl. Matraman No. 67, Jakarta Timur",
-    lat: -6.2150, lng: 106.8620,
+    id: 6, nama: "CV Food Hub Jabar", kategori: "katering", status: "suspend",
+    rating: 3.1, kontak_pic: "Iwan Setiawan", no_telp: "0878-5566-7788",
+    email: "info@fhubjabar.com", alamat: "Jl. Kopo No. 341, Bandung",
+    lat: -6.9550, lng: 107.5850,
     sertifikasi: ["Halal MUI"],
-    bergabung_sejak: "2025-02-01", total_pengiriman: 34, on_time_rate: 70.6,
+    bergabung_sejak: "2025-02-01", total_pengiriman: 45, on_time_rate: 72.3,
   },
 ];
 
@@ -144,8 +153,31 @@ export const deliveryList: Delivery[] = [
   { id: 8,  vendor_sekolah_id: 7,  tanggal: "2025-04-01", status: "delivered",  porsi_dikirim: 290, porsi_diterima: 290, jam_tiba: "07:05", jam_target: "07:00", catatan: null, bukti_url: null },
   { id: 9,  vendor_sekolah_id: 8,  tanggal: "2025-04-01", status: "delivered",  porsi_dikirim: 360, porsi_diterima: 358, jam_tiba: "06:58", jam_target: "07:00", catatan: "2 porsi tumpah", bukti_url: null },
   { id: 10, vendor_sekolah_id: 10, tanggal: "2025-04-01", status: "delivered",  porsi_dikirim: 820, porsi_diterima: 820, jam_tiba: "06:30", jam_target: "07:00", catatan: null, bukti_url: null },
-  { id: 11, vendor_sekolah_id: 10, tanggal: "2025-04-02", status: "delivered",  porsi_dikirim: 820, porsi_diterima: 815, jam_tiba: "06:55", jam_target: "07:00", catatan: "5 porsi sayur tidak lengkap", bukti_url: null },
-  { id: 12, vendor_sekolah_id: 10, tanggal: "2025-04-03", status: "on_transit", porsi_dikirim: 820, porsi_diterima: 0,   jam_tiba: "--",    jam_target: "07:00", catatan: null, bukti_url: null },
+  { id: 11,  vendor_sekolah_id: 10, tanggal: "2025-04-02", status: "delivered",  porsi_dikirim: 820, porsi_diterima: 815, jam_tiba: "06:55", jam_target: "07:00", catatan: "5 porsi sayur tidak lengkap", bukti_url: null },
+  { id: 12,  vendor_sekolah_id: 10, tanggal: "2025-04-03", status: "on_transit", porsi_dikirim: 820, porsi_diterima: 0,   jam_tiba: "--",    jam_target: "07:00", catatan: null, bukti_url: null },
+];
+
+export const tenderMaterials: Material[] = [
+  // Karbohidrat
+  { id: 1, name: 'Beras Premium SLYP (5kg)', type: 'Karbohidrat', price: 78000, rating: 4.9, reviews: 1240 },
+  { id: 2, name: 'Beras Medium IR64 (5kg)', type: 'Karbohidrat', price: 65000, rating: 4.7, reviews: 856 },
+  { id: 3, name: 'Kentang Dieng Grade A', type: 'Karbohidrat', price: 18000, rating: 4.8, reviews: 432 },
+  // Protein Hewani
+  { id: 4, name: 'Daging Sapi Lokal Segar', type: 'Protein Hewani', price: 135000, rating: 4.9, reviews: 521 },
+  { id: 5, name: 'Ayam Broiler Karkas (1kg)', type: 'Protein Hewani', price: 38000, rating: 4.8, reviews: 928 },
+  { id: 6, name: 'Telur Ayam Omega-3 (Box)', type: 'Protein Hewani', price: 32000, rating: 4.9, reviews: 2150 },
+  { id: 7, name: 'Ikan Kembung Banjar Segar', type: 'Protein Hewani', price: 42000, rating: 4.6, reviews: 312 },
+  // Protein Nabati
+  { id: 8, name: 'Tahu Putih Kualitas Super', type: 'Protein Nabati', price: 12000, rating: 4.7, reviews: 654 },
+  { id: 9, name: 'Tempe Kedelai Murni (Papan)', type: 'Protein Nabati', price: 8000, rating: 4.8, reviews: 890 },
+  // Sayuran
+  { id: 10, name: 'Wortel Berastagi Pilihan', type: 'Sayuran', price: 14000, rating: 4.7, reviews: 215 },
+  { id: 11, name: 'Bayam Hidroponik Segar', type: 'Sayuran', price: 12000, rating: 4.9, reviews: 143 },
+  { id: 12, name: 'Kubis Segar (Pack)', type: 'Sayuran', price: 9000, rating: 4.5, reviews: 88 },
+  // Sembako
+  { id: 13, name: 'Minyak Goreng Sawit (2L)', type: 'Sembako', price: 34000, rating: 4.8, reviews: 3421 },
+  { id: 14, name: 'Gula Pasir Kristal Putih', type: 'Sembako', price: 17500, rating: 4.7, reviews: 1205 },
+  { id: 15, name: 'Garam Beryodium (Pack)', type: 'Sembako', price: 5000, rating: 4.6, reviews: 432 },
 ];
 
 export function getVendorsBySekolah(sekolahId: number) {

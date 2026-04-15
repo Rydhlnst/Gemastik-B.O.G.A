@@ -63,7 +63,7 @@ export const GaugeChart = () => (
       strokeLinecap="round" 
     />
     <path 
-      d="M4 16C4 9.37258 9.37258 4 16 4C20 4 24 6" 
+      d="M4 16C4 9.37258 9.37258 4 16 4C20.4183 4 24.4183 5.79086 27.3137 8.68629" 
       stroke="#0EA5E9" 
       strokeWidth="3" 
       strokeLinecap="round" 

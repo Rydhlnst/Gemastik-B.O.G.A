@@ -57,9 +57,9 @@ export function LogistikNavbar({ onNavigate, activeTab = "Dashboard" }: Logistik
           </div>
         </div>
 
-        {/* Desktop Nav pills */}
+        {/* Desktop Nav pills - Absolutely centered */}
         <div
-          className="hidden md:flex gap-1 rounded-full px-1 py-1 border border-white/20 shadow-lg backdrop-blur-md transition-all"
+          className="hidden md:flex absolute left-1/2 -translate-x-1/2 gap-1 rounded-full px-1 py-1 border border-white/20 shadow-lg backdrop-blur-md transition-all whitespace-nowrap"
           style={{ background: "rgba(255,255,255,0.12)" }}
         >
           {NAV_ITEMS.map((item) => (

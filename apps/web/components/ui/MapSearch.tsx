@@ -47,32 +47,32 @@ export function MapSearch({ onSelect }: { onSelect: (school: Sekolah) => void })
       id="map-search-widget"
       className="absolute flex items-center"
       style={{
-        bottom: isMobile ? "0.75rem" : "2rem",
-        left: isMobile ? "0.5rem" : "2rem",
+        top: isMobile ? "0.5rem" : "1rem",
+        left: isMobile ? "0.5rem" : "1rem",
         right: isMobile ? "0.5rem" : "auto",
-        zIndex: 1000,
+        zIndex: 10,
       }}
     >
       {!open && (
         <button
           onClick={() => setOpen(true)}
+          className="hover:scale-105 active:scale-95 transition-all"
           style={{
-            width: 44,
-            height: 44,
+            width: 36,
+            height: 36,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(255,255,255,0.95)",
-            border: "1px solid rgba(99,102,241,0.18)",
-            borderRadius: 12,
-            boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
-            backdropFilter: "blur(16px)",
+            background: "rgba(255,255,255,0.9)",
+            border: "1px solid rgba(99,102,241,0.2)",
+            borderRadius: 10,
+            boxShadow: "0 4px 15px rgba(0,0,0,0.08)",
+            backdropFilter: "blur(12px)",
             cursor: "pointer",
           }}
-          title="Cari sekolah atau lokasi"
-          aria-label="Cari sekolah atau lokasi"
+          title="Cari sekolah"
         >
-          <svg width="18" height="18" fill="none" stroke="#6366f1" strokeWidth="2" viewBox="0 0 24 24">
+          <svg width="15" height="15" fill="none" stroke="#6366f1" strokeWidth="2.5" viewBox="0 0 24 24">
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
@@ -81,22 +81,23 @@ export function MapSearch({ onSelect }: { onSelect: (school: Sekolah) => void })
 
       {open && (
         <div
+          className="transition-all animate-in fade-in zoom-in duration-200"
           style={{
             height: "auto",
-            width: isMobile ? "100%" : 320,
+            width: isMobile ? "calc(100vw - 1rem)" : 260,
             display: "flex",
             flexDirection: "column",
-            gap: 10,
-            padding: 12,
-            background: "rgba(255,255,255,0.97)",
-            border: "1px solid rgba(99,102,241,0.22)",
+            gap: 8,
+            padding: 10,
+            background: "rgba(255,255,255,0.98)",
+            border: "1px solid rgba(99,102,241,0.25)",
             borderRadius: 12,
-            boxShadow: "0 4px 24px rgba(99,102,241,0.12)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
             backdropFilter: "blur(20px)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <svg width="16" height="16" fill="none" stroke="#6366f1" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="14" height="14" fill="none" stroke="#6366f1" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
@@ -106,14 +107,15 @@ export function MapSearch({ onSelect }: { onSelect: (school: Sekolah) => void })
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cari sekolah atau port..."
+              placeholder="Cari sekolah..."
               style={{
                 flex: 1,
                 outline: "none",
                 border: "none",
                 background: "transparent",
-                fontSize: 13,
-                color: "#111",
+                fontSize: 12,
+                fontWeight: 500,
+                color: "#1e293b",
                 fontFamily: "inherit",
               }}
               onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
@@ -126,13 +128,11 @@ export function MapSearch({ onSelect }: { onSelect: (school: Sekolah) => void })
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "#9ca3af",
-                  padding: 0,
-                  lineHeight: 1,
+                  color: "#94a3b8",
+                  padding: 2,
                 }}
-                aria-label="Clear search"
               >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -140,40 +140,82 @@ export function MapSearch({ onSelect }: { onSelect: (school: Sekolah) => void })
             )}
           </div>
 
-          <div style={{ maxHeight: 220, overflow: "auto" }}>
-            {results.map((s) => (
+          {/* Jenjang Filter Chips */}
+          <div style={{ display: "flex", gap: 4, marginBottom: 2 }}>
+            {["SD", "SMP", "SMA"].map((lvl) => (
               <button
-                key={s.id}
-                type="button"
-                onClick={() => handleSelect(s)}
+                key={lvl}
+                onClick={() => setQuery(lvl)}
+                className="transition-all active:scale-95"
                 style={{
-                  width: "100%",
-                  textAlign: "left",
-                  padding: "10px 10px",
-                  borderRadius: 10,
-                  border: "1px solid transparent",
-                  background: "transparent",
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  fontSize: "9px",
+                  fontWeight: 900,
+                  letterSpacing: "0.04em",
+                  background: query.toUpperCase() === lvl ? "linear-gradient(135deg,#6366f1,#06b6d4)" : "rgba(99,102,241,0.06)",
+                  color: query.toUpperCase() === lvl ? "white" : "#6366f1",
+                  border: "1px solid",
+                  borderColor: query.toUpperCase() === lvl ? "transparent" : "rgba(99,102,241,0.15)",
                   cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget.style.background = "rgba(99,102,241,0.06)");
-                  (e.currentTarget.style.borderColor = "rgba(99,102,241,0.14)");
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget.style.background = "transparent");
-                  (e.currentTarget.style.borderColor = "transparent");
                 }}
               >
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>{s.nama}</span>
-                <span style={{ fontSize: 12, color: "#6b7280" }}>
-                  {s.jenjang} · {s.kecamatan}, {s.kota}
-                </span>
+                {lvl}
               </button>
             ))}
+            <button
+               onClick={() => setQuery("")}
+               style={{
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  fontSize: "9px",
+                  fontWeight: 900,
+                  color: !query ? "#475569" : "#94a3b8",
+                  background: !query ? "rgba(71,85,105,0.12)" : "transparent",
+                  border: "1px solid",
+                  borderColor: !query ? "transparent" : "rgba(71,85,105,0.1)",
+                  cursor: "pointer"
+               }}
+            >
+              ALL
+            </button>
           </div>
+
+          {results.length > 0 && (
+            <div style={{ maxHeight: 180, overflow: "auto", borderTop: "1px solid rgba(0,0,0,0.04)", paddingTop: 4 }}>
+              {results.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => handleSelect(s)}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "6px 8px",
+                    borderRadius: 8,
+                    border: "1px solid transparent",
+                    background: "transparent",
+                    cursor: "pointer",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget.style.background = "rgba(99,102,241,0.06)");
+                    (e.currentTarget.style.borderColor = "rgba(99,102,241,0.1)");
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget.style.background = "transparent");
+                    (e.currentTarget.style.borderColor = "transparent");
+                  }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>{s.nama}</span>
+                  <span style={{ fontSize: 10, color: "#64748b" }}>
+                    {s.jenjang} · {s.kecamatan}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

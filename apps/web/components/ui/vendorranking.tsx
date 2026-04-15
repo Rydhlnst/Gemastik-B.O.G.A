@@ -41,25 +41,28 @@ export default function VendorRanking() {
   }, []);
 
   return (
-    <div className="bg-[#0a0a0a] border border-[#1e1e1e] rounded-2xl p-5 w-full font-sans">
+    <div className="bg-gradient-to-br from-indigo-600 to-cyan-500 relative overflow-hidden shadow-[0_20px_50px_-12px_rgba(99,102,241,0.5)] border border-white/20 rounded-3xl p-6 w-full font-sans">
+      
+      {/* Decorative Bevel overlay */}
+      <div className="absolute inset-1.5 bg-white/5 rounded-[1.4rem] shadow-[inset_0_4px_10px_rgba(255,255,255,0.1)] ring-1 ring-white/10 pointer-events-none"></div>
 
       {/* Header */}
-      <div className="flex justify-between items-end mb-4 px-1">
+      <div className="relative z-10 flex justify-between items-end mb-5 px-1">
         <div>
-          <p className="text-[10px] font-medium tracking-widest uppercase text-white/28">
+          <p className="text-[11px] font-black tracking-widest uppercase text-white/90 shadow-sm">
             Ranking Vendor MBG
           </p>
-          <p className="text-[10px] text-white/15 tracking-wide mt-0.5">
-            Berdasarkan total pengiriman
+          <p className="text-[10px] font-medium text-white/70 tracking-wide mt-1">
+            Berdasarkan total pengiriman sukses
           </p>
         </div>
-        <p className="text-[10px] text-white/18">
+        <p className="text-[10px] font-bold text-white/80">
           {new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
         </p>
       </div>
 
       {/* Column labels */}
-      <div className="grid gap-2 px-2 pb-2 border-b border-[#1e1e1e] mb-1.5 text-[9px] font-medium tracking-widest uppercase text-white/18"
+      <div className="relative z-10 grid gap-2 px-2 pb-2 border-b border-white/20 mb-2 text-[10px] font-bold tracking-widest uppercase text-white/80"
         style={{ gridTemplateColumns: "24px 36px 1fr 90px 60px 60px" }}>
         <span>#</span>
         <span></span>
@@ -70,7 +73,7 @@ export default function VendorRanking() {
       </div>
 
       {/* Rows */}
-      <div ref={containerRef}>
+      <div ref={containerRef} className="relative z-10">
         {sorted.map((v, i) => {
           const pct = Math.round((v.total_pengiriman / max) * 100);
           const isFirst = i === 0;
@@ -80,58 +83,58 @@ export default function VendorRanking() {
           return (
             <div
               key={v.id}
-              className={`grid gap-2 items-center px-2 py-2.5 rounded-xl mb-1 border transition-all
-                ${isFirst ? "bg-white/6 border-[#3a3a3a]" : "bg-white/[0.025] border-transparent hover:bg-white/5 hover:border-[#2a2a2a]"}
-                ${isSuspend ? "opacity-45" : ""}`}
+              className={`grid gap-2 items-center px-2 py-3 rounded-xl mb-1 border transition-all duration-300
+                ${isFirst ? "bg-white/20 border-white/40 shadow-lg shadow-black/5" : "bg-white/5 border-transparent hover:bg-white/20 hover:border-white/30 backdrop-blur-sm"}
+                ${isSuspend ? "opacity-50" : ""}`}
               style={{ gridTemplateColumns: "24px 36px 1fr 90px 60px 60px" }}
             >
               {/* Rank */}
-              <div className={`text-center text-xs font-medium ${i < 3 ? "text-white/85" : "text-white/28"}`}>
+              <div className={`text-center text-xs font-black drop-shadow-md ${i < 3 ? "text-white" : "text-white/60"}`}>
                 {rankSymbol}
               </div>
 
               {/* Avatar */}
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-medium border flex-shrink-0
-                ${isFirst ? "bg-white text-black border-white" : "bg-[#161616] text-white/50 border-[#2e2e2e]"}`}>
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-black border flex-shrink-0 shadow-sm
+                ${isFirst ? "bg-white text-indigo-600 border-white" : "bg-white/10 text-white border-white/20"}`}>
                 {getInitials(v.nama)}
               </div>
 
               {/* Info */}
               <div className="overflow-hidden">
-                <p className={`text-xs font-medium truncate ${isFirst ? "text-white" : "text-white/78"}`}>
+                <p className={`text-xs font-bold truncate drop-shadow-sm ${isFirst ? "text-white" : "text-white/90"}`}>
                   {v.nama}
                 </p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] text-white/25">{KATEGORI_LABEL[v.kategori]}</span>
+                  <span className="text-[10px] font-medium text-white/70">{KATEGORI_LABEL[v.kategori]}</span>
                   {isSuspend && (
-                    <span className="text-[8px] px-1.5 py-0.5 rounded bg-[#1e1010] text-red-400 border border-[#3a1a1a]">
-                      SUSPEND
-                    </span>
+                     <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-white/20 text-rose-100 border border-white/30 shadow-sm">
+                       SUSPEND
+                     </span>
                   )}
                 </div>
               </div>
 
               {/* Bar + count */}
-              <div className="flex flex-col gap-1">
-                <div className="h-1.5 bg-white/6 rounded-full overflow-hidden">
+              <div className="flex flex-col gap-1.5 px-1">
+                <div className="h-1.5 bg-black/10 rounded-full overflow-hidden shadow-inner">
                   <div
-                    className={`h-full rounded-full transition-[width] duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-0 ${barOpacity(i)}`}
+                    className={`h-full rounded-full transition-[width] duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-0 bg-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]`}
                     data-pct={pct}
                   />
                 </div>
-                <span className="text-[9px] text-white/25 tabular-nums">
-                  {v.total_pengiriman} pengiriman
+                <span className="text-[10px] font-medium text-white/80 tabular-nums">
+                  {v.total_pengiriman} kargo
                 </span>
               </div>
 
               {/* On-time */}
-              <div className={`text-[11px] font-medium text-center tabular-nums ${onTimeColor(v.on_time_rate)}`}>
+              <div className={`text-[12px] font-black text-center tabular-nums drop-shadow-sm ${v.on_time_rate >= 90 ? "text-white" : "text-rose-100"}`}>
                 {v.on_time_rate}%
               </div>
 
               {/* Rating */}
-              <div className="text-[11px] font-medium text-white/45 text-right flex items-center justify-end gap-1">
-                <Star className="w-3 h-3 fill-white/45 text-white/45" />
+              <div className="text-[12px] font-bold text-white/90 text-right flex items-center justify-end gap-1">
+                <Star className="w-3.5 h-3.5 fill-white text-white drop-shadow-md" />
                 {v.rating.toFixed(1)}
               </div>
             </div>
@@ -140,18 +143,18 @@ export default function VendorRanking() {
       </div>
 
       {/* Footer */}
-      <div className="mt-3 pt-3 border-t border-[#1a1a1a] flex justify-between items-center">
-        <div className="flex gap-3">
-          <div className="flex items-center gap-1.5 text-[9px] text-white/20">
-            <div className="w-1.5 h-1.5 rounded-sm bg-white" />
+      <div className="relative z-10 mt-4 pt-3 border-t border-white/20 flex justify-between items-center">
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/80">
+            <div className="w-2 h-2 rounded-sm bg-white shadow-sm" />
             Aktif
           </div>
-          <div className="flex items-center gap-1.5 text-[9px] text-white/20">
-            <div className="w-1.5 h-1.5 rounded-sm bg-[#3a1a1a] border border-red-900" />
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/80">
+            <div className="w-2 h-2 rounded-sm bg-white/20 border border-rose-300" />
             Suspend
           </div>
         </div>
-        <span className="text-[9px] text-white/18 tracking-wide">mbgdummydata.ts</span>
+        <span className="text-[10px] font-medium text-white/60 tracking-wider hidden sm:block">B.O.G.A Live Ledger</span>
       </div>
     </div>
   );

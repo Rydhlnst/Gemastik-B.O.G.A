@@ -41,7 +41,7 @@ export default function VendorRanking() {
   }, []);
 
   return (
-    <div className="bg-gradient-to-br from-indigo-600 to-cyan-500 relative overflow-hidden shadow-[0_20px_50px_-12px_rgba(99,102,241,0.5)] border border-white/20 rounded-3xl p-6 w-full font-sans">
+    <div className="bg-gradient-to-br from-indigo-600 to-cyan-500 relative overflow-hidden shadow-[0_20px_50px_-12px_rgba(99,102,241,0.5)] border border-white/20 rounded-3xl p-3 sm:p-6 w-full font-sans">
       
       {/* Decorative Bevel overlay */}
       <div className="absolute inset-1.5 bg-white/5 rounded-[1.4rem] shadow-[inset_0_4px_10px_rgba(255,255,255,0.1)] ring-1 ring-white/10 pointer-events-none"></div>
@@ -62,14 +62,13 @@ export default function VendorRanking() {
       </div>
 
       {/* Column labels */}
-      <div className="relative z-10 grid gap-2 px-2 pb-2 border-b border-white/20 mb-2 text-[10px] font-bold tracking-widest uppercase text-white/80"
-        style={{ gridTemplateColumns: "24px 36px 1fr 90px 60px 60px" }}>
+      <div className="relative z-10 grid gap-1 sm:gap-2 px-1 sm:px-2 pb-2 border-b border-white/20 mb-2 text-[8px] sm:text-[10px] font-bold tracking-tight sm:tracking-widest uppercase text-white/80 grid-cols-[16px_28px_1fr_60px_40px_35px] sm:grid-cols-[24px_36px_1fr_90px_60px_60px]">
         <span>#</span>
         <span></span>
         <span>Vendor</span>
-        <span className="text-center">Pengiriman</span>
-        <span className="text-center">On-Time</span>
-        <span className="text-right">Rating</span>
+        <span className="text-center">Kirim</span>
+        <span className="text-center">Tepat</span>
+        <span className="text-right">Nilai</span>
       </div>
 
       {/* Rows */}
@@ -83,10 +82,9 @@ export default function VendorRanking() {
           return (
             <div
               key={v.id}
-              className={`grid gap-2 items-center px-2 py-3 rounded-xl mb-1 border transition-all duration-300
+              className={`grid gap-1 sm:gap-2 items-center px-1 sm:px-2 py-2 sm:py-3 rounded-xl mb-1 border transition-all duration-300 grid-cols-[16px_28px_1fr_60px_40px_35px] sm:grid-cols-[24px_36px_1fr_90px_60px_60px]
                 ${isFirst ? "bg-white/20 border-white/40 shadow-lg shadow-black/5" : "bg-white/5 border-transparent hover:bg-white/20 hover:border-white/30 backdrop-blur-sm"}
                 ${isSuspend ? "opacity-50" : ""}`}
-              style={{ gridTemplateColumns: "24px 36px 1fr 90px 60px 60px" }}
             >
               {/* Rank */}
               <div className={`text-center text-xs font-black drop-shadow-md ${i < 3 ? "text-white" : "text-white/60"}`}>
@@ -94,20 +92,20 @@ export default function VendorRanking() {
               </div>
 
               {/* Avatar */}
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-black border flex-shrink-0 shadow-sm
+              <div className={`w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-[9px] sm:text-[11px] font-black border flex-shrink-0 shadow-sm
                 ${isFirst ? "bg-white text-indigo-600 border-white" : "bg-white/10 text-white border-white/20"}`}>
                 {getInitials(v.nama)}
               </div>
 
               {/* Info */}
               <div className="overflow-hidden">
-                <p className={`text-xs font-bold truncate drop-shadow-sm ${isFirst ? "text-white" : "text-white/90"}`}>
+                <p className={`text-[10px] sm:text-xs font-bold truncate drop-shadow-sm ${isFirst ? "text-white" : "text-white/90"}`}>
                   {v.nama}
                 </p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] font-medium text-white/70">{KATEGORI_LABEL[v.kategori]}</span>
+                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5">
+                  <span className="text-[8px] sm:text-[10px] font-medium text-white/70 truncate">{KATEGORI_LABEL[v.kategori]}</span>
                   {isSuspend && (
-                     <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-white/20 text-rose-100 border border-white/30 shadow-sm">
+                     <span className="text-[7px] sm:text-[8px] font-black px-1 sm:px-1.5 py-0.5 rounded bg-white/20 text-rose-100 border border-white/30 shadow-sm">
                        SUSPEND
                      </span>
                   )}
@@ -115,26 +113,24 @@ export default function VendorRanking() {
               </div>
 
               {/* Bar + count */}
-              <div className="flex flex-col gap-1.5 px-1">
-                <div className="h-1.5 bg-black/10 rounded-full overflow-hidden shadow-inner">
+              <div className="flex flex-col gap-1 sm:gap-1.5 px-0.5 sm:px-1">
+                <div className="h-1 sm:h-1.5 bg-black/10 rounded-full overflow-hidden shadow-inner">
                   <div
                     className={`h-full rounded-full transition-[width] duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] w-0 bg-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]`}
                     data-pct={pct}
                   />
                 </div>
-                <span className="text-[10px] font-medium text-white/80 tabular-nums">
-                  {v.total_pengiriman} kargo
+                <span className="text-[8px] sm:text-[10px] font-medium text-white/80 tabular-nums">
+                  {v.total_pengiriman} <span className="hidden sm:inline">kargo</span>
                 </span>
               </div>
 
               {/* On-time */}
-              <div className={`text-[12px] font-black text-center tabular-nums drop-shadow-sm ${v.on_time_rate >= 90 ? "text-white" : "text-rose-100"}`}>
+              <div className={`text-[10px] sm:text-[12px] font-black text-center tabular-nums drop-shadow-sm ${v.on_time_rate >= 90 ? "text-white" : "text-rose-100"}`}>
                 {v.on_time_rate}%
               </div>
 
-              {/* Rating */}
-              <div className="text-[12px] font-bold text-white/90 text-right flex items-center justify-end gap-1">
-                <Star className="w-3.5 h-3.5 fill-white text-white drop-shadow-md" />
+              <div className="text-[10px] sm:text-[12px] font-bold text-white/90 text-right">
                 {v.rating.toFixed(1)}
               </div>
             </div>

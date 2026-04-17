@@ -13,7 +13,7 @@ export default function GovermentLayout({
       <AppSidebar />
       <SidebarInset>
         {/* Konten utama — scrollable */}
-        <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0 h-full">
           {children}
         </div>
       </SidebarInset>

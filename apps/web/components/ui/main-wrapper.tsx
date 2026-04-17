@@ -41,10 +41,16 @@ export default function MainWrapper({ children }: { children: React.ReactNode })
     return <main className="flex-1 w-full h-screen overflow-hidden">{children}</main>;
   }
 
+  const isSekolah = pathname.startsWith("/sekolah");
+
   return (
     <>
-      <main className={`flex-1 w-full ${isLogistik ? "pt-0" : "pt-[100px]"}`}>{children}</main>
-      {!isLogistik && <Footer />}
+      <main className={`flex-1 w-full ${isLogistik ? "pt-0" : (isSekolah ? "pt-0 md:pt-[100px]" : "pt-[100px]")}`}>{children}</main>
+      {!isLogistik && (
+        <div className={isSekolah ? "hidden md:block" : ""}>
+          <Footer />
+        </div>
+      )}
     </>
   );
 }

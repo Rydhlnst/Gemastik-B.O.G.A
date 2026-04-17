@@ -22,6 +22,7 @@ import {
   CarouselPrevious,
   type CarouselApi
 } from "@/components/ui/carousel";
+import { OrbitHubSection } from "@/components/ui/orbit-hub-section";
 
 export const AboutSection = () => {
   const [isOrbitOpen, setIsOrbitOpen] = useState(false);
@@ -317,131 +318,8 @@ export const AboutSection = () => {
         </div>
 
         {/* INTERACTIVE MIDDLE SECTION (ORBIT) */}
-        <motion.div
-           animate={{
-            height: isOrbitOpen ? 420 : 160,
-            backgroundColor: isOrbitOpen ? "#e2f2f7" : "#ffffff"
-          }}
-          className="relative overflow-hidden border-t border-slate-100/80 flex items-center justify-center transition-all duration-700 ease-in-out"
-        >
-          <style dangerouslySetInnerHTML={{
-            __html: `
-            @keyframes bogaTwinkle {
-              0%, 100% { opacity: 0; transform: scale(0.5); }
-              50%       { opacity: 0.8; transform: scale(1.2); }
-            }
-          `}} />
-
-          {/* LAYER 0: TWINKLES (Z-0) */}
-          <div ref={twinklesRef} className="absolute inset-0 pointer-events-none z-[0]" />
-
-          {/* ATMOSPHERIC GEOMETRIC CANVAS (Z-0) */}
-          <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-[0] opacity-80" />
-
-          {/* LAYER 1: CIRCLE ORBIT (Z-1) - High visibility solid black line perfectly aligned with icon path */}
-          <motion.div
-            animate={{
-              scale: isOrbitOpen ? 1 : 0,
-              opacity: isOrbitOpen ? 0.8 : 0
-            }}
-            transition={{
-              scale: { duration: 0.8, ease: "backOut" },
-              opacity: { duration: 0.5 }
-            }}
-            className="absolute w-[600px] h-[240px] border-[2px] border-black rounded-full border-solid z-1"
-            style={{
-              boxShadow: "inset 0 0 60px rgba(22, 138, 173, 0.15)"
-            }}
-          />
-
-          {/* LAYER 2: ORBIT ANCHOR & SATELLITES (Z-2) */}
-          <div className="absolute inset-0 flex items-center justify-center z-2 pointer-events-none">
-            <motion.div
-              animate={{ opacity: isOrbitOpen ? 1 : 0 }}
-              transition={{ duration: 0.6 }}
-              className="relative w-0 h-0"
-            >
-              {satellites.map((sat, i) => {
-                const phase = (i * Math.PI) / 2 + rotationAngle;
-                const rx = 300;
-                const ry = 120;
-
-                const x = Math.cos(phase) * rx;
-                const y = Math.sin(phase) * ry;
-
-                return (
-                  <div
-                    key={sat.label}
-                    className="absolute flex flex-col items-center gap-2 pointer-events-auto"
-                    style={{
-                      transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`
-                    }}
-                  >
-                    <motion.div
-                      onClick={() => toggleSatellite(sat)}
-                      whileHover={{ scale: 1.1, translateY: -5 }}
-                      className={`w-18 h-18 bg-white border rounded-[1.25rem] flex items-center justify-center shadow-xl transition-all cursor-pointer ${selectedSat?.label === sat.label
-                        ? 'ring-2 ring-indigo-500 border-indigo-200'
-                        : 'border-slate-50'
-                        }`}
-                    >
-                      <sat.icon className="w-9 h-9" style={{ color: sat.color }} />
-                    </motion.div>
-                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full border border-slate-50">
-                      {sat.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </motion.div>
-          </div>
-
-          {/* LAYER 3: HUB ICON (Z-3) */}
-          <div className="relative z-30 flex items-center justify-center">
-            <motion.div
-              onClick={() => setIsOrbitOpen(!isOrbitOpen)}
-              animate={{
-                rotate: isOrbitOpen ? 180 : 0,
-                scale: isOrbitOpen ? 1.1 : 1
-              }}
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.95 }}
-              className={`w-14 h-14 bg-gradient-to-br from-indigo-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-2xl cursor-pointer transition-shadow ${isOrbitOpen ? 'shadow-indigo-200' : 'shadow-slate-200'
-                }`}
-            >
-              {isOrbitOpen ? <X className="w-7 h-7 text-white" /> : <Network className="w-7 h-7 text-white" />}
-              <div className="absolute -inset-4 bg-indigo-500/5 rounded-full animate-ping opacity-10" />
-            </motion.div>
-          </div>
-
-          {/* INSIGHT POPUP (Z-4) */}
-          <AnimatePresence>
-            {isOrbitOpen && selectedSat && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, x: 20 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.9, x: 20 }}
-                className="absolute right-8 top-8 w-[260px] z-[100]"
-              >
-                <div className="bg-white/98 backdrop-blur-2xl border border-indigo-50 rounded-3xl p-5 shadow-2xl shadow-indigo-100/30">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-slate-50">
-                        <selectedSat.icon className="w-4 h-4" style={{ color: selectedSat.color }} />
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-black text-indigo-600 uppercase tracking-widest">{selectedSat.title}</p>
-                        <h4 className="text-lg font-black text-slate-900 leading-none">{selectedSat.label}</h4>
-                      </div>
-                    </div>
-                    <button onClick={() => setSelectedSat(null)}><X className="w-4 h-4 text-slate-300 hover:text-slate-600" /></button>
-                  </div>
-                  <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{selectedSat.desc}</p>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        {/* NEW INTERACTIVE ORBIT HUB */}
+        <OrbitHubSection />
 
         {/* SPLIT INTERACTIVE CAROUSEL (BOTTOM SECTION) */}
         <div className="pt-12 pb-0 flex justify-center w-full relative z-20">

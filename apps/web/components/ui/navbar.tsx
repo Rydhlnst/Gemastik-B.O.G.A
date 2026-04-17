@@ -145,7 +145,7 @@ export default function Navbar() {
   if (hasSidebar) return null;
 
   return (
-    <div style={wrapperStyle}>
+    <div style={wrapperStyle} className={location.startsWith("/sekolah") ? "hidden md:block" : ""}>
       <div
         style={{
           pointerEvents: "auto",

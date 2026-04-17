@@ -244,6 +244,8 @@ export default function MapSupervision({
     } catch (_) {}
 
     if (!path.length || !map.current) return;
+    // Guard: abort if user closed during the fetch
+    if (!selectedDriverIdRef.current) return;
 
     setIsSimulating(true);
     setIs3D(true);
@@ -255,10 +257,12 @@ export default function MapSupervision({
     // ── Cinematic sequence: school → driver ──
     map.current.flyTo({ center: [school.lng, school.lat], zoom: 16, pitch: 45, duration: 3000, essential: true });
     await new Promise((r) => setTimeout(r, 3500));
-    if (!map.current) return;
+    // Guard: user may have clicked X during the flyTo wait
+    if (!map.current || !selectedDriverIdRef.current) return;
     map.current.flyTo({ center: [vendor.lng, vendor.lat], zoom: 17.5, pitch: 65, bearing: -15, duration: 3000, essential: true });
     await new Promise((r) => setTimeout(r, 3500));
-    if (!map.current) return;
+    // Guard: abort if closed during second flyTo
+    if (!map.current || !selectedDriverIdRef.current) return;
 
     // ── Create animated truck marker ──
     truckMarkerRef.current?.remove();
@@ -268,11 +272,11 @@ export default function MapSupervision({
         <div class="absolute bottom-full mb-3 px-3 py-1 bg-black/80 backdrop-blur-md rounded-xl border border-white/20 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
           <p class="text-[9px] font-black text-white uppercase tracking-widest">${driver.id}</p>
         </div>
-        <div class="gov-truck-anim w-12 h-12 flex items-center justify-center bg-indigo-600 rounded-2xl border-2 border-white shadow-2xl relative">
-          <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
+        <div class="gov-truck-anim w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-2xl border-2 border-white shadow-2xl relative">
+          <svg width="20" height="20" fill="white" viewBox="0 0 24 24">
             <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1.5-7l1.96 2.5H15V11h1.5z"/>
           </svg>
-          <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>
+          <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>
         </div>
       </div>`;
 
@@ -286,7 +290,7 @@ export default function MapSupervision({
     const move = () => {
       if (!map.current || !truckMarkerRef.current) return;
 
-      // Check if selection was cleared externally
+      // Guard: abort if user clicked X
       if (!selectedDriverIdRef.current) {
         stopSimulation();
         return;
@@ -378,76 +382,79 @@ export default function MapSupervision({
     <div className="relative w-full h-full rounded-[40px] overflow-hidden border border-white/20 shadow-2xl">
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* ── Inspection Panel ── */}
+      {/* ── Inspection Panel (compact strip) ── */}
       <AnimatePresence>
         {inspectedDriver && (
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            className="absolute bottom-10 left-10 right-10 z-[500] pointer-events-none"
+            exit={{ opacity: 0, y: 30 }}
+            className="absolute bottom-6 left-6 right-6 z-[500] pointer-events-none"
           >
-            <div className="max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-3xl border border-white/20 rounded-[32px] p-6 shadow-2xl pointer-events-auto overflow-hidden relative">
-              {/* Accent glow */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[60px] rounded-full -mr-10 -mt-10" />
+            <div className="max-w-3xl mx-auto bg-slate-900/85 backdrop-blur-2xl border border-white/15 rounded-2xl px-4 py-3 shadow-2xl pointer-events-auto overflow-hidden relative">
+              {/* subtle glow */}
+              <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none" />
 
-              <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                {/* Driver profile */}
-                <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 rounded-2xl bg-indigo-600 border border-white/20 flex items-center justify-center text-white relative">
-                    <TruckIcon className="w-8 h-8" />
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-900 animate-pulse" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">Inspecting Unit</p>
-                    <h4 className="text-2xl font-black text-white tracking-tighter mb-1">{inspectedDriver.id}</h4>
-                    <div className="flex items-center gap-3 text-[10px] font-bold text-white/50">
-                      <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-emerald-400" /> Secure Link</span>
-                      <span className="flex items-center gap-1"><Navigation className="w-3 h-3" /> {inspectedDriver.status}</span>
-                    </div>
+              <div className="flex items-center gap-3">
+                {/* Truck icon */}
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 border border-white/20 flex items-center justify-center text-white relative flex-shrink-0">
+                  <TruckIcon className="w-4 h-4" />
+                  <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-slate-900 animate-pulse" />
+                </div>
+
+                {/* ID + status */}
+                <div className="flex-shrink-0">
+                  <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-0.5">Inspecting</p>
+                  <p className="text-sm font-black text-white tracking-tight leading-none">{inspectedDriver.id}</p>
+                </div>
+
+                <div className="w-px h-6 bg-white/10 flex-shrink-0" />
+
+                {/* Manifest */}
+                <div className="flex-shrink-0">
+                  <p className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-0.5">Manifest</p>
+                  <div className="flex items-center gap-1">
+                    <Package className="w-3 h-3 text-white/50" />
+                    <p className="text-xs font-bold text-white">{inspectedDriver.manifest}</p>
                   </div>
                 </div>
 
-                <div className="hidden md:block w-[1px] h-12 bg-white/10" />
+                <div className="w-px h-6 bg-white/10 flex-shrink-0" />
 
-                {/* Shipment info */}
-                <div className="flex flex-1 gap-12">
-                  <div className="space-y-1">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Manifest</p>
-                    <div className="flex items-center gap-2">
-                      <Package className="w-4 h-4 text-white/60" />
-                      <p className="text-sm font-black text-white">{inspectedDriver.manifest}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Destination</p>
-                    <p className="text-sm font-black text-white">{sekolahList.find((s) => s.id === inspectedDriver.sekolahId)?.nama}</p>
-                  </div>
-                  {isSimulating && distRemaining > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Sisa Jarak</p>
-                      <p className="text-sm font-black text-emerald-400">{distRemaining.toFixed(1)} km · {eta} min</p>
-                    </div>
-                  )}
+                {/* Destination */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-0.5">Destination</p>
+                  <p className="text-xs font-bold text-white truncate">{sekolahList.find((s) => s.id === inspectedDriver.sekolahId)?.nama}</p>
                 </div>
 
-                {/* Close */}
+                {/* Sisa jarak */}
+                {isSimulating && distRemaining > 0 && (
+                  <>
+                    <div className="w-px h-6 bg-white/10 flex-shrink-0" />
+                    <div className="flex-shrink-0">
+                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest leading-none mb-0.5">Sisa</p>
+                      <p className="text-xs font-black text-emerald-400">{distRemaining.toFixed(1)} km · {eta}m</p>
+                    </div>
+                  </>
+                )}
+
+                {/* Progress bar inline */}
+                <div className="w-16 h-1 bg-white/10 rounded-full overflow-hidden flex-shrink-0">
+                  <motion.div
+                    initial={{ width: "20%" }}
+                    animate={{ width: isSimulating ? `${Math.max(5, 100 - distRemaining * 8)}%` : "50%" }}
+                    transition={{ duration: 0.6 }}
+                    className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500"
+                  />
+                </div>
+
+                {/* Close button */}
                 <button
-                  onClick={onExit}
-                  className="flex-shrink-0 w-14 h-14 rounded-2xl bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 text-white/60 hover:text-red-400 transition-all flex items-center justify-center group"
+                  onClick={() => { stopSimulation(); onExit(); }}
+                  className="flex-shrink-0 w-7 h-7 rounded-lg bg-white/8 hover:bg-red-500/30 border border-white/10 hover:border-red-400/50 text-white/50 hover:text-red-300 transition-all flex items-center justify-center"
                 >
-                  <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+                  <X className="w-3.5 h-3.5" />
                 </button>
-              </div>
-
-              {/* Live progress bar */}
-              <div className="mt-6 w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: "30%" }}
-                  animate={{ width: isSimulating ? `${Math.max(5, 100 - distRemaining * 8)}%` : "65%" }}
-                  transition={{ duration: 0.6 }}
-                  className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                />
               </div>
             </div>
           </motion.div>

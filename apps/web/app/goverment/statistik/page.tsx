@@ -10,9 +10,10 @@ import {
 } from "lucide-react";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
-  ResponsiveContainer, AreaChart, Area, XAxis, Tooltip,
-  BarChart, Bar, Cell
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip,
+  BarChart, Bar, Cell, CartesianGrid
 } from "recharts";
+import type { BarShapeProps } from "recharts/types/cartesian/Bar";
 
 // ─── Types & Data ───────────────────────────────────────────────────────────
 
@@ -254,11 +255,11 @@ function VendorDetailPanel({ vendor, onClose }: { vendor: VendorRating; onClose:
       </div>
 
       <div className="p-5 space-y-5">
-        {/* Skor */}
+        {/* Indeks */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Skor Reputasi</p>
-            <p className={`text-3xl font-black tabular-nums ${vendor.skor >= 90 ? "text-emerald-600" : vendor.skor >= 70 ? "text-amber-600" : "text-red-600"}`}>
+            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Indeks Performa</p>
+            <p className="text-3xl font-semibold text-gray-900">
               {vendor.skor}
             </p>
           </div>
@@ -268,14 +269,16 @@ function VendorDetailPanel({ vendor, onClose }: { vendor: VendorRating; onClose:
           </div>
         </div>
 
-        {/* Radar */}
+        {/* Horizontal Bar Chart for Dimensions */}
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
-            <RadarChart data={vendor.radarData}>
-              <PolarGrid stroke="#f1f5f9" />
-              <PolarAngleAxis dataKey="subject" tick={{ fontSize: 9, fontWeight: 700, fill: "#94a3b8" }} />
-              <Radar name="Skor" dataKey="value" stroke="#6366f1" fill="#6366f1" fillOpacity={0.15} strokeWidth={2} />
-            </RadarChart>
+            <BarChart data={vendor.radarData} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+              <XAxis type="number" hide domain={[0, 100]} />
+              <YAxis dataKey="subject" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#64748b", fontWeight: 600 }} width={75} />
+              <Tooltip cursor={{ fill: "#f8faff" }} contentStyle={{ fontSize: 10, borderRadius: 8, border: "1px solid #e2e8f0" }} />
+              <Bar dataKey="value" fill="#475569" radius={[0, 4, 4, 0]} barSize={12} />
+            </BarChart>
           </ResponsiveContainer>
         </div>
 
@@ -295,19 +298,19 @@ function VendorDetailPanel({ vendor, onClose }: { vendor: VendorRating; onClose:
 
         {/* Trend */}
         <div>
-          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Tren Skor (4 Minggu)</p>
+          <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Tren Indeks (4 Minggu)</p>
           <div className="h-20">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={vendor.trendData}>
                 <defs>
                   <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#475569" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#475569" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="week" hide />
                 <Tooltip contentStyle={{ fontSize: 10, fontWeight: 700, borderRadius: 8, border: "1px solid #f1f5f9" }} />
-                <Area type="monotone" dataKey="skor" stroke="#6366f1" strokeWidth={2} fill="url(#trendGrad)" dot={false} />
+                <Area type="monotone" dataKey="skor" stroke="#475569" strokeWidth={2} fill="url(#trendGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -398,22 +401,121 @@ export default function StatistikPage() {
           {/* Bar Chart Overview */}
           {!selectedVendor && (
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Skor Reputasi Semua Vendor</p>
-              <div className="h-32">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Indeks Performa Semua Vendor</p>
+                  <p className="text-[8px] text-gray-300 mt-0.5">Klik batang untuk melihat detail vendor</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[8px] font-bold text-gray-400">≥ 90</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    <span className="text-[8px] font-bold text-gray-400">≥ 70</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-red-400" />
+                    <span className="text-[8px] font-bold text-gray-400">&lt; 70</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={filteredVendors} onClick={d => d?.activePayload && setSelectedVendor(filteredVendors.find(v => v.nama === d?.activePayload?.[0]?.payload?.nama) || null)}>
-                    <XAxis dataKey="nama" hide />
-                    <Tooltip
-                      contentStyle={{ fontSize: 10, fontWeight: 700, borderRadius: 8 }}
-                      formatter={(val: number) => [`${val}`, "Skor"]}
+                  <BarChart
+                    data={filteredVendors}
+                    margin={{ top: 8, right: 0, left: -20, bottom: 0 }}
+                    onClick={(d) =>
+                      d?.activePayload &&
+                      setSelectedVendor(
+                        filteredVendors.find((v) => v.nama === d?.activePayload?.[0]?.payload?.nama) || null
+                      )
+                    }
+                  >
+                    <defs>
+                      {filteredVendors.map((v) => {
+                        const color = v.skor >= 90 ? ["#10b981", "#6ee7b7"] : v.skor >= 70 ? ["#f59e0b", "#fde68a"] : ["#ef4444", "#fca5a5"];
+                        return (
+                          <linearGradient key={v.id} id={`grad-${v.id}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={color[0]} stopOpacity={0.9} />
+                            <stop offset="100%" stopColor={color[1]} stopOpacity={0.6} />
+                          </linearGradient>
+                        );
+                      })}
+                    </defs>
+                    <CartesianGrid vertical={false} stroke="#f1f5f9" />
+                    <XAxis
+                      dataKey="nama"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 8, fontWeight: 700, fill: "#94a3b8" }}
+                      tickFormatter={(val: string) => val.split(" ").slice(-1)[0]}
+                      tickMargin={8}
                     />
-                    <Bar dataKey="skor" radius={[6, 6, 0, 0]} cursor="pointer">
-                      {filteredVendors.map((v, i) => (
-                        <Cell key={v.id} fill={v.skor >= 90 ? "#10b981" : v.skor >= 70 ? "#f59e0b" : "#ef4444"} />
-                      ))}
-                    </Bar>
+                    <YAxis
+                      domain={[40, 100]}
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fontSize: 8, fill: "#cbd5e1" }}
+                      tickCount={4}
+                    />
+                    <Tooltip
+                      cursor={{ fill: "#f8faff", radius: 8 }}
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const v = payload[0].payload as typeof filteredVendors[0];
+                        const color = v.skor >= 90 ? "text-emerald-600" : v.skor >= 70 ? "text-amber-600" : "text-red-500";
+                        return (
+                          <div className="bg-white border border-gray-100 rounded-xl shadow-xl px-3 py-2 text-left">
+                            <p className="text-[9px] font-black text-gray-400 mb-1 max-w-[140px] truncate">{v.nama}</p>
+                            <p className={`text-lg font-black tabular-nums ${color}`}>{v.skor}</p>
+                            <p className="text-[8px] text-gray-400">{v.kategori}</p>
+                          </div>
+                        );
+                      }}
+                    />
+                    <Bar
+                      dataKey="skor"
+                      radius={[8, 8, 0, 0]}
+                      cursor="pointer"
+                      maxBarSize={56}
+                      shape={(props: BarShapeProps) => {
+                        const idx = filteredVendors.findIndex((v) => v.nama === (props as any).nama);
+                        const v = filteredVendors[idx];
+                        const isHighest = v?.skor === Math.max(...filteredVendors.map((fv) => fv.skor));
+                        const fillColor = v?.skor >= 90 ? "#10b981" : v?.skor >= 70 ? "#f59e0b" : "#ef4444";
+                        const { x, y, width, height } = props as any;
+                        return isHighest ? (
+                          <rect
+                            x={x} y={y} width={width} height={height}
+                            rx={8} ry={8}
+                            fill={`url(#grad-${v?.id})`}
+                            fillOpacity={0.85}
+                            stroke={fillColor}
+                            strokeWidth={2}
+                            strokeDasharray="5 3"
+                          />
+                        ) : (
+                          <rect
+                            x={x} y={y} width={width} height={height}
+                            rx={8} ry={8}
+                            fill={`url(#grad-${v?.id})`}
+                          />
+                        );
+                      }}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+
+              {/* Footer note */}
+              <div className="flex items-center gap-1.5 mt-3">
+                <TrendingUp className="w-3 h-3 text-indigo-400" />
+                <p className="text-[8px] text-gray-400 font-medium">
+                  Batang dengan garis putus-putus = skor tertinggi saat ini
+                </p>
               </div>
             </div>
           )}
@@ -434,13 +536,9 @@ export default function StatistikPage() {
                     : "border-gray-100"
                 }`}
               >
-                {/* Rank */}
-                <div className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm ${
-                  rank === 1 ? "bg-amber-100 text-amber-700" :
-                  rank === 2 ? "bg-gray-100 text-gray-600" :
-                  rank === 3 ? "bg-orange-100 text-orange-700" : "bg-slate-50 text-slate-500"
-                }`}>
-                  {isTop3 ? <Medal className="w-5 h-5" style={{ color: MEDAL_COLORS[rank - 1] }} /> : rank}
+                {/* Initials */}
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs uppercase border border-slate-200">
+                  {vendor.nama.split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -462,9 +560,7 @@ export default function StatistikPage() {
 
                 {/* Score + Trend */}
                 <div className="text-right flex-shrink-0">
-                  <p className={`text-xl font-black tabular-nums ${
-                    vendor.skor >= 90 ? "text-emerald-600" : vendor.skor >= 70 ? "text-amber-600" : "text-red-600"
-                  }`}>
+                  <p className="text-xl font-bold text-gray-900">
                     {vendor.skor}
                   </p>
                   <span className={`text-[9px] font-black flex items-center gap-0.5 justify-end ${delta >= 0 ? "text-emerald-500" : "text-red-500"}`}>

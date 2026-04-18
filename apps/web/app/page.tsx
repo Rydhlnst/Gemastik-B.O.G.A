@@ -19,6 +19,7 @@ export default function Home() {
   const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
   const [showSplash, setShowSplash] = useState(true);
   const [showRanking, setShowRanking] = useState(false);
+  const [rankingType, setRankingType] = useState<"vendor" | "sppg">("vendor");
 
   const features = [
     {
@@ -278,21 +279,21 @@ export default function Home() {
 
         <BogaBelt />
 
-        {/* VENDOR RANKING SECTION */}
+        {/* VENDOR & SPPG RANKING SECTION */}
         <section id="performance" className="relative px-6 pb-2 pt-24 bg-slate-50 flex justify-center border-t border-slate-200 overflow-hidden min-h-[60vh]">
           {/* Subtle Floating Interactive Background Particles */}
           <BackgroundParticles />
-          <div className="w-full max-w-3xl flex flex-col items-center">
+          <div className="w-full max-w-[1400px] flex flex-col items-center">
 
             <button
               onClick={() => setShowRanking(!showRanking)}
-              className="group flex flex-col items-center gap-2 mb-6"
+              className="group flex flex-col items-center gap-2 mb-8"
             >
               <h2 className="text-3xl font-black text-slate-900 text-center tracking-tight group-hover:text-indigo-600 transition-colors">
                 Top Performance Tracker
               </h2>
               <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">
-                <span>{showRanking ? "Hide Ranking" : "View Vendor Ranking"}</span>
+                <span>{showRanking ? "Hide Ranking" : "View Global Ranking"}</span>
                 <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showRanking ? "rotate-90" : ""}`} />
               </div>
             </button>
@@ -300,14 +301,48 @@ export default function Home() {
             <AnimatePresence>
               {showRanking && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0, scale: 0.95 }}
+                  initial={{ height: 0, opacity: 0, scale: 0.98 }}
                   animate={{ height: "auto", opacity: 1, scale: 1 }}
-                  exit={{ height: 0, opacity: 0, scale: 0.95 }}
+                  exit={{ height: 0, opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full overflow-hidden"
                 >
-                  <div className="pt-6 border-t border-slate-200">
-                    <VendorRanking />
+                  {/* Context Toggle - Premium sliding glass pill */}
+                  <div className="flex justify-center mb-10">
+                    <div className="bg-slate-200/50 backdrop-blur-md p-1 rounded-[2.5rem] flex items-center relative border border-white shadow-inner w-[320px]">
+                      <motion.div
+                        layoutId="activeTab"
+                        className="absolute bg-white rounded-full shadow-lg shadow-indigo-100/50 border border-slate-100"
+                        initial={false}
+                        animate={{
+                          x: rankingType === "vendor" ? 0 : 158,
+                        }}
+                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                        style={{ 
+                          width: '158px',
+                          height: 'calc(100% - 8px)',
+                          top: '4px',
+                          left: '4px'
+                        }}
+                      />
+                      
+                      <button
+                        onClick={() => setRankingType("vendor")}
+                        className={`relative z-10 flex-1 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-colors duration-500 ${rankingType === "vendor" ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        Vendor Performa
+                      </button>
+                      <button
+                        onClick={() => setRankingType("sppg")}
+                        className={`relative z-10 flex-1 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-colors duration-500 ${rankingType === "sppg" ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
+                      >
+                        SPPG Performa
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-slate-200 transition-all duration-500">
+                    <VendorRanking type={rankingType} />
                   </div>
                 </motion.div>
               )}

@@ -9,7 +9,7 @@ import { MobileNavCards } from "./MobileCardNav";
 const DEFAULT_NAV_LINKS = [
   { href: "#home", label: "Home" },
   { href: "#about", label: "About Us" },
-  { href: "#vendor", label: "Vendor" },
+  { href: "#performance", label: "Performance" },
   { href: "#contact", label: "Contact" },
 ];
 
@@ -64,7 +64,7 @@ export default function Navbar() {
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
-    const sections = ["home", "about", "vendor", "contact"];
+    const sections = ["home", "about", "performance", "contact"];
     
     sections.forEach((id) => {
       const el = document.getElementById(id);
@@ -145,7 +145,7 @@ export default function Navbar() {
   if (hasSidebar) return null;
 
   return (
-    <div style={wrapperStyle}>
+    <div style={wrapperStyle} className={location.startsWith("/sekolah") ? "hidden md:block" : ""}>
       <div
         style={{
           pointerEvents: "auto",

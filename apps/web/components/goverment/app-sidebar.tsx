@@ -64,10 +64,6 @@ const NAV_MAIN = [
     label: "Pengajuan",
     href: "/goverment/pengajuan",
     icon: FileText,
-    sub: [
-      { label: "Daftar Pengajuan", href: "/goverment/pengajuan" },
-      { label: "Buat Pengajuan Baru", href: "/goverment/pengajuan/baru" },
-    ],
   },
   {
     label: "Pengawasan",

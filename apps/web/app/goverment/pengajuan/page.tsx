@@ -5,15 +5,33 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText, BadgeCheck, Wallet, Loader2, CheckCircle2,
-  X, ChevronDown, ShieldX, AlertTriangle, Eye,
-  Filter, ArrowRight, MapPin, Star, Clock, Building2
+  X, ChevronDown, ShieldX, AlertTriangle, Eye, EyeOff,
+  Filter, MapPin, Star, Clock, Building2, Download, User,
+  Phone, Mail, CreditCard, Home, Calendar,
 } from "lucide-react";
-import { ContextualMinimap, type MinimapEntity } from "@/components/goverment/ContextualMinimap";
+import { VendorLocationMap } from "@/components/goverment/VendorLocationMap";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 type SBTStatus = "menunggu" | "disetujui" | "ditolak";
 type SBTStep = "idle" | "processing" | "dompet" | "minting" | "done";
+
+/** Full sertifikasi catalogue — badge + optional dokumen file */
+interface SertifikasiItem {
+  nama: string;
+  /** filename or URL — null = belum upload */
+  berkas: string | null;
+}
+
+/** PIC (Person In Charge) profile — connect to API later */
+interface PICProfile {
+  nama: string;
+  ttl: string | null;       // TODO: connect to API
+  domisili: string | null;  // TODO: connect to API
+  hp: string | null;        // TODO: connect to API
+  email: string | null;     // TODO: connect to API
+  rekening: string | null;  // TODO: connect to API — stored masked
+}
 
 interface SBTApplication {
   id: string;
@@ -23,8 +41,8 @@ interface SBTApplication {
   alamat: string;
   lat: number;
   lng: number;
-  sertifikasi: string[];
-  kontak: string;
+  sertifikasi: SertifikasiItem[];
+  pic: PICProfile;
   status: SBTStatus;
   dokumenDibaca: boolean;
 }
@@ -40,7 +58,7 @@ interface HETLog {
   tanggal: string;
 }
 
-// ─── Mock Data ─────────────────────────────────────────────────────────────
+// ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const SBT_APPLICATIONS: SBTApplication[] = [
   {
@@ -51,8 +69,23 @@ const SBT_APPLICATIONS: SBTApplication[] = [
     alamat: "Jl. Sudirman No. 88, Bandung",
     lat: -6.9200,
     lng: 107.6080,
-    sertifikasi: ["Halal MUI", "BPOM", "ISO 22000"],
-    kontak: "Budi Santoso",
+    sertifikasi: [
+      { nama: "Halal MUI",                     berkas: "halal-mui-2025.pdf" },
+      { nama: "BPOM",                           berkas: "bpom-reg-2025.pdf" },
+      { nama: "ISO 22000",                      berkas: "iso22000-cert.pdf" },
+      { nama: "NPWP",                           berkas: "npwp-vendor.pdf" },
+      { nama: "NIB",                            berkas: null },
+      { nama: "SLHS (Dinkes)",                  berkas: null },
+      { nama: "Sertifikat Penjamah Makanan",    berkas: "sertifikat-penjamah.pdf" },
+    ],
+    pic: {
+      nama: "Budi Santoso",
+      ttl: "Bandung, 14 Maret 1985",      // TODO: connect to API
+      domisili: "Jl. Cibeunying No. 12, Bandung", // TODO: connect to API
+      hp: "0812-3456-7890",               // TODO: connect to API
+      email: "budi.santoso@nusantara.id", // TODO: connect to API
+      rekening: "1234567891234",          // TODO: connect to API
+    },
     status: "menunggu",
     dokumenDibaca: false,
   },
@@ -64,8 +97,21 @@ const SBT_APPLICATIONS: SBTApplication[] = [
     alamat: "Jl. Kiaracondong No. 45, Bandung",
     lat: -6.9350,
     lng: 107.6450,
-    sertifikasi: ["ISO 9001"],
-    kontak: "Sari Dewi",
+    sertifikasi: [
+      { nama: "ISO 9001",                       berkas: "iso9001-cert.pdf" },
+      { nama: "NPWP",                           berkas: "npwp-berkah.pdf" },
+      { nama: "NIB",                            berkas: "nib-berkah.pdf" },
+      { nama: "SLHS (Dinkes)",                  berkas: null },
+      { nama: "Sertifikat Penjamah Makanan",    berkas: null },
+    ],
+    pic: {
+      nama: "Sari Dewi",
+      ttl: null,   // TODO: connect to API
+      domisili: null, // TODO: connect to API
+      hp: "0821-9988-7766", // TODO: connect to API
+      email: null, // TODO: connect to API
+      rekening: null, // TODO: connect to API
+    },
     status: "menunggu",
     dokumenDibaca: false,
   },
@@ -77,8 +123,22 @@ const SBT_APPLICATIONS: SBTApplication[] = [
     alamat: "Jl. Raya Lembang No. 120, Lembang",
     lat: -6.8120,
     lng: 107.6150,
-    sertifikasi: ["Halal MUI", "Organic Certified"],
-    kontak: "Hendra Wijaya",
+    sertifikasi: [
+      { nama: "Halal MUI",                     berkas: "halal-agro.pdf" },
+      { nama: "Organic Certified",             berkas: "organic-cert.pdf" },
+      { nama: "NPWP",                          berkas: "npwp-agro.pdf" },
+      { nama: "NIB",                           berkas: "nib-agro.pdf" },
+      { nama: "SLHS (Dinkes)",                 berkas: "slhs-agro.pdf" },
+      { nama: "Sertifikat Penjamah Makanan",   berkas: null },
+    ],
+    pic: {
+      nama: "Hendra Wijaya",
+      ttl: "Lembang, 22 Juli 1979",        // TODO: connect to API
+      domisili: "Jl. Raya Lembang No. 120", // TODO: connect to API
+      hp: "0819-1234-5678",                // TODO: connect to API
+      email: "hendra@agrofresh.id",        // TODO: connect to API
+      rekening: "9876543212345",           // TODO: connect to API
+    },
     status: "disetujui",
     dokumenDibaca: true,
   },
@@ -93,22 +153,213 @@ const HET_PRICES: Record<string, number> = {
 };
 
 const HET_LOGS: HETLog[] = [
-  { id: "HET-001", vendorNama: "CV Makmur Sejahtera", komoditas: "Beras Premium", hargaDitawarkan: 22_000, hargaHET: 16_000, markup: 37.5, wilayah: "Bandung Utara", tanggal: "13 Apr" },
-  { id: "HET-002", vendorNama: "UD Sumber Makmur", komoditas: "Ayam Broiler", hargaDitawarkan: 47_000, hargaHET: 38_000, markup: 23.7, wilayah: "Bandung Selatan", tanggal: "13 Apr" },
-  { id: "HET-003", vendorNama: "CV Berkah Pangan", komoditas: "Minyak Goreng", hargaDitawarkan: 19_500, hargaHET: 17_000, markup: 14.7, wilayah: "Bandung Barat", tanggal: "12 Apr" },
-  { id: "HET-004", vendorNama: "PT Mega Food", komoditas: "Telur Ayam", hargaDitawarkan: 41_000, hargaHET: 32_000, markup: 28.1, wilayah: "Cimahi", tanggal: "12 Apr" },
+  { id: "HET-001", vendorNama: "CV Makmur Sejahtera",  komoditas: "Beras Premium", hargaDitawarkan: 22_000, hargaHET: 16_000, markup: 37.5, wilayah: "Bandung Utara",   tanggal: "13 Apr" },
+  { id: "HET-002", vendorNama: "UD Sumber Makmur",     komoditas: "Ayam Broiler",  hargaDitawarkan: 47_000, hargaHET: 38_000, markup: 23.7, wilayah: "Bandung Selatan", tanggal: "13 Apr" },
+  { id: "HET-003", vendorNama: "CV Berkah Pangan",     komoditas: "Minyak Goreng", hargaDitawarkan: 19_500, hargaHET: 17_000, markup: 14.7, wilayah: "Bandung Barat",   tanggal: "12 Apr" },
+  { id: "HET-004", vendorNama: "PT Mega Food",         komoditas: "Telur Ayam",    hargaDitawarkan: 41_000, hargaHET: 32_000, markup: 28.1, wilayah: "Cimahi",          tanggal: "12 Apr" },
 ];
 
-// ─── SBT Step Progress ──────────────────────────────────────────────────────
+// ─── SBT Step Progress ────────────────────────────────────────────────────────
 
 const SBT_STEPS: { key: SBTStep; label: string; icon: React.ReactNode }[] = [
-  { key: "processing", label: "Memproses", icon: <Loader2 className="w-4 h-4 animate-spin" /> },
-  { key: "dompet", label: "Membuat Dompet", icon: <Wallet className="w-4 h-4" /> },
-  { key: "minting", label: "Menerbitkan SBT", icon: <BadgeCheck className="w-4 h-4" /> },
-  { key: "done", label: "Selesai", icon: <CheckCircle2 className="w-4 h-4" /> },
+  { key: "processing", label: "Memproses",        icon: <Loader2 className="w-4 h-4 animate-spin" /> },
+  { key: "dompet",     label: "Membuat Dompet",   icon: <Wallet className="w-4 h-4" /> },
+  { key: "minting",    label: "Menerbitkan SBT",  icon: <BadgeCheck className="w-4 h-4" /> },
+  { key: "done",       label: "Selesai",           icon: <CheckCircle2 className="w-4 h-4" /> },
 ];
 
-// ─── Confirmation Modal ──────────────────────────────────────────────────────
+// ─── Sertifikasi Badge — with gradient hover/active ─────────────────────────
+
+function SertBadge({
+  item,
+  onClick,
+}: {
+  item: SertifikasiItem;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  const gradientStyle: React.CSSProperties =
+    pressed
+      ? { background: "linear-gradient(135deg,#4f46e5,#0891b2)", color: "white", borderColor: "transparent" }
+      : hovered
+      ? { background: "linear-gradient(135deg,#6366f1,#06b6d4)", color: "white", borderColor: "transparent" }
+      : {};
+
+  const baseClass = !hovered && !pressed
+    ? item.berkas
+      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+      : "bg-gray-50 text-gray-400 border-gray-200"
+    : "";
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setPressed(false); }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+      style={gradientStyle}
+      className={`flex items-center gap-1 text-[9px] font-black px-2.5 py-1 rounded-lg border transition-transform hover:scale-105 active:scale-95 ${baseClass}`}
+      title={item.berkas ? "Klik untuk download berkas" : "Berkas belum tersedia"}
+    >
+      <Star className="w-2.5 h-2.5 flex-shrink-0" />
+      {item.nama}
+    </button>
+  );
+}
+
+// ─── Sertifikasi Doc Modal ────────────────────────────────────────────────────
+
+function SertifikasiDocModal({
+  item,
+  onClose,
+}: {
+  item: SertifikasiItem;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, y: 16 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.95, y: 16 }}
+        className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Star className="w-3.5 h-3.5 text-emerald-500" />
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+              Dokumen Sertifikasi
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 space-y-4">
+          <p className="text-base font-black text-gray-900">{item.nama}</p>
+
+          {item.berkas ? (
+            <>
+              <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black text-emerald-800 truncate">{item.berkas}</p>
+                  <p className="text-[8px] text-emerald-500">Berkas tersedia</p>
+                </div>
+              </div>
+              <button
+                onClick={() => alert(`Download: ${item.berkas}`)}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-500/20"
+              >
+                <Download className="w-4 h-4" />
+                Download Berkas
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-2 py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+              <FileText className="w-8 h-8 text-gray-300" />
+              <p className="text-[10px] font-bold text-gray-400 text-center">
+                Berkas belum tersedia
+              </p>
+              <p className="text-[9px] text-gray-300 text-center">
+                Vendor belum mengupload dokumen ini
+              </p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ─── PIC Profile Card ─────────────────────────────────────────────────────────
+
+function PICProfileCard({ pic }: { pic: PICProfile }) {
+  const [showRekening, setShowRekening] = useState(false);
+
+  const maskedRekening = pic.rekening
+    ? "•••• •••• " + pic.rekening.slice(-4)
+    : null;
+
+  const rows: { icon: React.ReactNode; label: string; value: string | null }[] = [
+    { icon: <Calendar className="w-3 h-3" />,    label: "TTL",         value: pic.ttl },
+    { icon: <Home className="w-3 h-3" />,        label: "Domisili",    value: pic.domisili },
+    { icon: <Phone className="w-3 h-3" />,       label: "No. HP",      value: pic.hp },
+    { icon: <Mail className="w-3 h-3" />,        label: "Email",       value: pic.email },
+  ];
+
+  return (
+    <div className="border border-gray-100 rounded-2xl overflow-hidden">
+      {/* Avatar + name */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-indigo-50 to-slate-50 border-b border-gray-100">
+        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0 border-2 border-white shadow-sm">
+          <User className="w-5 h-5 text-indigo-500" />
+        </div>
+        <div>
+          <p className="text-sm font-black text-gray-900">{pic.nama}</p>
+          <p className="text-[8px] font-bold text-indigo-400 uppercase tracking-wider">Person In Charge</p>
+        </div>
+      </div>
+
+      {/* Detail rows */}
+      <div className="divide-y divide-gray-50">
+        {rows.map(({ icon, label, value }) => (
+          <div key={label} className="flex items-center gap-3 px-4 py-2.5">
+            <span className="text-gray-300 flex-shrink-0">{icon}</span>
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider w-16 flex-shrink-0">{label}</span>
+            <span className="text-[10px] font-semibold text-gray-700 truncate">
+              {value ?? <span className="text-gray-300">—</span>}
+            </span>
+          </div>
+        ))}
+
+        {/* No. Rekening — masked */}
+        <div className="flex items-center gap-3 px-4 py-2.5">
+          <span className="text-gray-300 flex-shrink-0"><CreditCard className="w-3 h-3" /></span>
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider w-16 flex-shrink-0">Rekening</span>
+          <span className="text-[10px] font-semibold text-gray-700 flex-1 tabular-nums">
+            {pic.rekening
+              ? (showRekening ? pic.rekening.replace(/(.{4})/g, "$1 ").trim() : maskedRekening)
+              : <span className="text-gray-300">—</span>
+            }
+          </span>
+          {pic.rekening && (
+            <button
+              onClick={() => setShowRekening(v => !v)}
+              className="flex items-center gap-1 text-[8px] font-black text-indigo-400 hover:text-indigo-600 flex-shrink-0 transition-colors"
+              aria-label={showRekening ? "Sembunyikan rekening" : "Tampilkan rekening"}
+            >
+              {showRekening
+                ? <><EyeOff className="w-3 h-3" /> Sembunyikan</>
+                : <><Eye className="w-3 h-3" /> Tampilkan</>
+              }
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Confirmation Modal ───────────────────────────────────────────────────────
 
 function ConfirmModal({
   app,
@@ -169,7 +420,6 @@ function ConfirmModal({
             </div>
           )}
 
-          {/* Step Progress */}
           {isProcessing && (
             <div className="space-y-3 py-4">
               {SBT_STEPS.map((s, i) => {
@@ -217,7 +467,7 @@ function ConfirmModal({
   );
 }
 
-// ─── Kategori Label ────────────────────────────────────────────────────────
+// ─── Kategori Label ───────────────────────────────────────────────────────────
 
 const kategoriLabel: Record<SBTApplication["kategori"], string> = {
   katering: "Katering",
@@ -226,21 +476,21 @@ const kategoriLabel: Record<SBTApplication["kategori"], string> = {
 };
 
 const kategoriColor: Record<SBTApplication["kategori"], string> = {
-  katering: "bg-rose-50 text-rose-600 border-rose-100",
-  logistik: "bg-indigo-50 text-indigo-600 border-indigo-100",
-  supplier_bahan: "bg-emerald-50 text-emerald-600 border-emerald-100",
+  katering:        "bg-rose-50 text-rose-600 border-rose-100",
+  logistik:        "bg-indigo-50 text-indigo-600 border-indigo-100",
+  supplier_bahan:  "bg-emerald-50 text-emerald-600 border-emerald-100",
 };
 
-// ─── Main Page ──────────────────────────────────────────────────────────────
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function PengajuanPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"sbt" | "het">("sbt");
   const [applications, setApplications] = useState(SBT_APPLICATIONS);
   const [expandedApp, setExpandedApp] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<SBTApplication | null>(null);
-  const [hetFilter, setHetFilter] = useState("SEMUA");
   const [newlyApproved, setNewlyApproved] = useState<string | null>(null);
+  // Sertifikasi doc modal
+  const [sertDocModal, setSertDocModal] = useState<SertifikasiItem | null>(null);
 
   const pendingCount = applications.filter(a => a.status === "menunggu").length;
   const blockedToday = HET_LOGS.length;
@@ -251,9 +501,7 @@ export default function PengajuanPage() {
   };
 
   const handleApprove = (app: SBTApplication) => {
-    if (!app.dokumenDibaca) {
-      handleReadDoc(app.id);
-    }
+    if (!app.dokumenDibaca) handleReadDoc(app.id);
     setConfirmModal(app);
   };
 
@@ -269,12 +517,6 @@ export default function PengajuanPage() {
     setApplications(prev => prev.map(a => a.id === id ? { ...a, status: "ditolak" } : a));
   };
 
-  const filteredLogs = hetFilter === "SEMUA" ? HET_LOGS : HET_LOGS.filter(l => l.komoditas === hetFilter);
-
-  const getVendorMinimap = (app: SBTApplication): MinimapEntity[] => [
-    { id: app.id, lat: app.lat, lng: app.lng, type: "vendor", label: app.vendorNama },
-  ];
-
   return (
     <div className="p-6 space-y-5 min-h-full bg-slate-50/50">
 
@@ -286,7 +528,7 @@ export default function PengajuanPage() {
           </div>
           <div>
             <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Pengajuan</h1>
-            <p className="text-xs text-gray-400">Penerbitan identitas digital SBT & pemantauan filter harga HET</p>
+            <p className="text-xs text-gray-400">Daftar pengajuan penerbitan identitas digital SBT Vendor</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -299,46 +541,27 @@ export default function PengajuanPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 bg-gray-100 p-1 rounded-2xl w-fit">
-        {([
-          { key: "sbt", label: "Penerbitan SBT", icon: BadgeCheck, badge: pendingCount },
-          { key: "het", label: "Filter Harga HET", icon: ShieldX, badge: 0 },
-        ] as const).map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`relative flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
-              activeTab === tab.key ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <tab.icon className="w-3.5 h-3.5" />
-            {tab.label}
-            {tab.badge > 0 && (
-              <span className="w-4 h-4 rounded-full bg-indigo-500 text-white text-[8px] flex items-center justify-center">{tab.badge}</span>
-            )}
-          </button>
-        ))}
-      </div>
+
 
       <AnimatePresence mode="wait">
 
         {/* ─── SBT Panel ─── */}
-        {activeTab === "sbt" && (
           <motion.div key="sbt" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
 
             {applications.map(app => (
-              <motion.div key={app.id} layout className={`bg-white rounded-3xl border shadow-sm overflow-hidden ${
+              <motion.div key={app.id} layout className={`bg-white rounded-3xl border shadow-sm overflow-hidden transition-all duration-500 ${
+                app.status === "disetujui" ? "opacity-50 grayscale" : ""
+              } ${
                 app.status === "menunggu" ? "border-indigo-100" : app.status === "disetujui" ? "border-emerald-100" : "border-red-100"
               }`}>
 
                 {/* Card Header */}
                 <button
                   onClick={() => { setExpandedApp(expandedApp === app.id ? null : app.id); handleReadDoc(app.id); }}
-                  className="w-full px-6 py-5 flex items-center justify-between gap-4 text-left hover:bg-gray-50/50 transition-colors"
+                  className="group w-full px-6 py-5 flex items-center justify-between gap-4 text-left hover:bg-gray-50/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-cyan-500 group-hover:text-white group-active:from-indigo-600 group-active:to-cyan-600 group-hover:shadow-md group-hover:shadow-indigo-500/20 ${
                       app.status === "menunggu" ? "bg-indigo-50 text-indigo-600" : app.status === "disetujui" ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
                     }`}>
                       <Building2 className="w-5 h-5" />
@@ -380,58 +603,59 @@ export default function PengajuanPage() {
                     >
                       <div className="p-6 space-y-5">
                         <div className="grid grid-cols-2 gap-5">
-                          {/* Details */}
-                          <div className="space-y-4">
+
+                          {/* ── Left column: Sertifikasi + Kontak PIC + Lokasi ── */}
+                          <div className="space-y-5">
+
+                            {/* Sertifikasi */}
                             <div>
                               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Sertifikasi</p>
                               <div className="flex flex-wrap gap-1.5">
                                 {app.sertifikasi.map(s => (
-                                  <span key={s} className="flex items-center gap-1 text-[9px] font-black px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg">
-                                    <Star className="w-2.5 h-2.5" /> {s}
-                                  </span>
+                                  <SertBadge
+                                    key={s.nama}
+                                    item={s}
+                                    onClick={() => setSertDocModal(s)}
+                                  />
                                 ))}
                               </div>
+                              <p className="text-[8px] text-slate-400 mt-1.5">Klik badge untuk lihat & download berkas</p>
                             </div>
+
+                            {/* Kontak PIC */}
                             <div>
-                              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Kontak PIC</p>
-                              <p className="text-sm font-bold text-gray-700">{app.kontak}</p>
+                              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Kontak PIC</p>
+                              <PICProfileCard pic={app.pic} />
                             </div>
+
+                            {/* Lokasi Operasional */}
                             <div>
                               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Lokasi Operasional</p>
-                              <p className="text-xs text-gray-600">{app.alamat}</p>
+                              <div className="flex items-start gap-1.5">
+                                <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
+                                <p className="text-xs text-gray-600">{app.alamat}</p>
+                              </div>
                             </div>
                           </div>
 
-                          {/* Minimap Gateway (shown after approval) */}
+                          {/* ── Right column: MapLibre vendor location ── */}
                           <div className="space-y-3">
-                            {app.status === "disetujui" && (
-                              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-1">
-                                  <MapPin className="w-3 h-3 text-emerald-500" /> Lokasi Vendor di Wilayah
-                                </p>
-                                <p className="text-[9px] text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 mb-2">
-                                  Vendor ini berada di wilayah <strong>Bandung</strong>. Klik untuk lihat cakupan wilayah.
-                                </p>
-                                <ContextualMinimap
-                                  entities={getVendorMinimap(app)}
-                                  navigateTo="/goverment/pengawasan"
-                                  navigateParams={{ vendor: app.id }}
-                                  label={`Lokasi ${app.vendorNama}`}
-                                />
-                              </motion.div>
-                            )}
-                            {app.status === "menunggu" && (
-                              <div className="p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 min-h-[100px]">
-                                <MapPin className="w-6 h-6 text-gray-300" />
-                                <p className="text-[9px] text-gray-400 font-bold text-center">Minimap lokasi akan muncul setelah SBT disetujui</p>
-                              </div>
-                            )}
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-indigo-400" /> Lokasi Vendor di Wilayah
+                            </p>
+                            <VendorLocationMap
+                              alamat={app.alamat}
+                              vendorNama={app.vendorNama}
+                              lat={app.lat}
+                              lng={app.lng}
+                              height={260}
+                            />
                           </div>
                         </div>
 
                         {/* Action Buttons */}
                         {app.status === "menunggu" && (
-                          <div className="flex gap-3 pt-2 border-t border-gray-100">
+                          <div className="flex gap-3 pt-2 border-t border-gray-100 justify-end">
                             <button
                               onClick={() => handleReject(app.id)}
                               className="flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-red-200 text-red-600 text-[10px] font-black uppercase tracking-wider hover:bg-red-50 transition-all"
@@ -461,113 +685,22 @@ export default function PengajuanPage() {
               </motion.div>
             ))}
           </motion.div>
-        )}
-
-        {/* ─── HET Panel ─── */}
-        {activeTab === "het" && (
-          <motion.div key="het" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-5">
-
-            {/* Summary Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-white rounded-2xl border border-gray-100 px-5 py-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <ShieldX className="w-3.5 h-3.5 text-red-500" />
-                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Diblokir Hari Ini</p>
-                </div>
-                <p className="text-2xl font-black text-red-600">{blockedToday}</p>
-                <p className="text-[9px] text-gray-400 font-medium">penawaran ditolak</p>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 px-5 py-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Mark-up Tertinggi</p>
-                </div>
-                <p className="text-2xl font-black text-amber-600">{highestMarkup.toFixed(1)}%</p>
-                <p className="text-[9px] text-gray-400 font-medium">di atas HET</p>
-              </div>
-              <div className="bg-white rounded-2xl border border-gray-100 px-5 py-4">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-2">Harga HET Live</p>
-                <p className="text-[9px] text-gray-500 font-medium">Sumber: PIHPS Nasional</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {Object.keys(HET_PRICES).slice(0, 3).map(k => (
-                    <span key={k} className="text-[7px] font-black px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-md">{k}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* HET Prices Reference */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Referensi Harga HET Nasional</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                {Object.entries(HET_PRICES).map(([name, price]) => (
-                  <div key={name} className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-[8px] font-black text-gray-500 uppercase tracking-tight mb-1">{name}</p>
-                    <p className="text-sm font-black text-indigo-600 tabular-nums">Rp {price.toLocaleString("id-ID")}</p>
-                    <p className="text-[7px] text-gray-400">/ kg</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Block Log Table */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-red-50/60">
-                <div>
-                  <p className="text-sm font-black text-gray-900">Log Pemblokiran</p>
-                  <p className="text-[9px] text-red-400 font-medium">Penawaran yang melebihi batas HET</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Filter className="w-3.5 h-3.5 text-red-300" />
-                  <div className="flex gap-1 bg-white/70 border border-red-100 p-1 rounded-xl">
-                    {["SEMUA", ...Object.keys(HET_PRICES)].slice(0, 4).map(k => (
-                      <button
-                        key={k}
-                        onClick={() => setHetFilter(k)}
-                        className={`px-3 py-1 text-[8px] font-black rounded-lg transition-all ${hetFilter === k ? "bg-indigo-600 text-white" : "text-gray-400 hover:text-gray-600"}`}
-                      >
-                        {k.split(" ")[0]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {filteredLogs.map((log, i) => (
-                  <div
-                    key={log.id}
-                    className="px-6 py-4 flex items-center gap-4 hover:bg-red-50/40 transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
-                      <ShieldX className="w-4 h-4 text-red-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-black text-gray-900 truncate">{log.vendorNama}</p>
-                      <p className="text-[9px] text-gray-400">{log.komoditas} · {log.wilayah} · {log.tanggal}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-black text-red-600">Rp {log.hargaDitawarkan.toLocaleString("id-ID")}</p>
-                      <p className="text-[9px] text-gray-400">HET: Rp {log.hargaHET.toLocaleString("id-ID")}</p>
-                    </div>
-                    <div className={`flex-shrink-0 px-3 py-1 rounded-xl text-[10px] font-black ${
-                      log.markup >= 30 ? "bg-red-100 text-red-700" : log.markup >= 20 ? "bg-amber-100 text-amber-700" : "bg-orange-100 text-orange-700"
-                    }`}>
-                      +{log.markup.toFixed(1)}%
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
       </AnimatePresence>
 
-      {/* Confirm Modal */}
+      {/* Confirm SBT Modal */}
       <AnimatePresence>
         {confirmModal && (
           <ConfirmModal app={confirmModal} onClose={() => setConfirmModal(null)} onConfirm={handleConfirmSBT} />
         )}
       </AnimatePresence>
+
+      {/* Sertifikasi Doc Modal */}
+      <AnimatePresence>
+        {sertDocModal && (
+          <SertifikasiDocModal item={sertDocModal} onClose={() => setSertDocModal(null)} />
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

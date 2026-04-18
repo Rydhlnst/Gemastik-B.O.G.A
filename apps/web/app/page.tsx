@@ -169,6 +169,7 @@ export default function Home() {
                     school={selectedSchool}
                     vendors={getVendorsBySekolah(selectedSchool.id)}
                     onClose={() => setSelectedSchool(null)}
+                    readOnly={true}
                   />
                 ) : (
                   <motion.div
@@ -278,7 +279,7 @@ export default function Home() {
         <BogaBelt />
 
         {/* VENDOR RANKING SECTION */}
-        <section id="vendor" className="relative px-6 pb-2 pt-24 bg-slate-50 flex justify-center border-t border-slate-200 overflow-hidden min-h-[60vh]">
+        <section id="performance" className="relative px-6 pb-2 pt-24 bg-slate-50 flex justify-center border-t border-slate-200 overflow-hidden min-h-[60vh]">
           {/* Subtle Floating Interactive Background Particles */}
           <BackgroundParticles />
           <div className="w-full max-w-3xl flex flex-col items-center">

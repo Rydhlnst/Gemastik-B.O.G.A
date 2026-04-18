@@ -61,6 +61,29 @@ export interface Delivery {
   bukti_url: string | null;
 }
 
+export interface SPPGStudentSentiment {
+  avgRating: number;
+  totalReviews: number;
+  trendingKeywords: { word: string; count: number; sentiment: "positive" | "negative" | "neutral" }[];
+  distribution: number[];
+}
+
+export interface VendorReview {
+  id: number;
+  vendor_id: number;
+  userName: string;
+  userClass: string;
+  date: string;
+  rating: number; // 1-5
+  subRatings: {
+    rasa: number;
+    porsi: number;
+    kebersihan: number;
+  };
+  comment: string;
+  isFollowedUp: boolean;
+}
+
 export interface Material {
   id: number;
   name: string;
@@ -80,6 +103,8 @@ export interface SPPG {
   lng: number;
   kapasitas_porsi: number; // max porsi/hari
   vendor_id: number;       // vendor katering yang mengelola dapur ini
+  rating: number;
+  on_time_rate: number;
 }
 
 // Relasi: SPPG melayani beberapa sekolah (SPPG → Sekolah)
@@ -180,9 +205,9 @@ export const deliveryList: Delivery[] = [
 ];
 
 export const sppgList: SPPG[] = [
-  { id: 1, nama: "SPPG Dago Bandung",        kecamatan: "Coblong",       kota: "Bandung", lat: -6.8920, lng: 107.6150, kapasitas_porsi: 1200, vendor_id: 1 },
-  { id: 2, nama: "SPPG Soekarno Hatta",      kecamatan: "Bojongloa Kaler", kota: "Bandung", lat: -6.9430, lng: 107.6210, kapasitas_porsi: 900,  vendor_id: 2 },
-  { id: 3, nama: "SPPG Buah Batu",           kecamatan: "Lengkong",      kota: "Bandung", lat: -6.9400, lng: 107.6270, kapasitas_porsi: 1100, vendor_id: 5 },
+  { id: 1, nama: "SPPG Dago Bandung",        kecamatan: "Coblong",       kota: "Bandung", lat: -6.8920, lng: 107.6150, kapasitas_porsi: 1200, vendor_id: 1, rating: 4.8, on_time_rate: 97.5 },
+  { id: 2, nama: "SPPG Soekarno Hatta",      kecamatan: "Bojongloa Kaler", kota: "Bandung", lat: -6.9430, lng: 107.6210, kapasitas_porsi: 900,  vendor_id: 2, rating: 4.4, on_time_rate: 94.2 },
+  { id: 3, nama: "SPPG Buah Batu",           kecamatan: "Lengkong",      kota: "Bandung", lat: -6.9400, lng: 107.6270, kapasitas_porsi: 1100, vendor_id: 5, rating: 4.7, on_time_rate: 96.8 },
 ];
 
 export const sppgSekolahList: SPPGSekolah[] = [
@@ -218,6 +243,84 @@ export const tenderMaterials: Material[] = [
   { id: 13, name: 'Minyak Goreng Sawit (2L)', type: 'Sembako', price: 34000, rating: 4.8, reviews: 3421 },
   { id: 14, name: 'Gula Pasir Kristal Putih', type: 'Sembako', price: 17500, rating: 4.7, reviews: 1205 },
   { id: 15, name: 'Garam Beryodium (Pack)', type: 'Sembako', price: 5000, rating: 4.6, reviews: 432 },
+];
+
+export const vendorReviews: VendorReview[] = [
+  // Reviews for CV Katering Bandung Juara (ID 1)
+  {
+    id: 1, vendor_id: 1, userName: "Andi Saputra", userClass: "10-A", date: "2025-04-01",
+    rating: 5, subRatings: { rasa: 5, porsi: 4, kebersihan: 5 },
+    comment: "Rasa makanannya enak sekali, bumbunya pas. Porsinya cukup mengenyangkan.",
+    isFollowedUp: false
+  },
+  {
+    id: 2, vendor_id: 1, userName: "Budi Santoso", userClass: "12-C", date: "2025-04-02",
+    rating: 4, subRatings: { rasa: 4, porsi: 3, kebersihan: 5 },
+    comment: "Makanan oke, tapi porsinya kadang kurang banyak buat saya yang habis olahraga.",
+    isFollowedUp: true
+  },
+  {
+    id: 3, vendor_id: 1, userName: "Citra Lestari", userClass: "11-B", date: "2025-04-03",
+    rating: 5, subRatings: { rasa: 5, porsi: 5, kebersihan: 5 },
+    comment: "Sangat memuaskan, pengiriman selalu tepat waktu sebelum jam istirahat.",
+    isFollowedUp: false
+  },
+  {
+    id: 31, vendor_id: 1, userName: "Rizky Ramadhan", userClass: "10-B", date: "2025-04-04",
+    rating: 2, subRatings: { rasa: 2, porsi: 4, kebersihan: 4 },
+    comment: "Nasi Keras sekali hari ini, susah dikunyah. Tolong diperhatikan kateringnya.",
+    isFollowedUp: false
+  },
+  {
+    id: 32, vendor_id: 1, userName: "Siti Aminah", userClass: "11-C", date: "2025-04-04",
+    rating: 2, subRatings: { rasa: 2, porsi: 3, kebersihan: 5 },
+    comment: "Sama seperti yang lain, laporan saya juga Nasi Keras banget. Ayamnya enak tapi nasinya gagal.",
+    isFollowedUp: false
+  },
+  {
+    id: 33, vendor_id: 1, userName: "Fajar Siddiq", userClass: "12-A", date: "2025-04-05",
+    rating: 2, subRatings: { rasa: 2, porsi: 2, kebersihan: 3 },
+    comment: "Lauknya sudah dingin saat sampai ke kelas, padahal rasanya lumayan.",
+    isFollowedUp: false
+  },
+  // Reviews for CV Food Hub Jabar (ID 6) - The poor performer
+  {
+    id: 4, vendor_id: 6, userName: "Deni Ramdani", userClass: "10-C", date: "2025-03-25",
+    rating: 2, subRatings: { rasa: 2, porsi: 3, kebersihan: 2 },
+    comment: "Nasinya agak keras dan sayurnya agak basi, tolong diperbaiki kualitasnya.",
+    isFollowedUp: false
+  },
+  {
+    id: 5, vendor_id: 6, userName: "Eka Wijaya", userClass: "12-A", date: "2025-03-28",
+    rating: 1, subRatings: { rasa: 1, porsi: 2, kebersihan: 1 },
+    comment: "Pengiriman sangat lambat, sudah lewat jam istirahat baru sampai. Makanan dingin.",
+    isFollowedUp: false
+  },
+  {
+    id: 6, vendor_id: 6, userName: "Farhan Hakim", userClass: "11-D", date: "2025-04-01",
+    rating: 3, subRatings: { rasa: 3, porsi: 2, kebersihan: 3 },
+    comment: "Rasa lumayan tapi porsinya sangat sedikit dibanding vendor sebelumnya.",
+    isFollowedUp: true
+  },
+  {
+    id: 61, vendor_id: 6, userName: "Gilang Dirga", userClass: "10-D", date: "2025-04-02",
+    rating: 1, subRatings: { rasa: 1, porsi: 1, kebersihan: 1 },
+    comment: "Sayur basi lagi, sudah 3 kali kejadian bulan ini. Sangat mengecewakan.",
+    isFollowedUp: false
+  },
+  // Reviews for PT Gizi Priangan Utama (ID 2)
+  {
+    id: 7, vendor_id: 2, userName: "Gisela Putri", userClass: "10-B", date: "2025-04-01",
+    rating: 4, subRatings: { rasa: 4, porsi: 4, kebersihan: 4 },
+    comment: "Menu variatif dan bergizi. Kebersihan kemasan sangat terjaga.",
+    isFollowedUp: false
+  },
+  {
+    id: 8, vendor_id: 2, userName: "Herianto", userClass: "12-B", date: "2025-04-02",
+    rating: 5, subRatings: { rasa: 5, porsi: 4, kebersihan: 5 },
+    comment: "Sangat suka dengan ayam bakarnya, bumbunya meresap sampai ke dalam.",
+    isFollowedUp: false
+  }
 ];
 
 export function getVendorsBySekolah(sekolahId: number) {
@@ -769,5 +872,128 @@ export function getDeliveryHeatmap(): { cells: HeatmapCell[]; avgPerHour: number
 
   const avgPerHour = hourlyTotals.map((t) => Math.round(t / Math.max(dayCountNonZero, 1)));
   return { cells, avgPerHour };
+}
+
+export function getReviewsByVendor(vendorId: number) {
+  return vendorReviews.filter(r => r.vendor_id === vendorId);
+}
+
+export function getVendorPerformanceStats(vendorId: number) {
+  const reviews = getReviewsByVendor(vendorId);
+  if (reviews.length === 0) return null;
+
+  const total = reviews.length;
+  const avgRating = reviews.reduce((s, r) => s + r.rating, 0) / total;
+  
+  const subAverages = {
+    rasa: reviews.reduce((s, r) => s + r.subRatings.rasa, 0) / total,
+    porsi: reviews.reduce((s, r) => s + r.subRatings.porsi, 0) / total,
+    kebersihan: reviews.reduce((s, r) => s + r.subRatings.kebersihan, 0) / total,
+  };
+
+  const distribution = [0, 0, 0, 0, 0]; // 5, 4, 3, 2, 1
+  reviews.forEach(r => {
+    if (r.rating >= 1 && r.rating <= 5) distribution[5 - r.rating]++;
+  });
+
+  return {
+    total,
+    avgRating,
+    subAverages,
+    distribution
+  };
+}
+
+export function getSPPGPerformanceRanking() {
+  return sppgList
+    .map((s) => ({
+      id: s.id,
+      nama: s.nama,
+      onTimeRate: s.on_time_rate,
+      rating: s.rating,
+      kecamatan: s.kecamatan,
+      kapasitas: s.kapasitas_porsi,
+    }))
+    .sort((a, b) => b.rating - a.rating);
+}
+
+export function getSPPGBySekolah(sekolahId: number) {
+  const mapping = sppgSekolahList.find(s => s.sekolah_id === sekolahId);
+  return mapping ? sppgList.find(s => s.id === mapping.sppg_id) : null;
+}
+
+export function getSPPGPerformanceStats(sppgId: number) {
+  const sppg = sppgList.find(s => s.id === sppgId);
+  if (!sppg) return null;
+
+  // Simulate stats similar to vendor
+  return {
+    total: 85, // simulated from multiple schools
+    avgRating: sppg.rating,
+    subAverages: {
+      rasa: sppg.rating - 0.1,
+      porsi: sppg.rating + 0.1,
+      kebersihan: sppg.rating,
+    },
+    distribution: [40, 30, 10, 3, 2] // 5, 4, 3, 2, 1
+  };
+}
+
+export function getSPPGStudentSentiment(sppgId: number): SPPGStudentSentiment | null {
+  const sppg = sppgList.find(s => s.id === sppgId);
+  if (!sppg) return null;
+
+  // In this dummy system, we map reviews from the vendor managed by the SPPG
+  const reviews = vendorReviews.filter(r => r.vendor_id === sppg.vendor_id);
+  
+  if (reviews.length === 0) {
+    return {
+      avgRating: 0,
+      totalReviews: 0,
+      trendingKeywords: [
+        { word: "Cukup", count: 2, sentiment: "neutral" },
+        { word: "Standar", count: 1, sentiment: "neutral" }
+      ],
+      distribution: [0, 0, 0, 0, 0]
+    };
+  }
+
+  const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length;
+  
+  const distribution = [0, 0, 0, 0, 0];
+  reviews.forEach(r => {
+    if (r.rating >= 1 && r.rating <= 5) {
+      distribution[5 - r.rating]++;
+    }
+  });
+
+  // Simple keyword tally (Mock logic for demo)
+  const keywordsArr = [
+    { word: "Nasi Keras", sentiment: "negative" as const },
+    { word: "Rasa Enak", sentiment: "positive" as const },
+    { word: "Porsi Pas", sentiment: "positive" as const },
+    { word: "Higienis", sentiment: "positive" as const },
+    { word: "Tepat Waktu", sentiment: "positive" as const },
+    { word: "Sayur Basi", sentiment: "negative" as const },
+    { word: "Dingin", sentiment: "negative" as const },
+    { word: "Daging Keras", sentiment: "negative" as const },
+  ];
+
+  // Match keywords in comments
+  const tally = keywordsArr.map(k => {
+    const count = reviews.filter(r => r.comment.toLowerCase().includes(k.word.toLowerCase())).length;
+    return { ...k, count };
+  }).filter(k => k.count > 0).sort((a, b) => b.count - a.count);
+
+  return {
+    avgRating,
+    totalReviews: reviews.length,
+    trendingKeywords: tally.length > 0 ? tally : [
+      { word: "Fresh", count: 12, sentiment: "positive" },
+      { word: "Bersih", count: 8, sentiment: "positive" },
+      { word: "Lengkap", count: 5, sentiment: "neutral" }
+    ],
+    distribution
+  };
 }
 

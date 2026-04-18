@@ -5,42 +5,73 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Zap, Link2, BarChart3, Search, Activity, ShieldCheck, School, ChevronRight, Phone, MessageSquare, Mail, AlertTriangle, Send } from "lucide-react";
 import CountUp from "@/components/ui/CountUp";
-import { type Sekolah, getVendorsBySekolah } from "@/lib/mbgdummydata";
+import { type Sekolah, getVendorsBySekolah, sekolahList, getSPPGBySekolah, deliveryList } from "@/lib/mbgdummydata";
 import { SchoolDetailPanel } from "@/components/ui/SchoolDetailPanel";
 import VendorRanking from "@/components/ui/vendorranking";
+import VendorPerformanceDashboard from "@/components/ui/VendorPerformanceDashboard";
 
 const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: false });
 
 export default function SekolahAdminPage() {
+  const [viewMode, setViewMode] = useState<"school" | "aggregate">("school");
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
   const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
   const [showRanking, setShowRanking] = useState(false);
+  const [selectedEntityId, setSelectedEntityId] = useState<number>(1);
 
-  const features = [
+  const loggedInSchool = sekolahList.find(s => s.id === 1);
+  const availableVendors = loggedInSchool ? getVendorsBySekolah(loggedInSchool.id) : [];
+  const availableSPPG = loggedInSchool ? getSPPGBySekolah(loggedInSchool.id) : null;
+  
+  // Fetch latest delivery for the primary vendor relation
+  const primaryRelation = availableVendors.find(v => v.is_primary);
+  const latestDelivery = primaryRelation 
+    ? deliveryList.filter(d => d.vendor_sekolah_id === primaryRelation.id).sort((a,b) => b.id - a.id)[0] 
+    : null;
+
+  // Fase 2: Sidebar Repurposing - Operational Identity Panels
+  const identityPanels = [
     {
-      title: "Visibilitas Real-Time",
-      subtitle: "Pantau setiap aliran distribusi.",
-      icon: MapPin,
-      desc: "Lacak posisi armada dan status pengiriman sekolah secara langsung dalam dashboard terintegrasi."
+      title: "Status Batch Terakhir",
+      subtitle: "Monitoring real-time produksi.",
+      icon: Activity,
+      content: latestDelivery ? `${latestDelivery.status === 'on_transit' ? 'On Transit' : latestDelivery.status === 'delivered' ? 'Selesai' : 'Pending'}` : "Memuat status...",
+      detail: latestDelivery ? `Batch #${latestDelivery.id + 8800} pada ${latestDelivery.tanggal}. Porsi: ${latestDelivery.porsi_dikirim} box.` : "Tidak ada data batch."
     },
     {
-      title: "ETA Berbasis AI",
-      subtitle: "Prediksi keterlambatan pintar.",
+      title: "Jadwal Pengiriman",
+      subtitle: "Window penerimaan harian.",
       icon: Zap,
-      desc: "Mesin Kecerdasan Buatan (AI) kami sanggup meninjau pola lalu lintas dan algoritma riwayat untuk estimasi kedatangan yang lebih akurat."
+      content: `Target: ${latestDelivery?.jam_target || "07:00"} WIB`,
+      detail: latestDelivery?.jam_tiba !== "--" ? `Tiba pukul ${latestDelivery.jam_tiba} WIB.` : "Armada sedang dalam perjalanan."
     },
     {
-      title: "Kontrol End-to-End",
-      subtitle: "Satu platform terintegrasi.",
-      icon: Link2,
-      desc: "Hubungkan dapur pusat, vendor, dan titik pengiriman dalam satu ekosistem yang kohesif."
+      title: "Mitra Vendor Pelaksana",
+      subtitle: "Penyaji gizi utama.",
+      icon: ShieldCheck,
+      content: primaryRelation?.vendor.nama || "Memuat vendor...",
+      detail: `PIC: ${primaryRelation?.vendor.kontak_pic} (${primaryRelation?.vendor.no_telp})`
     },
     {
-      title: "Laporan Transparan",
-      subtitle: "Akses data terbuka.",
-      icon: BarChart3,
-      desc: "Seluruh log transaksi dan bukti serah terima tersimpan permanen untuk transparansi total."
+      title: "Dapur SPPG Penanggung Jawab",
+      subtitle: "Pusat verifikasi & pengolahan.",
+      icon: MapPin,
+      content: availableSPPG?.nama || "Dapur belum terhubung",
+      detail: `${availableSPPG?.kota || ''} · Rating ${availableSPPG?.rating || 0} ★ · Kapasitas ${availableSPPG?.kapasitas_porsi || 0}/hari`
     },
+  ];
+
+  // Stats logic based on viewMode
+  const stats = viewMode === "school" && loggedInSchool ? [
+    { label: "Total Siswa", value: loggedInSchool.total_siswa, unit: "jiwa", icon: School },
+    { label: "Penerima Makan", value: loggedInSchool.total_siswa, unit: "porsi", icon: Activity },
+    { label: "Gudang Penyalur", value: 1, unit: "unit", icon: ShieldCheck },
+    { label: "Mitra Terafiliasi", value: availableVendors.length, unit: "vendor", icon: ChevronRight }
+  ] : [
+    { label: "Sekolah Aktif", value: sekolahList.length, unit: "unit", icon: School },
+    { label: "Penerima Makan", value: 2693, unit: "0/hari", icon: Activity },
+    { label: "Gudang Penyalur", value: 4, unit: "0 titik", icon: ShieldCheck },
+    { label: "Mitra Terafiliasi", value: 5, unit: "0 vendor", icon: ChevronRight }
   ];
 
   return (
@@ -67,11 +98,11 @@ export default function SekolahAdminPage() {
               className="lg:col-span-8 bg-white rounded-[1.25rem] p-4 md:p-5 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-center min-h-[120px]"
             >
               <div className="relative z-10">
-                <h1 className="text-2xl md:text-4xl font-black text-slate-800 tracking-tighter mb-0.5">
-                  Modul <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Admin</span> Sekolah
+                <h1 className="text-2xl md:text-3xl font-black text-slate-800 tracking-tighter mb-1">
+                  Ruang Kerja Admin: <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">{loggedInSchool?.nama || "Sekolah Mitra"}</span>
                 </h1>
-                <p className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[8px] mb-3">
-                  Distribusi MBG · Pengecekan
+                <p className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[9px] mb-4">
+                  Portal Pengawasan & Pencatatan Audit B.O.G.A
                 </p>
                 <div className="flex gap-2">
                   <span className="bg-[#f0fdf4] text-[#16a34a] border border-emerald-50 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
@@ -125,19 +156,42 @@ export default function SekolahAdminPage() {
               transition={{ delay: 0.3 }}
               className="lg:col-span-9 bg-white rounded-[1.25rem] p-4 border border-slate-100 shadow-sm relative flex flex-col min-h-[440px]"
             >
-              <div className="flex flex-col mb-3">
-                <h2 className="text-indigo-600 font-black text-[8px] uppercase tracking-[0.3em] mb-0.5">
-                  Peta Distribusi & Pantauan Sekolah
-                </h2>
-                <p className="text-slate-400 text-[9px] font-medium">
-                  Klik sekolah untuk melihat info penjemputan data makan bergizi.
-                </p>
+              <div className="flex flex-col md:flex-row md:items-center justify-between mb-3 gap-2">
+                <div>
+                  <h2 className="text-indigo-600 font-black text-[8px] uppercase tracking-[0.3em] mb-0.5">
+                    Peta Distribusi & Pantauan Sekolah
+                  </h2>
+                  <p className="text-slate-400 text-[9px] font-medium">
+                    Klik sekolah untuk melihat info penjemputan data makan bergizi.
+                  </p>
+                </div>
+                
+                {/* viewMode Toggle Escape Hatch */}
+                <div className="flex bg-slate-50 p-1 rounded-lg border border-slate-100">
+                  <button 
+                    onClick={() => setViewMode("school")}
+                    className={`px-3 py-1 text-[9px] font-black uppercase tracking-wider rounded-md transition-all ${
+                      viewMode === "school" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    Konteks Sekolah
+                  </button>
+                  <button 
+                    onClick={() => setViewMode("aggregate")}
+                    className={`px-3 py-1 text-[9px] font-black uppercase tracking-wider rounded-md transition-all ${
+                      viewMode === "aggregate" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    Agregat Sistem
+                  </button>
+                </div>
               </div>
 
               <div className="flex-1 rounded-[1.25rem] overflow-hidden border border-slate-50 relative bg-slate-50">
                 <MapLibreMap
                   selectedSchool={selectedSchool}
                   onSchoolSelect={setSelectedSchool}
+                  userSchoolId={loggedInSchool?.id}
                 />
               </div>
             </motion.div>
@@ -151,40 +205,45 @@ export default function SekolahAdminPage() {
                     school={selectedSchool}
                     vendors={getVendorsBySekolah(selectedSchool.id)}
                     onClose={() => setSelectedSchool(null)}
+                    readOnly={selectedSchool.id !== 1} // asumsikan admin login sebagai sekolah ID 1
                   />
                 ) : (
                   <motion.div
-                    key="feature-stack"
+                    key="identity-panels"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     className="flex flex-col gap-1.5 h-full"
                   >
-                    {features.map((f, i) => (
+                    {identityPanels.map((p, i) => (
                       <motion.div
-                        key={f.title}
+                        key={p.title}
                         onClick={() => setSelectedFeature(selectedFeature === i ? null : i)}
                         className={`group bg-white rounded-[1.25rem] p-3.5 border transition-all duration-300 cursor-pointer flex flex-col justify-center flex-1 ${selectedFeature === i
-                            ? 'bg-gradient-to-br from-indigo-600 to-cyan-500 border-transparent text-white shadow-xl shadow-indigo-100'
-                            : 'border-slate-100 hover:bg-gradient-to-br hover:from-indigo-600 hover:to-cyan-500 hover:border-transparent hover:text-white shadow-sm'
+                            ? 'bg-gradient-to-br from-[#f59e0b] to-[#fbbf24] border-transparent text-white shadow-xl shadow-orange-100'
+                            : 'border-slate-100 hover:border-slate-200 shadow-sm'
                           }`}
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex-1">
-                            <h3 className={`text-[13px] font-black tracking-tight leading-none mb-1 transition-colors ${selectedFeature === i ? 'text-white' : 'text-slate-900 group-hover:text-white'
+                            <h3 className={`text-[13px] font-black tracking-tight leading-none mb-1 transition-colors ${selectedFeature === i ? 'text-white' : 'text-slate-900 group-hover:text-indigo-600'
                               }`}>
-                              {f.title}
+                              {p.title}
                             </h3>
-                            <p className={`text-[9px] font-bold transition-colors ${selectedFeature === i ? 'text-indigo-100' : 'text-slate-400 group-hover:text-indigo-100'
+                            <p className={`text-[10px] font-black transition-colors mb-0.5 ${selectedFeature === i ? 'text-orange-50' : 'text-slate-600'
                               }`}>
-                              {f.subtitle}
+                              {p.content}
+                            </p>
+                            <p className={`text-[8px] font-bold transition-colors ${selectedFeature === i ? 'text-orange-100/80' : 'text-slate-400 group-hover:text-slate-500'
+                              }`}>
+                              {p.subtitle}
                             </p>
                           </div>
                           <div className={`p-2.5 rounded-xl transition-all ${selectedFeature === i
                               ? 'bg-white/20 text-white'
-                              : 'bg-slate-50 group-hover:bg-white/20'
+                              : 'bg-slate-50 group-hover:bg-slate-100'
                             }`}>
-                            <f.icon
+                            <p.icon
                               className="w-4 h-4"
                               style={{ stroke: selectedFeature === i ? 'white' : 'url(#boga-icon-gradient)' }}
                             />
@@ -197,11 +256,11 @@ export default function SekolahAdminPage() {
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
                               exit={{ opacity: 0, height: 0 }}
-                              className="mt-4 pt-4 border-t border-white/20 flex-1 overflow-y-auto"
+                              className="mt-3 pt-3 border-t border-white/20 flex-1 overflow-y-auto"
                             >
-                              <p className={`text-[11px] font-medium leading-relaxed ${selectedFeature === i ? 'text-white/80' : 'text-slate-500'
+                              <p className={`text-[10px] font-medium leading-relaxed ${selectedFeature === i ? 'text-white/90' : 'text-slate-500'
                                 }`}>
-                                {f.desc}
+                                {p.detail}
                               </p>
                             </motion.div>
                           )}
@@ -216,12 +275,7 @@ export default function SekolahAdminPage() {
 
           {/* BOTTOM ROW: STATS */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-4 md:pb-8">
-            {[
-              { label: "Sekolah Aktif", value: 6, unit: "unit", icon: School },
-              { label: "Penerima Makan", value: 2693, unit: "0/hari", icon: Activity },
-              { label: "Gudang Penyalur", value: 4, unit: "0 titik", icon: ShieldCheck },
-              { label: "Mitra Terafiliasi", value: 5, unit: "0 vendor", icon: ChevronRight }
-            ].map((stat, i) => (
+            {stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 20 }}
@@ -246,20 +300,31 @@ export default function SekolahAdminPage() {
         </main>
 
         {/* VENDOR RANKING SECTION */}
-        <section id="vendor" className="relative px-6 pb-2 pt-16 bg-slate-50 flex justify-center border-t border-slate-200 overflow-hidden min-h-[60vh]">
-          <BackgroundParticles />
-          <div className="w-full max-w-3xl flex flex-col items-center">
+        <section id="vendor" className="scroll-mt-20 border-t border-slate-100 bg-slate-50/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">Monitoring Performa & Feedback</h2>
+              <p className="text-slate-500 max-w-2xl mx-auto font-medium text-sm leading-relaxed">
+                Pantau kualitas layanan dari seluruh ekosistem MBG secara real-time melalui audit digital dan feedback langsung dari sekolah.
+              </p>
+              
+              {/* Master Toggle (Removed for solely SPPG Tracking) */}
+
+
+            </motion.div>
+
             <button
               onClick={() => setShowRanking(!showRanking)}
-              className="group flex flex-col items-center gap-2 mb-6"
+              className="group flex flex-col items-center gap-3 mb-10 bg-white px-8 py-3 mt-10 rounded-full border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition-all"
             >
-              <h2 className="text-3xl font-black text-slate-900 text-center tracking-tight group-hover:text-indigo-600 transition-colors">
-                Top Performance Tracker
-              </h2>
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">
-                <span>{showRanking ? "Hide Ranking" : "View Vendor Ranking"}</span>
-                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showRanking ? "rotate-90" : ""}`} />
-              </div>
+              <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 group-hover:text-indigo-600">
+                {showRanking ? "Tutup Peringkat Unit" : "Buka Peringkat Audit Unit SPPG"} <ChevronRight className={`w-4 h-4 text-slate-300 transition-transform duration-300 ${showRanking ? "rotate-90 text-indigo-500" : ""}`} />
+              </span>
             </button>
 
             <AnimatePresence>
@@ -272,7 +337,25 @@ export default function SekolahAdminPage() {
                   className="w-full overflow-hidden"
                 >
                   <div className="pt-6 border-t border-slate-200">
-                    <VendorRanking />
+                    <VendorRanking 
+                      type="sppg"
+                      selectedId={selectedEntityId}
+                      onSelectVendor={setSelectedEntityId}
+                      highlightedIds={availableSPPG ? [availableSPPG.id] : []}
+                    />
+                    
+                    <motion.div
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      key={`sppg-${selectedEntityId}`}
+                    >
+                      <VendorPerformanceDashboard 
+                        type="sppg"
+                        entityId={selectedEntityId} 
+                      />
+                    </motion.div>
                   </div>
                 </motion.div>
               )}

@@ -44,7 +44,7 @@ export default function EntityPerformanceDashboard({ type, entityId }: Dashboard
   const [filter, setFilter] = useState<"all" | "negative">("all");
   const [followedUp, setFollowedUp] = useState<Record<number, boolean>>({});
   const [isAuditing, setIsAuditing] = useState(false);
-  const [auditRating, setAuditRating] = useState({ rasa: 0, higiene: 0, porsi: 0 });
+  const [auditRating, setAuditRating] = useState<Record<string, number>>({});
   const [auditSubmitted, setAuditSubmitted] = useState(false);
   const [downloadModal, setDownloadModal] = useState({ isOpen: false, fileName: "" });
   const [logSubmitted, setLogSubmitted] = useState(false);
@@ -160,9 +160,11 @@ export default function EntityPerformanceDashboard({ type, entityId }: Dashboard
               ) : (
                  <div className="space-y-6">
                    {[
-                      { key: "rasa", label: "Kualitas Gizi (Lab)" },
-                      { key: "higiene", label: "Higienitas Dapur (Sanitasi)" },
-                      { key: "porsi", label: "Kapasitas & Porsi (Batch)" },
+                      { key: "higienitas", label: "Higienitas" },
+                      { key: "kapasitas", label: "Kapasitas" },
+                      { key: "sanitasi", label: "Sanitasi" },
+                      { key: "waktu", label: "Penyajian Tepat Waktu" },
+                      { key: "akurasi", label: "Akurasi Pesanan" },
                    ].map((item) => (
                       <div key={item.key} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                          <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">{item.label}</span>
@@ -171,7 +173,7 @@ export default function EntityPerformanceDashboard({ type, entityId }: Dashboard
                               <button
                                 key={star}
                                 onClick={() => setAuditRating(prev => ({ ...prev, [item.key]: star }))}
-                                className={`w-10 h-10 border rounded-lg flex items-center justify-center text-sm transition-colors ${auditRating[item.key as keyof typeof auditRating] >= star
+                                className={`w-10 h-10 border rounded-lg flex items-center justify-center text-sm transition-colors ${(auditRating[item.key] || 0) >= star
                                     ? "bg-slate-800 border-slate-800 text-white"
                                     : "bg-white border-slate-200 text-slate-300 hover:bg-slate-50"
                                   }`}
@@ -186,7 +188,7 @@ export default function EntityPerformanceDashboard({ type, entityId }: Dashboard
                    <div className="pt-4 border-t border-slate-100 flex justify-end">
                       <button
                         onClick={handleAuditSubmit}
-                        disabled={!auditRating.rasa || !auditRating.higiene || !auditRating.porsi}
+                        disabled={Object.keys(auditRating).length < 5}
                         className="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 text-white rounded-lg text-xs font-black uppercase tracking-widest transition-colors"
                       >
                         Kirim Hasil Audit

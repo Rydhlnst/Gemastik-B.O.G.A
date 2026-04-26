@@ -19,7 +19,6 @@ const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: 
 
 function DesktopViewSiswa() {
   const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
-  const [showRanking, setShowRanking] = useState(false);
 
   const loggedInSchool = useMemo(() => sekolahList.find((s) => s.id === 1) ?? null, []);
 
@@ -28,11 +27,6 @@ function DesktopViewSiswa() {
       badge={<Badge variant="outline">Sekolah • Siswa</Badge>}
       title="Portal Siswa"
       description="Pantau status distribusi dan informasi sekolah yang dipilih."
-      actions={
-        <Button variant="outline" onClick={() => setShowRanking((v) => !v)}>
-          {showRanking ? "Tutup ranking" : "Buka ranking"}
-        </Button>
-      }
     >
       <section className="grid gap-6 lg:grid-cols-12">
         <Card className="lg:col-span-8">
@@ -41,7 +35,7 @@ function DesktopViewSiswa() {
             <CardDescription>Klik sekolah untuk melihat ringkasan dan detail vendor.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+            <div className="h-[500px] overflow-hidden rounded-xl border border-border bg-muted/10">
               <MapLibreMap
                 selectedSchool={selectedSchool}
                 onSchoolSelect={setSelectedSchool}
@@ -76,14 +70,22 @@ function DesktopViewSiswa() {
               </CardContent>
             </Card>
           )}
-
+        </div>
+        <div className="lg:col-span-12">
           <Card>
-            <CardHeader>
-              <CardTitle>Ranking vendor</CardTitle>
-              <CardDescription>Ringkasan vendor teratas untuk referensi.</CardDescription>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Ranking Mitra operasional</CardTitle>
+                <CardDescription>Ringkasan vendor katering dan unit SPPG teratas.</CardDescription>
+              </div>
             </CardHeader>
-            <CardContent>
-              {showRanking ? <VendorRanking type="vendor" /> : <p className="text-sm text-muted-foreground">Ranking disembunyikan.</p>}
+            <CardContent className="space-y-6 bg-slate-50/50 p-6 flex flex-col md:flex-row gap-6">
+              <div className="flex-1 w-full overflow-hidden">
+                <VendorRanking type="vendor" />
+              </div>
+              <div className="flex-1 w-full overflow-hidden">
+                <VendorRanking type="sppg" />
+              </div>
             </CardContent>
           </Card>
         </div>

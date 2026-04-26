@@ -99,7 +99,7 @@ export default function PerformanceRanking({ type, selectedId, onSelectVendor, h
         <span className="text-center">Profil</span>
         <span>{type === "vendor" ? "Nama Perusahaan" : "Nama Unit"}</span>
         <span className="text-center">{type === "vendor" ? "Volume Kirim" : "Kapasitas Unit"}</span>
-        {type === "sppg" && <span className="text-center">Kecamatan</span>}
+        {type === "sppg" ? <span className="text-center">Kecamatan</span> : <span className="text-center">Kategori</span>}
         <span className="text-center">On-Time</span>
         <span className="text-right">Rating</span>
       </div>
@@ -172,15 +172,15 @@ export default function PerformanceRanking({ type, selectedId, onSelectVendor, h
               </div>
 
               {/* Extra Logic for SPPG (Location) */}
-              <div className={`text-center transition-colors text-slate-600`}>
+              <div className={`text-center transition-colors text-slate-600 flex items-center justify-center`}>
                 {type === "sppg" ? (
                   <span className="text-[11px] font-bold flex items-center justify-center gap-1">
                     <MapPin className="w-3 h-3 opacity-50" />
                     {item.extra}
                   </span>
                 ) : (
-                  <span className="text-[11px] font-bold">
-                    {item.onTime}% <span className="text-[8px] opacity-50 uppercase ml-0.5">OTP</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest opacity-80 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {item.subtext}
                   </span>
                 )}
               </div>

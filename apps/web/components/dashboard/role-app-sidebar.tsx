@@ -19,6 +19,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
@@ -56,6 +57,7 @@ export function RoleAppSidebar({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { toggleSidebar, state } = useSidebar();
 
   const clearCookie = (name: string) => {
     document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
@@ -75,24 +77,36 @@ export function RoleAppSidebar({
     <Sidebar collapsible="icon">
       <SidebarHeader className="gap-2">
         <div className="flex items-center justify-between px-2">
-          <Link
-            href={homeHref}
-            className="flex items-center gap-2 min-w-0 rounded-[var(--radius-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <RoleMark text={appName} />
-            <div className="min-w-0 leading-tight group-data-[collapsible=icon]:hidden">
-              <div className="text-sm font-semibold text-sidebar-foreground truncate">
-                {appName}
+          {state === "expanded" ? (
+            <>
+              <div className="flex items-center gap-2 min-w-0">
+                <button
+                  type="button"
+                  onClick={toggleSidebar}
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-[var(--radius-md)] shrink-0 transition-opacity hover:opacity-80"
+                  aria-label="Toggle Sidebar"
+                >
+                  <RoleMark text={appName} />
+                </button>
+                <Link
+                  href={homeHref}
+                  className="min-w-0 leading-tight rounded-[var(--radius-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <div className="text-sm font-semibold text-sidebar-foreground truncate hover:text-sidebar-foreground/80 transition-colors">
+                    {appName}
+                  </div>
+                  <div className="text-xs text-sidebar-foreground/70 truncate">
+                    {roleLabel}
+                  </div>
+                </Link>
               </div>
-              <div className="text-xs text-sidebar-foreground/70 truncate">
-                {roleLabel}
-              </div>
+              <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground" />
+            </>
+          ) : (
+            <div className="flex items-center justify-center w-full">
+              <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground" />
             </div>
-          </Link>
-
-          <div className="hidden md:flex items-center">
-            <SidebarTrigger className="text-sidebar-foreground/70 hover:text-sidebar-foreground" />
-          </div>
+          )}
         </div>
 
         <SidebarSeparator />

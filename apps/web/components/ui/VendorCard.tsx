@@ -1,118 +1,81 @@
+import { StatusBadge } from "@/components/ui/status-badge";
 import { type Vendor, type VendorSekolah } from "@/lib/mbgdummydata";
+import { cn } from "@/lib/utils";
 
 type VendorWithRelasi = VendorSekolah & { vendor: Vendor };
+
+function normalizeVendorStatus(status?: string) {
+  const normalized = String(status ?? "").trim().toUpperCase();
+  if (!normalized) return "PENDING";
+  if (normalized === "AKTIF" || normalized === "ACTIVE") return "AKTIF";
+  if (normalized === "SUSPEND" || normalized === "SUSPENDED") return "SUSPENDED";
+  return normalized;
+}
 
 export function VendorCard({
   data,
   color,
+  className,
 }: {
   data: VendorWithRelasi;
-  color: string;
+  color?: string;
+  className?: string;
 }) {
+  const vendor = data.vendor;
+
   return (
     <div
-      className="p-4 rounded-2xl mb-3"
-      style={{
-        background: "rgba(255,255,255,0.6)",
-        border: "1px solid rgba(99,102,241,0.14)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-      }}
+      className={cn(
+        "p-4 rounded-[var(--radius-lg)] bg-surface/80 backdrop-blur border border-border shadow-card",
+        className
+      )}
     >
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 2,
-                background: color,
-                flexShrink: 0,
-              }}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span
+              aria-hidden
+              className="inline-flex w-2.5 h-2.5 rounded-[4px] flex-shrink-0"
+              style={{ background: color ?? "var(--role-primary)" }}
             />
-            <p style={{ fontWeight: 800, fontSize: 14, color: "#111827", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {data.vendor.nama}
+            <p className="font-semibold text-sm text-foreground truncate">
+              {vendor.nama}
             </p>
           </div>
 
-          <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 3px 0" }}>
-            {data.vendor.kategori.replace("_", " ")}
-          </p>
-          <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 3px 0" }}>
-            {data.vendor.rating} bintang · {data.vendor.on_time_rate}% on-time
-          </p>
-          <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 10px 0" }}>
-            {data.vendor.alamat}
-          </p>
+          <div className="space-y-0.5 text-xs text-muted">
+            <p className="truncate">{vendor.kategori.replaceAll("_", " ")}</p>
+            <p className="truncate tabular-nums">
+              {vendor.rating} bintang · {vendor.on_time_rate}% on-time
+            </p>
+            <p className="truncate">{vendor.alamat}</p>
+          </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "#374151",
-                padding: "4px 8px",
-                borderRadius: 9999,
-                background: "rgba(99,102,241,0.08)",
-                border: "1px solid rgba(99,102,241,0.12)",
-              }}
-            >
+          <div className="flex flex-wrap gap-2 mt-3">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-border bg-role-accent text-role-primary">
               {data.is_primary ? "Vendor Utama" : "Vendor Cadangan"}
             </span>
-
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                color: "#374151",
-                padding: "4px 8px",
-                borderRadius: 9999,
-                background: "rgba(16,185,129,0.08)",
-                border: "1px solid rgba(16,185,129,0.12)",
-              }}
-            >
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full border border-border bg-muted-bg text-foreground tabular-nums">
               {data.porsi_per_hari.toLocaleString("id-ID")} porsi/hari
             </span>
           </div>
 
           {data.menu_default?.length ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {data.menu_default.slice(0, 6).map((m) => (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {data.menu_default.slice(0, 6).map((menu) => (
                 <span
-                  key={m}
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 700,
-                    color: "#4b5563",
-                    padding: "4px 10px",
-                    borderRadius: 9999,
-                    background: "rgba(255,255,255,0.7)",
-                    border: "1px solid rgba(0,0,0,0.05)",
-                  }}
+                  key={menu}
+                  className="text-xs font-medium px-2.5 py-0.5 rounded-full border border-border bg-surface text-muted"
                 >
-                  {m.replace("_", " ")}
+                  {menu.replaceAll("_", " ")}
                 </span>
               ))}
             </div>
           ) : null}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 800,
-              color: data.vendor.status === "aktif" ? "#10b981" : data.vendor.status === "suspend" ? "#ef4444" : "#f59e0b",
-              textTransform: "uppercase",
-              letterSpacing: "0.03em",
-              padding: "4px 10px",
-              borderRadius: 9999,
-              background: "rgba(0,0,0,0.03)",
-              border: "1px solid rgba(0,0,0,0.05)",
-            }}
-          >
-            {data.vendor.status}
-          </span>
+        <div className="flex flex-col items-end gap-2">
+          <StatusBadge status={normalizeVendorStatus(vendor.status)} />
         </div>
       </div>
     </div>

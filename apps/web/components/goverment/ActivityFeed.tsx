@@ -29,17 +29,17 @@ const iconMap: Record<FeedItemType, React.ReactNode> = {
 };
 
 const colorMap: Record<FeedItemType, string> = {
-  success: "bg-emerald-100 text-emerald-600",
-  warning: "bg-amber-100 text-amber-600",
-  info: "bg-indigo-100 text-indigo-600",
-  refund: "bg-rose-100 text-rose-600",
+  success: "bg-status-success-bg text-status-success",
+  warning: "bg-status-warning-bg text-status-warning",
+  info: "bg-status-info-bg text-status-info",
+  refund: "bg-status-danger-bg text-status-danger",
 };
 
 const dotMap: Record<FeedItemType, string> = {
-  success: "bg-emerald-500",
-  warning: "bg-amber-500",
-  info: "bg-indigo-400",
-  refund: "bg-rose-500",
+  success: "bg-status-success",
+  warning: "bg-status-warning",
+  info: "bg-status-info",
+  refund: "bg-status-danger",
 };
 
 interface ActivityFeedProps {
@@ -50,23 +50,23 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
   const router = useRouter();
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-surface rounded-[var(--radius-xl)] border border-border shadow-card overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-sm">
+          <div className="w-8 h-8 rounded-[var(--radius-md)] bg-role-primary flex items-center justify-center text-white shadow-card">
             <Activity className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-gray-900">Log Aktivitas</h2>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+            <h2 className="text-sm font-semibold text-foreground">Log Aktivitas</h2>
+            <p className="text-xs font-medium text-muted uppercase tracking-wider">
               Stream real-time sistem
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">
+        <div className="flex items-center gap-2 px-3 py-1 bg-role-surface rounded-full border border-border">
+          <div className="w-1.5 h-1.5 rounded-full bg-status-success animate-pulse" />
+          <span className="text-xs font-semibold text-role-primary uppercase tracking-wider">
             Live
           </span>
         </div>
@@ -79,13 +79,13 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
           animate={{ opacity: 1 }}
           className="flex flex-col items-center justify-center py-16 text-center"
         >
-          <div className="w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4">
-            <Inbox className="w-7 h-7 text-gray-300" />
+          <div className="w-14 h-14 rounded-[var(--radius-xl)] bg-surface-raised border border-border flex items-center justify-center mb-4">
+            <Inbox className="w-7 h-7 text-muted" />
           </div>
-          <p className="text-sm font-bold text-gray-400">
+          <p className="text-sm font-semibold text-muted">
             Belum ada aktivitas hari ini
           </p>
-          <p className="text-[10px] text-gray-300 font-medium mt-1">
+          <p className="text-xs text-muted font-medium mt-1">
             Aktivitas sistem akan muncul di sini secara real-time
           </p>
         </motion.div>
@@ -93,7 +93,7 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
 
       {/* Feed Items */}
       {items.length > 0 && (
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-border">
           <AnimatePresence>
             {items.map((item, index) => (
               <motion.button
@@ -102,11 +102,11 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.04 }}
                 onClick={() => router.push(item.href)}
-                className="w-full flex items-center gap-4 px-6 py-3.5 hover:bg-gray-50/60 transition-all text-left group"
+                className="w-full flex items-center gap-4 px-6 py-3.5 hover:bg-muted-bg/60 transition-colors text-left group"
               >
                 {/* Type Icon */}
                 <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center ${colorMap[item.type]}`}
+                  className={`flex-shrink-0 w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center ${colorMap[item.type]}`}
                 >
                   {iconMap[item.type]}
                 </div>
@@ -117,17 +117,17 @@ export function ActivityFeed({ items }: ActivityFeedProps) {
                 />
 
                 {/* Message */}
-                <p className="flex-1 text-[11px] font-semibold text-gray-700 leading-snug group-hover:text-gray-900 transition-colors">
+                <p className="flex-1 text-sm font-medium text-foreground leading-snug">
                   {item.message}
                 </p>
 
                 {/* Time */}
-                <span className="flex-shrink-0 text-[9px] font-bold text-gray-300 uppercase tracking-wider whitespace-nowrap">
+                <span className="flex-shrink-0 text-xs font-medium text-muted uppercase tracking-wider whitespace-nowrap">
                   {item.time}
                 </span>
 
                 {/* Arrow indicator */}
-                <div className="flex-shrink-0 w-5 h-5 rounded-lg flex items-center justify-center text-gray-200 group-hover:text-indigo-400 group-hover:bg-indigo-50 transition-all">
+                <div className="flex-shrink-0 w-5 h-5 rounded-[var(--radius-sm)] flex items-center justify-center text-muted/50 group-hover:text-role-primary group-hover:bg-role-accent transition-colors">
                   <svg
                     width="10"
                     height="10"

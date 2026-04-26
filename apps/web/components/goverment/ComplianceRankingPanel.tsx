@@ -7,6 +7,7 @@ import { ComplianceModal } from "./ComplianceModal"
 import { cn } from "@/lib/utils"
 import { TrendingUp, TrendingDown, ExternalLink } from "lucide-react"
 import { motion } from "framer-motion"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 // ── RadialBar (SVG arc) ───────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ function RadialArc({
       {/* SVG Arc */}
       <div className="relative w-[76px] h-[76px]">
         <svg className="w-full h-full -rotate-90" aria-hidden>
-          <circle cx="38" cy="38" r={R} fill="transparent" stroke="#f1f5f9" strokeWidth={6} />
+          <circle cx="38" cy="38" r={R} fill="transparent" stroke="hsl(var(--border))" strokeWidth={6} />
           <motion.circle
             cx="38" cy="38" r={R}
             fill="transparent"
@@ -39,16 +40,25 @@ function RadialArc({
             transition={{ duration: 0.8, ease: "easeOut" }}
           />
         </svg>
-        <span className="absolute inset-0 flex items-center justify-center text-[15px] font-black text-slate-800">
+        <span className="absolute inset-0 flex items-center justify-center text-[15px] font-black text-foreground">
           {skor}%
         </span>
       </div>
 
       {/* Kategori */}
-      <p className="text-[9px] font-black text-slate-500 uppercase tracking-wider">{kategori}</p>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">{kategori}</p>
 
       {/* Delta anchor */}
-      <p className={cn("text-[9px] font-bold flex items-center gap-0.5", trend === "up" ? "text-emerald-600" : trend === "down" ? "text-red-500" : "text-slate-400")}>
+      <p
+        className={cn(
+          "text-xs font-semibold flex items-center gap-0.5",
+          trend === "up"
+            ? "text-status-success"
+            : trend === "down"
+            ? "text-status-danger"
+            : "text-status-pending"
+        )}
+      >
         {trend === "up" ? <TrendingUp className="w-2.5 h-2.5" aria-hidden /> : trend === "down" ? <TrendingDown className="w-2.5 h-2.5" aria-hidden /> : null}
         {trend !== "stable" && `${trend === "up" ? "+" : "-"}${trendValue}% vs bln lalu`}
       </p>
@@ -58,7 +68,11 @@ function RadialArc({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-const RADIAL_COLORS = ["#10b981", "#6366f1", "#06b6d4"]
+const RADIAL_COLORS = [
+  "hsl(var(--status-success))",
+  "hsl(var(--role-primary))",
+  "hsl(var(--status-info))",
+]
 
 export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
   const router = useRouter()
@@ -70,11 +84,11 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-slate-100 p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-surface rounded-[var(--radius-lg)] border border-border p-5 shadow-card grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {/* Left — RadialBar compliance */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-4">
             Kepatuhan Sistem
           </p>
           <div className="flex justify-around items-start">
@@ -90,7 +104,7 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
           <button
             onClick={() => setModalData(scores[1])} // default to Sekolah (often below threshold)
             aria-label="Lihat detail audit kepatuhan"
-            className="mt-4 w-full py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-100 text-[9px] font-black uppercase tracking-wider text-slate-500 transition-all"
+            className="mt-4 w-full py-2 rounded-[var(--radius-md)] bg-surface-raised hover:bg-muted/30 border border-border text-xs font-semibold uppercase tracking-widest text-muted-foreground transition-colors"
           >
             Lihat Detail Audit
           </button>
@@ -98,9 +112,9 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
 
         {/* Right — Vendor Ranking */}
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-4">
             Ranking Vendor On-Time Rate
-            <span className="ml-1.5 text-slate-300 normal-case font-normal">(terendah di atas)</span>
+            <span className="ml-1.5 text-muted-foreground/60 normal-case font-normal">(terendah di atas)</span>
           </p>
 
           <div className="flex flex-col gap-2" role="list" aria-label="Ranking vendor berdasarkan on-time rate">
@@ -116,19 +130,17 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
                     <button
                       onClick={() => router.push(`/goverment/pengajuan?vendor=${v.id}`)}
                       aria-label={`Lihat detail vendor ${v.nama} di halaman pengajuan`}
-                      className="text-[10px] font-bold text-slate-700 hover:text-indigo-600 transition-colors text-left min-w-0 truncate flex-1"
+                      className="text-sm font-semibold text-foreground hover:text-role-primary transition-colors text-left min-w-0 truncate flex-1"
                     >
                       {v.nama}
                     </button>
                     {/* Badge suspend */}
                     {isSuspended && (
-                      <span className="text-[8px] font-black text-white bg-red-500 px-1.5 py-0.5 rounded-md" aria-label="Vendor suspended">
-                        SUSPEND
-                      </span>
+                      <StatusBadge status="SUSPEND" />
                     )}
                     {/* Rate at end of bar (no X axis needed) */}
                     <span
-                      className={cn("text-[10px] font-black shrink-0 w-12 text-right", isLow ? "text-red-600" : "text-slate-700")}
+                      className={cn("text-xs font-semibold shrink-0 w-16 text-right tabular-nums", isLow ? "text-status-danger" : "text-foreground")}
                       aria-label={`${v.onTimeRate}%`}
                     >
                       {isLow ? "✕ " : "● "}{v.onTimeRate}%
@@ -136,13 +148,13 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
                     <button
                       onClick={() => router.push(`/goverment/pengajuan?vendor=${v.id}`)}
                       aria-label={`Navigasi ke pengajuan vendor ${v.nama}`}
-                      className="w-5 h-5 flex items-center justify-center text-slate-300 hover:text-indigo-500 transition-colors opacity-0 group-hover:opacity-100"
+                      className="w-6 h-6 flex items-center justify-center text-muted-foreground hover:text-role-primary transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <ExternalLink className="w-3 h-3" aria-hidden />
                     </button>
                   </div>
                   {/* Bar — no X axis, no gridlines */}
-                  <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden" aria-hidden>
+                  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden" aria-hidden>
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${barPct}%` }}
@@ -150,10 +162,10 @@ export const ComplianceRankingPanel = memo(function ComplianceRankingPanel() {
                       className="h-full rounded-full"
                       style={{
                         background: isLow
-                          ? "#ef4444"
+                          ? "hsl(var(--status-danger))"
                           : isSuspended
-                          ? "#f59e0b"
-                          : "linear-gradient(90deg,#6366f1,#06b6d4)",
+                          ? "hsl(var(--status-warning))"
+                          : "linear-gradient(90deg,hsl(var(--role-primary)),hsl(var(--status-info)))",
                       }}
                     />
                   </div>

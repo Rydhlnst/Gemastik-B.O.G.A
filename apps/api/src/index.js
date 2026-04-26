@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth.route');
 const inventoryRoutes = require('./routes/inventory.route'); // <-- TAMBAHKAN BARIS INI
 const katalogRoutes = require('./routes/katalog.route'); // <-- TAMBAHKAN BARIS INI
 const spkRoutes = require('./routes/spk.route');
+const biddingRoutes = require('./routes/bidding.route');
 
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoutes); // Semua API auth akan diawali dengan /api/aut
 app.use('/api/inventory', inventoryRoutes); // <-- TAMBAHKAN BARIS INI
 app.use('/api/katalog', katalogRoutes);
 app.use('/api/spk', spkRoutes);
+app.use('/api/bidding', biddingRoutes);
 
 
 

@@ -37,29 +37,29 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
   return (
     <div
       className={cn(
-        "bg-white rounded-2xl border p-5 relative overflow-hidden",
-        isBelowTarget ? "border-amber-200" : "border-slate-100"
+        "relative overflow-hidden rounded-xl border bg-surface p-5 shadow-[var(--shadow-card)]",
+        isBelowTarget ? "border-status-warning/30" : "border-border"
       )}
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-1">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-0.5">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             On-Time Rate
           </p>
-          <p className={cn("text-xl font-black tracking-tighter", isBelowTarget ? "text-amber-600" : "text-teal-600")}>
+          <p className={cn("text-2xl font-semibold tracking-tight tabular-nums", isBelowTarget ? "text-status-warning" : "text-status-success")}>
             {current}%
           </p>
         </div>
         {/* Delta vs prev — anchoring */}
-        <div className="flex items-center gap-1 text-[10px] font-bold">
+        <div className="flex items-center gap-2 text-sm">
           {isDown
-            ? <TrendingDown className="w-3 h-3 text-red-500" aria-hidden />
-            : <TrendingUp className="w-3 h-3 text-emerald-500" aria-hidden />}
-          <span className={isDown ? "text-red-500" : "text-emerald-500"}>
+            ? <TrendingDown className="w-4 h-4 text-status-danger" aria-hidden />
+            : <TrendingUp className="w-4 h-4 text-status-success" aria-hidden />}
+          <span className={cn("font-medium tabular-nums", isDown ? "text-status-danger" : "text-status-success")}>
             {isDown ? "" : "+"}{delta}%
           </span>
-          <span className="text-slate-400">vs periode lalu ({prev}%)</span>
+          <span className="text-muted-foreground">vs periode lalu ({prev}%)</span>
         </div>
       </div>
 
@@ -67,8 +67,8 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
         <AreaChart data={series} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
           <defs>
             <linearGradient id="onTimeGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={isBelowTarget ? "#f59e0b" : "#14b8a6"} stopOpacity={0.15} />
-              <stop offset="95%" stopColor={isBelowTarget ? "#f59e0b" : "#14b8a6"} stopOpacity={0} />
+              <stop offset="5%" stopColor={isBelowTarget ? "hsl(var(--status-warning))" : "hsl(var(--status-success))"} stopOpacity={0.15} />
+              <stop offset="95%" stopColor={isBelowTarget ? "hsl(var(--status-warning))" : "hsl(var(--status-success))"} stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -81,9 +81,9 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
                 x={Number(x) - 4}
                 y={Number(y) + 4}
                 textAnchor="end"
-                fontSize={8}
-                fontWeight={700}
-                fill={(payload.value as number) === TARGET ? "#ef4444" : "#94a3b8"}
+                fontSize={12}
+                fontWeight={500}
+                fill={(payload.value as number) === TARGET ? "hsl(var(--status-danger))" : "hsl(var(--muted-foreground))"}
               >
                 {payload.value}%
               </text>
@@ -99,7 +99,7 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
             tick={({ x, y, payload }) => {
               if (payload.value !== firstLabel && payload.value !== lastLabel) return <g />
               return (
-                <text x={Number(x)} y={Number(y) + 12} textAnchor="middle" fontSize={9} fontWeight={700} fill="#94a3b8">
+                <text x={Number(x)} y={Number(y) + 14} textAnchor="middle" fontSize={12} fontWeight={500} fill="hsl(var(--muted-foreground))">
                   {payload.value}
                 </text>
               )
@@ -111,21 +111,21 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
           <Tooltip
             content={({ active, payload, label }) =>
               active && payload?.length ? (
-                <div className="bg-white rounded-xl shadow-xl border border-slate-100 px-3 py-2">
-                  <p className="text-[9px] font-black text-slate-400 uppercase">{label}</p>
-                  <p className={cn("text-sm font-black", (payload[0].value as number) < TARGET ? "text-amber-600" : "text-teal-600")}>
+                <div className="rounded-xl border border-border bg-surface px-4 py-3 shadow-[var(--shadow-md)]">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+                  <p className={cn("text-sm font-semibold", (payload[0].value as number) < TARGET ? "text-status-warning" : "text-status-success")}>
                     {payload[0].value}%
                   </p>
                 </div>
               ) : null
             }
-            cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }}
+            cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1 }}
           />
 
           {/* Target line — the only gridline */}
           <ReferenceLine
             y={TARGET}
-            stroke="#ef4444"
+            stroke="hsl(var(--status-danger))"
             strokeWidth={1}
             strokeDasharray="4 4"
             aria-label="Garis target on-time rate 95%"
@@ -134,7 +134,7 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
           <Area
             type="monotone"
             dataKey="rate"
-            stroke={isBelowTarget ? "#f59e0b" : "#14b8a6"}
+            stroke={isBelowTarget ? "hsl(var(--status-warning))" : "hsl(var(--status-success))"}
             strokeWidth={2}
             fill="url(#onTimeGrad)"
             dot={false}
@@ -148,7 +148,7 @@ export const OnTimeRateChart = memo(function OnTimeRateChart() {
         <button
           onClick={() => router.push("/goverment/verifikasi")}
           aria-label="Lihat keterlambatan aktif di halaman verifikasi"
-          className="absolute bottom-5 right-5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 text-[9px] font-black uppercase tracking-wider hover:bg-amber-200 transition-all"
+          className="absolute bottom-5 right-5 flex items-center gap-2 rounded-full border border-status-warning/30 bg-status-warning-bg px-4 py-2 text-sm font-medium text-status-warning hover:bg-status-warning-bg/70 transition-colors"
         >
           <ExternalLink className="w-3 h-3" aria-hidden />
           Lihat keterlambatan aktif

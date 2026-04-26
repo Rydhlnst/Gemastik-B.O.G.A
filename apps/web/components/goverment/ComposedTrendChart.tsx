@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo, memo } from "react"
-import { useRouter } from "next/navigation"
 import { useDashboardFilter } from "./DashboardFilterContext"
 import {
   getDeliveryTrend,
@@ -29,14 +28,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   const d: TrendDataPoint = payload[0]?.payload
   return (
-    <div className="bg-white rounded-xl shadow-xl border border-slate-100 px-4 py-3 min-w-[160px]">
-      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-sm font-black text-teal-600">{d.porsi.toLocaleString("id-ID")} porsi</p>
-      <p className="text-[10px] font-bold text-pink-500 mb-2">{fmtRp(d.pengeluaran)}</p>
-      <div className="flex flex-col gap-0.5 border-t border-slate-50 pt-1.5">
-        <span className="text-[9px] text-rose-500 font-bold">SD: {d.porsiSD.toLocaleString("id-ID")}</span>
-        <span className="text-[9px] text-indigo-500 font-bold">SMP: {d.porsiSMP.toLocaleString("id-ID")}</span>
-        <span className="text-[9px] text-slate-500 font-bold">SMA: {d.porsiSMA.toLocaleString("id-ID")}</span>
+    <div className="min-w-[190px] rounded-xl border border-border bg-surface px-4 py-3 shadow-[var(--shadow-md)]">
+      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-sm font-semibold text-foreground">{d.porsi.toLocaleString("id-ID")} porsi</p>
+      <p className="mb-2 text-sm font-medium text-muted-foreground">{fmtRp(d.pengeluaran)}</p>
+      <div className="flex flex-col gap-1 border-t border-border pt-2">
+        <span className="text-xs text-foreground">SD: {d.porsiSD.toLocaleString("id-ID")}</span>
+        <span className="text-xs text-foreground">SMP: {d.porsiSMP.toLocaleString("id-ID")}</span>
+        <span className="text-xs text-foreground">SMA: {d.porsiSMA.toLocaleString("id-ID")}</span>
       </div>
     </div>
   )
@@ -55,22 +54,24 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
   const lastLabel = series[series.length - 1]?.label
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-5">
-      <div className="flex justify-between items-start mb-4">
+    <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400 mb-0.5">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Tren Distribusi
           </p>
-          <p className="text-xs font-bold text-slate-600">
+          <p className="text-sm text-muted-foreground">
             Porsi dikirim{" "}
-            <span className="text-slate-400 font-normal">vs</span>{" "}
+            <span className="text-muted-foreground">vs</span>{" "}
             pengeluaran
           </p>
         </div>
         {avgPrev > 0 && (
           <div className="text-right">
-            <p className="text-[9px] text-slate-400 font-bold">Rata-rata periode lalu</p>
-            <p className="text-xs font-black text-slate-500">{avgPrev.toLocaleString("id-ID")} porsi/hari</p>
+            <p className="text-xs text-muted-foreground">Rata-rata periode lalu</p>
+            <p className="text-sm font-semibold text-foreground tabular-nums">
+              {avgPrev.toLocaleString("id-ID")} porsi/hari
+            </p>
           </div>
         )}
       </div>
@@ -79,8 +80,8 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
         <ComposedChart data={series} margin={{ left: 0, right: 0, top: 8, bottom: 0 }}>
           <defs>
             <linearGradient id="porsiGrad2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.12} />
-              <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+              <stop offset="5%" stopColor="hsl(var(--status-info))" stopOpacity={0.16} />
+              <stop offset="95%" stopColor="hsl(var(--status-info))" stopOpacity={0} />
             </linearGradient>
           </defs>
 
@@ -90,7 +91,14 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
             tick={({ x, y, payload }) => {
               if (payload.value !== firstLabel && payload.value !== lastLabel) return <g />
               return (
-                <text x={Number(x)} y={Number(y) + 12} textAnchor="middle" fontSize={9} fontWeight={700} fill="#94a3b8">
+                <text
+                  x={Number(x)}
+                  y={Number(y) + 14}
+                  textAnchor="middle"
+                  fontSize={12}
+                  fontWeight={500}
+                  fill="hsl(var(--muted-foreground))"
+                >
                   {payload.value}
                 </text>
               )
@@ -102,7 +110,7 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
             yAxisId="porsi"
             orientation="left"
             tickFormatter={fmt}
-            tick={{ fontSize: 9, fontWeight: 700, fill: "#94a3b8" }}
+            tick={{ fontSize: 12, fontWeight: 500, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
             width={36}
@@ -111,26 +119,27 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
             yAxisId="pengeluaran"
             orientation="right"
             tickFormatter={fmtRp}
-            tick={{ fontSize: 9, fontWeight: 700, fill: "#f9a8d4" }}
+            tick={{ fontSize: 12, fontWeight: 500, fill: "hsl(var(--muted-foreground))" }}
             axisLine={false}
             tickLine={false}
             width={44}
           />
 
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: "hsl(var(--border))", strokeWidth: 1 }} />
 
           {/* Avg prev dashed reference line (area-wide) */}
           {avgPrev > 0 && (
             <ReferenceLine
               yAxisId="porsi"
               y={avgPrev}
-              stroke="#94a3b8"
+              stroke="hsl(var(--muted-foreground))"
               strokeDasharray="4 4"
               strokeWidth={1}
               label={{
                 value: `Avg lalu: ${fmt(avgPrev)}`,
                 position: "insideTopLeft" as const,
-                fontSize: 8,
+                fontSize: 12,
+                fill: "hsl(var(--muted-foreground))",
               }}
             />
           )}
@@ -140,11 +149,11 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
             yAxisId="porsi"
             type="monotone"
             dataKey="porsi"
-            stroke="#14b8a6"
+            stroke="hsl(var(--status-info))"
             strokeWidth={2.5}
             fill="url(#porsiGrad2)"
             dot={false}
-            activeDot={{ r: 4, strokeWidth: 0, fill: "#14b8a6" }}
+            activeDot={{ r: 4, strokeWidth: 0, fill: "hsl(var(--status-info))" }}
           />
 
           {/* Pengeluaran — secondary, pink dashed, thin */}
@@ -152,11 +161,11 @@ export const ComposedTrendChart = memo(function ComposedTrendChart() {
             yAxisId="pengeluaran"
             type="monotone"
             dataKey="pengeluaran"
-            stroke="#f472b6"
+            stroke="hsl(var(--role-badge))"
             strokeWidth={1.5}
             strokeDasharray="5 3"
             dot={false}
-            activeDot={{ r: 3, strokeWidth: 0, fill: "#f472b6" }}
+            activeDot={{ r: 3, strokeWidth: 0, fill: "hsl(var(--role-badge))" }}
           />
         </ComposedChart>
       </ResponsiveContainer>

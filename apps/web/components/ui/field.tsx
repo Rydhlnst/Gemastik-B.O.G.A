@@ -9,7 +9,7 @@ export function Field({ className, orientation = "vertical", ...props }: React.H
   return (
     <div
       className={cn(
-        "flex w-full rounded-lg border border-gray-200 bg-white/80 p-3 shadow-sm transition-all hover:bg-white hover:border-gray-300 has-[[data-state=checked]]:border-indigo-500 has-[[data-state=checked]]:bg-indigo-50/50 hover:-translate-y-0.5",
+        "flex w-full rounded-lg border border-gray-200 bg-white/80 p-3 shadow-sm transition-all hover:bg-white hover:border-gray-300 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 hover:-translate-y-0.5",
         orientation === "horizontal" ? "flex-row items-center justify-between" : "flex-col",
         className
       )}

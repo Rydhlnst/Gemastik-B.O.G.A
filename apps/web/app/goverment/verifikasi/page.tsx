@@ -10,7 +10,10 @@ import {
   RotateCcw, BadgeCheck, Copy
 } from "lucide-react";
 import { ContextualMinimap, type MinimapEntity } from "@/components/goverment/ContextualMinimap";
-import { vendorList, sekolahList } from "@/lib/mbgdummydata";
+import { VendorVerificationDropdown } from "@/components/goverment/VendorVerificationDropdown";
+import { SppgReceivingDropdown } from "@/components/goverment/SppgReceivingDropdown";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -102,7 +105,12 @@ const REFUND_CASES: RefundCase[] = [
 
 function CountdownBar({ hoursLeft, totalHours = 48 }: { hoursLeft: number; totalHours?: number }) {
   const pct = (hoursLeft / totalHours) * 100;
-  const color = hoursLeft <= 12 ? "#ef4444" : hoursLeft <= 24 ? "#f59e0b" : "#6366f1";
+  const color =
+    hoursLeft <= 12
+      ? "hsl(var(--status-danger))"
+      : hoursLeft <= 24
+      ? "hsl(var(--status-warning))"
+      : "hsl(var(--role-primary))";
   const isUrgent = hoursLeft <= 12;
 
   return (
@@ -288,39 +296,40 @@ export default function VerifikasiPage() {
   ];
 
   return (
-    <div className="p-6 space-y-5 min-h-full bg-slate-50/50">
-
-      {/* Header */}
-      <div className="flex items-center justify-between pb-2 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-indigo-600">
-            <ShieldCheck className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Verifikasi & Arbitrase</h1>
-            <p className="text-xs text-gray-400">Panel pengelolaan sengketa dan pengembalian kas negara</p>
-          </div>
-        </div>
-
-        {/* Badges */}
-        <div className="flex items-center gap-2">
-          {pendingCount > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 rounded-full">
-              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span className="text-[9px] font-black text-red-600 uppercase tracking-wider">{pendingCount} Sengketa Aktif</span>
+    <div className="min-h-full bg-background text-foreground">
+      <div className="space-y-6 px-4 py-6 md:px-6 lg:px-8">
+        <PageHeader
+          title={
+            <span className="inline-flex items-center gap-3">
+              <span className="inline-flex size-11 items-center justify-center rounded-2xl bg-role-primary text-white">
+                <ShieldCheck className="size-5" />
+              </span>
+              <span>Verifikasi & Arbitrase</span>
+            </span>
+          }
+          subtitle="Panel pengelolaan sengketa dan pengembalian kas negara."
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              {pendingCount > 0 ? (
+                <span className="inline-flex items-center gap-2 rounded-full border border-status-danger/25 bg-status-danger-bg px-4 py-2 text-xs font-medium uppercase tracking-wide text-status-danger">
+                  <span className="size-2 rounded-full bg-status-danger" aria-hidden />
+                  {pendingCount} sengketa aktif
+                </span>
+              ) : null}
+              {refundReady > 0 ? (
+                <span className="inline-flex items-center gap-2 rounded-full border border-status-warning/25 bg-status-warning-bg px-4 py-2 text-xs font-medium uppercase tracking-wide text-status-warning">
+                  <Zap className="size-4" aria-hidden />
+                  {refundReady} siap dieksekusi
+                </span>
+              ) : null}
             </div>
-          )}
-          {refundReady > 0 && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-full">
-              <Zap className="w-3 h-3 text-amber-600" />
-              <span className="text-[9px] font-black text-amber-700 uppercase tracking-wider">{refundReady} Siap Dieksekusi</span>
-            </div>
-          )}
-        </div>
-      </div>
+          }
+        />
 
-      {/* Tabs */}
-      <div className="flex gap-2 bg-gray-100 p-1 rounded-2xl w-fit">
+      <VendorVerificationDropdown />
+      <SppgReceivingDropdown />
+
+      <div className="w-fit rounded-full border border-border bg-surface p-1 shadow-[var(--shadow-card)]">
         {([
           { key: "arbitrase", label: "Panel Arbitrase BGN", icon: ShieldCheck, badge: pendingCount },
           { key: "refund", label: "Kendali Refund", icon: RotateCcw, badge: refundReady },
@@ -328,16 +337,17 @@ export default function VerifikasiPage() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`relative flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+            className={cn(
+              "relative inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors",
               activeTab === tab.key
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+                ? "bg-surface-raised text-foreground"
+                : "text-muted-foreground hover:bg-surface-raised/70 hover:text-foreground"
+            )}
           >
-            <tab.icon className="w-3.5 h-3.5" />
-            {tab.label}
+            <tab.icon className="size-4" />
+            <span>{tab.label}</span>
             {tab.badge > 0 && (
-              <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[8px] flex items-center justify-center">
+              <span className="inline-flex size-5 items-center justify-center rounded-full bg-status-danger text-xs font-semibold text-white">
                 {tab.badge}
               </span>
             )}
@@ -613,6 +623,7 @@ export default function VerifikasiPage() {
           />
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

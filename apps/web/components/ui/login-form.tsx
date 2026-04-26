@@ -1,13 +1,15 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import type { AuthMode, Role } from "@/app/auth/login/page";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-browser-client";
 
 interface LoginFormProps {
   className?: string;
@@ -25,30 +27,162 @@ export function LoginForm({
   onBack,
 }: LoginFormProps) {
   const isSignup = mode === "signup";
-  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isDev = process.env.NODE_ENV === "development";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailSignup, setEmailSignup] = useState("");
+  const [phone, setPhone] = useState("");
+  const [passwordSignup, setPasswordSignup] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const redirectByRole: Record<string, string> = {
+    sekolah: "/sekolah/admin",
+    goverment: "/goverment/dashboard",
+    sppg: "/sppg/dashboard",
+    vendor: "/vendor/dashboard",
+    logistik: "/logistik/dashboard",
+  };
+
+  type AppRole = "admin" | "sppg" | "logistik" | "sekolah" | "vendor";
+
+  const safeNext = useMemo(() => {
+    const next = searchParams.get("next");
+    if (!next) return null;
+    if (!next.startsWith("/")) return null;
+    if (next.startsWith("//")) return null;
+    if (next.includes("://")) return null;
+    return next;
+  }, [searchParams]);
+
+  const requiredRoleForPath = (pathname: string): AppRole | null => {
+    if (pathname.startsWith("/goverment")) return "admin";
+    if (pathname.startsWith("/vendor")) return "vendor";
+    if (pathname.startsWith("/supplier")) return "sppg";
+    if (pathname.startsWith("/logistik")) return "logistik";
+    if (pathname.startsWith("/sekolah")) return "sekolah";
+    return null;
+  };
+
+  const dashboardHrefByRole = (appRole: string): string => {
+    if (appRole === "admin") return "/goverment/dashboard";
+    if (appRole === "sppg") return "/sppg/dashboard";
+    if (appRole === "logistik") return "/logistik/dashboard";
+    if (appRole === "sekolah") return "/sekolah/admin";
+    if (appRole === "vendor") return "/vendor/dashboard";
+    return "/";
+  };
+
+  const appRoleFromUiRoleId = (uiRoleId: string): AppRole | null => {
+    if (uiRoleId === "goverment") return "admin";
+    if (uiRoleId === "vendor") return "vendor";
+    if (uiRoleId === "sppg") return "sppg";
+    if (uiRoleId === "logistik") return "logistik";
+    if (uiRoleId === "sekolah") return "sekolah";
+    return null;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (role) {
-      // Simulate API call delay with toast
-      const loadingToast = toast.loading(isSignup ? "Membuat akun..." : "Sedang mengautentikasi...");
-      
-      setTimeout(() => {
-        toast.dismiss(loadingToast);
-        toast.success(isSignup ? "Akun berhasil dibuat!" : "Login berhasil!");
-        
-        // Simpan status autentikasi ke local storage
-        localStorage.setItem("boga_is_auth", "true");
-        localStorage.setItem("boga_user_role", role.id);
-
-        if (role.id === "sekolah") {
-          router.push("/");
-        } else {
-          router.push("/" + role.id);
-        }
-      }, 800);
-    } else {
+    if (!role) {
       toast.error("Terjadi kesalahan: Peran tidak ditemukan!");
+      return;
+    }
+
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const loadingToast = toast.loading(
+      isSignup ? "Membuat akun..." : "Sedang mengautentikasi..."
+    );
+
+    try {
+      if (isSignup) {
+        toast.dismiss(loadingToast);
+        toast.error("Registrasi belum dihubungkan ke service auth.");
+        return;
+      }
+
+      const emailTrimmed = email.trim();
+      const uiRoleAsAppRole = appRoleFromUiRoleId(role.id) ?? "";
+
+      let signedInRole = "";
+      let isDemoMode = false;
+
+      if (isDev) {
+        signedInRole = uiRoleAsAppRole;
+        isDemoMode = true;
+      } else {
+        if (!emailTrimmed || !password) {
+          throw new Error("Email dan password wajib diisi.");
+        }
+      }
+
+      try {
+        if (!isDev) {
+          const result = await authClient.signIn.email({
+            email: emailTrimmed,
+            password,
+            rememberMe: true,
+          });
+
+          if (result.error) {
+            throw new Error(result.error.message || "Login gagal.");
+          }
+
+          signedInRole =
+            (result.data?.user as { appRole?: string } | undefined)?.appRole ?? "";
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "";
+        const canFallbackToDemo =
+          message.toLowerCase().includes("failed to fetch") ||
+          message.toLowerCase().includes("fetch") ||
+          message.toLowerCase().includes("network") ||
+          message.toLowerCase().includes("not found") ||
+          message.toLowerCase().includes("no such table") ||
+          message.toLowerCase().includes("response server") ||
+          message.toLowerCase().includes("tidak dapat") ||
+          message.toLowerCase().includes("gagal memanggil");
+
+        if (!canFallbackToDemo) {
+          throw error instanceof Error ? error : new Error("Login gagal.");
+        }
+
+        isDemoMode = true;
+        signedInRole = uiRoleAsAppRole;
+      }
+
+      localStorage.setItem("boga_is_auth", "true");
+      localStorage.setItem("boga_user_role", signedInRole || role.id);
+      document.cookie = `boga_is_auth=true; path=/`;
+      document.cookie = `boga_user_role=${encodeURIComponent(signedInRole || role.id)}; path=/`;
+
+      toast.dismiss(loadingToast);
+      toast.success("Login berhasil!");
+      if (isDemoMode) {
+        toast.message("Auth service belum siap, masuk demo mode.");
+      }
+
+      const nextRequiredRole = safeNext ? requiredRoleForPath(safeNext) : null;
+      const canUseNext = safeNext && (!nextRequiredRole || nextRequiredRole === signedInRole);
+
+      const target =
+        (canUseNext ? safeNext : null) ??
+        (signedInRole ? dashboardHrefByRole(signedInRole) : null) ??
+        redirectByRole[role.id] ??
+        `/${role.id}/dashboard`;
+
+      window.location.href = target;
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error(error instanceof Error ? error.message : "Terjadi kesalahan saat login.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -56,7 +190,7 @@ export function LoginForm({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "flex flex-col justify-center h-full p-5 md:p-7 space-y-3 bg-white w-full",
+        "flex flex-col justify-center h-full p-5 md:p-7 space-y-3 bg-background w-full",
         className
       )}
     >
@@ -76,10 +210,7 @@ export function LoginForm({
 
       {/* Logo + Header */}
       <div className="flex flex-col items-center gap-1 text-center mb-1">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-lg font-bold mb-1 shadow-lg"
-          style={{ background: "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)" }}
-        >
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary text-primary-foreground text-lg font-bold mb-1 shadow-lg shadow-black/10">
           B
         </div>
 
@@ -93,12 +224,23 @@ export function LoginForm({
           </div>
         )}
 
-        <h1 className="text-xl font-extrabold tracking-tight text-[#0a0e1a]">
-          {isSignup ? "Buat Akun Baru" : "Selamat Datang"}
+        <h1 className="text-xl font-extrabold tracking-tight text-foreground">
+          {isSignup ? "Buat Akun Baru" : "Masuk"}
         </h1>
         <p className="text-sm text-muted-foreground">
-          {isSignup ? "Daftar ke " : "Masuk ke dashboard "}
-          <span className="font-bold text-indigo-600">B.O.G.A</span>
+          {role ? (
+            <>
+              {isSignup ? "Daftar sebagai " : "Masuk sebagai "}
+              <span className="font-bold" style={{ color: role.accent }}>
+                {role.label}
+              </span>
+            </>
+          ) : (
+            <>
+              {isSignup ? "Daftar ke " : "Masuk ke "}
+              <span className="font-bold text-primary">B.O.G.A</span>
+            </>
+          )}
         </p>
       </div>
 
@@ -113,8 +255,11 @@ export function LoginForm({
               id="email"
               type="email"
               placeholder="admin@boga.id"
-              required
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -123,22 +268,25 @@ export function LoginForm({
               <Label htmlFor="password" className="font-bold text-[10px] uppercase tracking-[0.15em] text-gray-400 ml-1">
                 Password
               </Label>
-              <Link href="#" onClick={(e) => e.preventDefault()} className="ml-auto text-xs font-bold text-indigo-600 hover:text-cyan-500 transition-colors">
+              <Link href="#" onClick={(e) => e.preventDefault()} className="ml-auto text-xs font-bold text-primary hover:text-primary/80 transition-colors">
                 Lupa password?
               </Link>
             </div>
             <Input
               id="password"
               type="password"
-              required
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              disabled={isSubmitting}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full h-10 rounded-xl font-bold text-white shadow-[0_8px_16px_rgba(99,102,241,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-1"
-            style={{ background: "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)" }}
+            className="w-full h-10 rounded-xl font-bold text-primary-foreground bg-primary shadow-lg shadow-black/10 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-1"
+            disabled={isSubmitting}
           >
             Masuk Sekarang
           </Button>
@@ -156,8 +304,11 @@ export function LoginForm({
               <Input
                 id="firstName"
                 placeholder="Budi"
-                required
-                className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+                className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                autoComplete="given-name"
+                disabled={isSubmitting}
               />
             </div>
             <div className="grid gap-1.5">
@@ -167,8 +318,11 @@ export function LoginForm({
               <Input
                 id="lastName"
                 placeholder="Santoso"
-                required
-                className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+                className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                autoComplete="family-name"
+                disabled={isSubmitting}
               />
             </div>
           </div>
@@ -181,8 +335,11 @@ export function LoginForm({
               id="emailSignup"
               type="email"
               placeholder="nama@instansi.id"
-              required
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={emailSignup}
+              onChange={(e) => setEmailSignup(e.target.value)}
+              autoComplete="email"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -194,7 +351,11 @@ export function LoginForm({
               id="phone"
               type="tel"
               placeholder="+62 8xx xxxx xxxx"
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="tel"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -206,8 +367,11 @@ export function LoginForm({
               id="passwordSignup"
               type="password"
               placeholder="Min. 8 karakter"
-              required
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={passwordSignup}
+              onChange={(e) => setPasswordSignup(e.target.value)}
+              autoComplete="new-password"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -219,8 +383,11 @@ export function LoginForm({
               id="confirmPassword"
               type="password"
               placeholder="Ulangi kata sandi"
-              required
-              className="h-10 rounded-xl border-gray-100 bg-gray-50/50 focus-visible:ring-indigo-500 focus-visible:bg-white transition-all"
+              className="h-10 rounded-xl border-border/70 bg-muted/20 focus-visible:ring-ring focus-visible:bg-background transition-all"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -228,16 +395,15 @@ export function LoginForm({
           <label className="flex items-start gap-2 cursor-pointer mt-0.5">
             <input
               type="checkbox"
-              required
-              className="mt-0.5 rounded accent-indigo-500 cursor-pointer shrink-0"
+              className="mt-0.5 rounded accent-[hsl(var(--primary))] cursor-pointer shrink-0"
             />
             <span className="text-[11px] text-gray-500 leading-relaxed">
               Saya menyetujui{" "}
-              <Link href="#" onClick={(e) => e.preventDefault()} className="font-bold text-indigo-600 hover:underline">
+              <Link href="#" onClick={(e) => e.preventDefault()} className="font-bold text-primary hover:underline">
                 Syarat & Ketentuan
               </Link>{" "}
               serta{" "}
-              <Link href="#" onClick={(e) => e.preventDefault()} className="font-bold text-indigo-600 hover:underline">
+              <Link href="#" onClick={(e) => e.preventDefault()} className="font-bold text-primary hover:underline">
                 Kebijakan Privasi
               </Link>
             </span>
@@ -245,35 +411,12 @@ export function LoginForm({
 
           <Button
             type="submit"
-            className="w-full h-10 rounded-xl font-bold text-white shadow-[0_8px_16px_rgba(99,102,241,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-1"
-            style={{ background: "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)" }}
+            className="w-full h-10 rounded-xl font-bold text-primary-foreground bg-primary shadow-lg shadow-black/10 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-1"
+            disabled={isSubmitting}
           >
             Buat Akun
           </Button>
         </div>
-      )}
-
-      {/* Divider */}
-      {!isSignup && (
-        <>
-          <div className="relative my-1">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-100" />
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-gray-400">
-              <span className="bg-white px-3">Atau lanjut dengan</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" type="button" className="rounded-xl h-9 border-gray-100 hover:bg-gray-50 font-semibold text-xs">
-              Google
-            </Button>
-            <Button variant="outline" type="button" className="rounded-xl h-9 border-gray-100 hover:bg-gray-50 font-semibold text-xs">
-              Apple
-            </Button>
-          </div>
-        </>
       )}
 
       {/* Toggle mode */}
@@ -282,7 +425,7 @@ export function LoginForm({
         <button
           type="button"
           onClick={() => onModeChange?.(isSignup ? "login" : "signup")}
-          className="font-bold text-indigo-600 hover:underline"
+          className="font-bold text-primary hover:underline"
         >
           {isSignup ? "Masuk di sini" : "Daftar sekarang"}
         </button>

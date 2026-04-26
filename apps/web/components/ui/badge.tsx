@@ -4,17 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-wide uppercase transition-colors focus:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/35",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "border-border bg-surface-raised text-foreground hover:bg-muted/30",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-border bg-muted/30 text-foreground hover:bg-muted/45",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
+          "border-status-danger/25 bg-status-danger-bg text-status-danger hover:bg-status-danger-bg/80",
+        success:
+          "border-status-success/25 bg-status-success-bg text-status-success hover:bg-status-success-bg/80",
+        warning:
+          "border-status-warning/25 bg-status-warning-bg text-status-warning hover:bg-status-warning-bg/80",
+        info:
+          "border-status-info/25 bg-status-info-bg text-status-info hover:bg-status-info-bg/80",
+        pending:
+          "border-status-pending/25 bg-status-pending-bg text-status-pending hover:bg-status-pending-bg/80",
+        outline: "border-border bg-transparent text-foreground hover:bg-muted/20",
       },
     },
     defaultVariants: {

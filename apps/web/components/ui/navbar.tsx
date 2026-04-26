@@ -1,408 +1,444 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
-import { MobileNavCards } from "./MobileCardNav";
+import { useMemo } from "react";
+import Image from "next/image";
+import { LayoutDashboard, LogOut, Menu } from "lucide-react";
 
-const DEFAULT_NAV_LINKS = [
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { authClient } from "@/lib/auth-browser-client";
+
+const NAV_LINKS = [
   { href: "#home", label: "Home" },
-  { href: "#about", label: "About Us" },
-  { href: "#performance", label: "Performance" },
-  { href: "#contact", label: "Contact" },
+  { href: "#how", label: "How it works" },
+  { href: "#primitives", label: "Primitives" },
+  { href: "#roles", label: "Roles" },
 ];
 
-const LOGISTIK_NAV_LINKS = [
-  { href: "/logistik", label: "Dasbor Logistik" },
-  { href: "/logistik/pantau", label: "Pantau Rute" },
-  { href: "/logistik/riwayat", label: "Riwayat Pengiriman" },
-  { href: "/logistik/contact", label: "Bantuan & Kontak" },
-];
+const ROLE_PORTALS = [
+  {
+    id: "goverment",
+    label: "Pemerintah",
+    desc: "Verifikasi & pengawasan program",
+    accent: "#B45309",
+    imageSrc: "/mbg1.png",
+    href: "/goverment/dashboard",
+    links: [
+      { label: "Dashboard", href: "/goverment/dashboard" },
+      { label: "Verifikasi", href: "/goverment/verifikasi" },
+      { label: "Statistik", href: "/goverment/statistik" },
+    ],
+  },
+  {
+    id: "sppg",
+    label: "SPPG",
+    desc: "Buat tender & pilih vendor",
+    accent: "#9A3412",
+    imageSrc: "/mbg4.png",
+    href: "/sppg/dashboard",
+    links: [
+      { label: "Dashboard", href: "/sppg/dashboard" },
+      { label: "Bidding Vendor", href: "/sppg/bidding" },
+      { label: "Buat Tender", href: "/sppg/bidding" },
+    ],
+  },
+  {
+    id: "vendor",
+    label: "Vendor",
+    desc: "Ajukan penawaran & pantau tender",
+    accent: "#065F46",
+    imageSrc: "/mbg1.png",
+    href: "/vendor/dashboard",
+    links: [
+      { label: "Dashboard", href: "/vendor/dashboard" },
+      { label: "Tender", href: "/vendor/tender" },
+      { label: "Bids", href: "/vendor/bidding" },
+    ],
+  },
+  {
+    id: "logistik",
+    label: "Logistik",
+    desc: "Pantau distribusi & rute",
+    accent: "#155E75",
+    imageSrc: "/mbg2.png",
+    href: "/logistik/dashboard",
+    links: [
+      { label: "Dashboard", href: "/logistik/dashboard" },
+      { label: "Pantau", href: "/logistik/pantau" },
+      { label: "Riwayat", href: "/logistik/riwayat" },
+    ],
+  },
+  {
+    id: "sekolah",
+    label: "Sekolah",
+    desc: "Penerimaan & evaluasi",
+    accent: "#1E3A8A",
+    imageSrc: "/mbg3.png",
+    href: "/sekolah/admin",
+    links: [
+      { label: "Admin", href: "/sekolah/admin" },
+      { label: "Siswa", href: "/sekolah/siswa" },
+      { label: "Dashboard", href: "/sekolah/admin" },
+    ],
+  },
+] as const;
 
-type NavPosition = "center" | "left";
-const POSITION: NavPosition = "left";
+function dashboardHrefByRole(role: string) {
+  if (role === "admin") return "/goverment/dashboard";
+  if (role === "sppg") return "/sppg/dashboard";
+  if (role === "logistik") return "/logistik/dashboard";
+  if (role === "sekolah") return "/sekolah/admin";
+  if (role === "vendor") return "/vendor/dashboard";
+  return "/";
+}
 
 export default function Navbar() {
-  const location = usePathname();
+  const pathname = usePathname();
 
-  const isLogistik = location.startsWith("/logistik");
-  const NAV_LINKS = isLogistik ? LOGISTIK_NAV_LINKS : DEFAULT_NAV_LINKS;
+  const isHomePage = pathname === "/";
+  const isAuthPage = pathname.startsWith("/auth");
+  const isAppRoute = ["/goverment", "/sppg", "/supplier", "/vendor", "/logistik", "/sekolah"].some((r) =>
+    pathname.startsWith(r)
+  );
 
-  // Halaman dashboard dengan sidebar sendiri atau navbar khusus — Navbar global tidak diperlukan
-  const SIDEBAR_ROUTES = ["/goverment", "/supplier", "/vendor", "/logistik"];
-  const hasSidebar = SIDEBAR_ROUTES.some((r) => location.startsWith(r));
+  const sessionState = authClient.useSession();
+  const session = sessionState.data;
+  const userRole = (session?.user as { appRole?: string } | undefined)?.appRole ?? "";
+  const dashboardHref = dashboardHrefByRole(userRole);
 
-  const [scrolled, setScrolled] = useState(false);
-  const [expandedByClick, setExpandedByClick] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuth, setIsAuth] = useState(false);
-  const [userRole, setUserRole] = useState("");
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
-
-  const isExpanded = scrolled || expandedByClick;
-  const isHomePage = location === "/";
-
-  // ScrollSpy Logic
-  useEffect(() => {
-    if (!isHomePage) return;
-
-    const observerOptions = {
-      root: null,
-      rootMargin: "-45% 0px -45% 0px",
-      threshold: 0,
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    const sections = ["home", "about", "performance", "contact"];
-    
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [isHomePage, location]);
-
-  useEffect(() => {
-    const authStatus = localStorage.getItem("boga_is_auth");
-    const roleId = localStorage.getItem("boga_user_role");
-    if (authStatus === "true") {
-      setIsAuth(true);
-      setUserRole(roleId || "");
-    } else {
-      setIsAuth(false);
-      setUserRole("");
-    }
-  }, [location]);
+  const mobileLinks = useMemo(() => {
+    if (!isHomePage) return [{ href: "/", label: "Home" }];
+    return NAV_LINKS;
+  }, [isHomePage]);
 
   const handleLogout = () => {
-    localStorage.removeItem("boga_is_auth");
-    localStorage.removeItem("boga_user_role");
-    setIsAuth(false);
-    setUserRole("");
-    window.location.href = "/";
+    void authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/";
+        },
+      },
+    });
   };
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 60) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleLogoClick = () => {
-    if (!isExpanded) {
-      setExpandedByClick(true);
-    } else if (expandedByClick && !scrolled) {
-      setExpandedByClick(false);
-      setMobileMenuOpen(false);
-    }
-  };
-
-  const wrapperStyle: React.CSSProperties =
-    POSITION === "center"
-      ? {
-        position: "fixed",
-        top: 20,
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 50,
-        pointerEvents: "none",
-      }
-      : {
-        position: "fixed",
-        top: 20,
-        left: 20,
-        right: 20,
-        zIndex: 50,
-        pointerEvents: "none",
-      };
-
-  // Jangan render Navbar di halaman dashboard yang punya sidebar sendiri
-  if (hasSidebar) return null;
+  if (isAuthPage || isAppRoute) return null;
 
   return (
-    <div style={wrapperStyle} className={location.startsWith("/sekolah") ? "hidden md:block" : ""}>
+    <header
+      className={
+        isHomePage
+          ? "absolute inset-x-0 top-0 z-50"
+          : "sticky top-0 z-50 border-b bg-background/80 backdrop-blur"
+      }
+    >
       <div
-        style={{
-          pointerEvents: "auto",
-          position: "relative",
-          width: isExpanded
-            ? isMobile
-              ? "100%"
-              : "100%"
-            : "52px",
-          transition: "width 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)",
-        }}
+        className={
+          "mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 md:px-6"
+        }
       >
-        {/* Layer shadow warna */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            borderRadius: mobileMenuOpen ? 16 : 9999,
-            background:
-              "linear-gradient(135deg, hsl(253,70%,60%), hsl(208,70%,60%))",
-            transform: "translate(3px, 3px)",
-            opacity: isExpanded ? 0.15 : 0,
-            transition: "opacity 0.45s, border-radius 0.3s",
-          }}
-        />
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2">
+            <span
+              className={
+                isHomePage
+                  ? "inline-flex size-8 items-center justify-center rounded-lg bg-white/10 text-xs font-semibold text-white ring-1 ring-white/15 backdrop-blur"
+                  : "inline-flex size-8 items-center justify-center rounded-lg bg-foreground text-xs font-semibold text-background"
+              }
+            >
+              B
+            </span>
+            <span
+              className={
+                isHomePage
+                  ? "text-sm font-semibold tracking-tight text-white"
+                  : "text-sm font-semibold tracking-tight text-foreground"
+              }
+            >
+              B.O.G.A
+            </span>
+          </Link>
 
-        {/* Glass panel */}
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            borderRadius: isExpanded ? 20 : 9999,
-            background: "hsla(0,0%,100%,0.65)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            boxShadow:
-              "0 0 0 1px hsla(0,0%,100%,0.55) inset, 0 8px 32px rgba(0,0,0,0.09)",
-            overflow: "visible",
-            cursor: isExpanded ? "default" : "pointer",
-            transition:
-              "padding 0.45s cubic-bezier(0.34, 1.2, 0.64, 1), border-radius 0.3s",
-          }}
-          onClick={!isExpanded ? handleLogoClick : undefined}
-        >
-          {/* ── Baris utama navbar ── */}
-          <nav
-            style={{
-              height: 52,
-              display: "flex",
-              alignItems: "center",
-              paddingLeft: isExpanded ? 12 : 8,
-              paddingRight: isExpanded ? 8 : 0,
-              transition: "padding 0.45s cubic-bezier(0.34, 1.2, 0.64, 1)",
-            }}
-          >
-            {/* Logo */}
-            <Link
-              href="/"
-              onClick={(e) => {
-                if (!isExpanded) {
-                  e.preventDefault();
-                  handleLogoClick();
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                href={isHomePage ? item.href : "/"}
+                className={
+                  isHomePage
+                    ? "rounded-md px-3 py-2 text-sm font-medium text-white/70 transition-colors hover:text-white"
+                    : "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 }
-              }}
-              style={{ flexShrink: 0, textDecoration: "none" }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background:
-                    "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)",
-                  boxShadow: "0 2px 12px rgba(99,102,241,0.45)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                }}
               >
-                <Image
-                  src="/icon.svg"
-                  alt="Logo"
-                  width={24}
-                  height={24}
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
-            </Link>
+                {item.label}
+              </Link>
+            ))}
 
-            {/* ── DESKTOP: links di tengah ── */}
-            {!isMobile && (
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 32,
-                  opacity: isExpanded ? 1 : 0,
-                  pointerEvents: isExpanded ? "auto" : "none",
-                  transition: "opacity 0.25s ease 0.15s",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {NAV_LINKS.map(({ href, label }) => {
-                  const sectionId = href.startsWith("#") ? href.substring(1) : "";
-                  const active = activeSection === sectionId || (location === href && !sectionId);
-                  
-                  return (
-                    <Link
-                      key={href}
-                      href={isHomePage ? href : (href.startsWith("#") ? `/${href}` : href)}
-                      style={{
-                        fontSize: 13,
-                        fontWeight: active ? 700 : 500,
-                        color: active ? "#4f46e5" : "#4b5563",
-                        textDecoration: "none",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        opacity: active ? 1 : 0.7,
-                        transform: active ? "scale(1.05)" : "scale(1)",
-                      }}
-                    >
-                      {label}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Spacer */}
-            <div style={{ flex: 1 }} />
-
-            {/* ── MOBILE: hamburger di dalam bar ── */}
-            {isMobile && isExpanded && (
-              <button
-                onClick={() => setMobileMenuOpen((p) => !p)}
-                aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
-                style={{
-                  width: 36, height: 36,
-                  borderRadius: 8, border: "none",
-                  background: "transparent", cursor: "pointer",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  gap: 6, flexShrink: 0, marginRight: 4,
-                  opacity: isExpanded ? 1 : 0,
-                  transition: "opacity 0.25s ease 0.1s",
-                }}
-              >
-                <span style={{
-                  display: "block", width: 20, height: 2,
-                  background: "#4b5563", borderRadius: 2,
-                  transition: "transform 0.3s ease",
-                  transformOrigin: "50% 50%",
-                  transform: mobileMenuOpen ? "translateY(4px) rotate(45deg)" : "none",
-                }} />
-                <span style={{
-                  display: "block", width: 20, height: 2,
-                  background: "#4b5563", borderRadius: 2,
-                  transition: "transform 0.3s ease",
-                  transformOrigin: "50% 50%",
-                  transform: mobileMenuOpen ? "translateY(-4px) rotate(-45deg)" : "none",
-                }} />
-              </button>
-            )}
-
-            {/* ── CTA ── */}
-            <div
-              style={{
-                position: "relative",
-                opacity: isExpanded ? 1 : 0,
-                pointerEvents: isExpanded ? "auto" : "none",
-                transition: "opacity 0.25s ease 0.2s",
-                flexShrink: 0,
-              }}
-            >
-              {isAuth ? (
-                <>
-                  {/* Avatar User */}
-                  <div
-                    onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-sm border-2 border-white cursor-pointer hover:shadow-md hover:scale-105 transition-all relative overflow-hidden"
+            <NavigationMenu className="ml-1">
+              <NavigationMenuList className="space-x-1">
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger
+                    className={
+                      isHomePage
+                        ? "h-auto bg-transparent px-3 py-2 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+                        : "h-auto bg-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/40 hover:text-foreground focus:bg-muted/40 focus:text-foreground data-[state=open]:bg-muted/40 data-[state=open]:text-foreground"
+                    }
                   >
-                    <Image
-                      src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userRole || "Felix"}`}
-                      alt="User Avatar"
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
+                    Portals
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent className="md:w-[760px]">
+                    <div className="grid gap-4 p-4 md:grid-cols-[260px_1fr] md:p-5">
+                      <div className="overflow-hidden rounded-3xl bg-slate-950 text-white ring-1 ring-white/10">
+                        <div className="relative h-28">
+                          <Image
+                            src="/mbg3.png"
+                            alt=""
+                            fill
+                            sizes="260px"
+                            className="object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+                          <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-[#1D4ED8] via-[#1E40AF] to-transparent" />
+                          <div className="absolute bottom-3 left-4 right-4">
+                            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-white/70">
+                              Role preview
+                            </p>
+                            <p className="mt-1 text-base font-extrabold tracking-tight">
+                              Buka portal sesuai peran
+                            </p>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <p className="text-sm text-white/70">
+                            Lihat fitur inti tiap role: bidding, logistik, penerimaan sekolah, dan pengawasan.
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <Link
+                              href="/auth/login"
+                              className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-900 transition hover:bg-white/90"
+                            >
+                              Pilih role & masuk
+                            </Link>
+                            <Link
+                              href={isHomePage ? "#how" : "/#how"}
+                              className="inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2 text-xs font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/15"
+                            >
+                              Lihat flow phase
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-2">
+                        {ROLE_PORTALS.map((role) => (
+                          <div
+                            key={role.id}
+                            className="rounded-3xl bg-white/70 backdrop-blur ring-1 ring-black/5 p-3 shadow-sm shadow-black/5"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="relative h-12 w-12 overflow-hidden rounded-2xl ring-1 ring-black/5">
+                                <Image
+                                  src={role.imageSrc}
+                                  alt=""
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
+                                <div className="absolute inset-x-0 top-0 h-1" style={{ background: role.accent }} />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-transparent" />
+                              </div>
+
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center justify-between gap-3">
+                                  <p className="truncate text-sm font-extrabold tracking-tight text-slate-900">
+                                    {role.label}
+                                  </p>
+                                  <Link
+                                    href={role.href}
+                                    className="shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 transition"
+                                    style={{
+                                      color: role.accent,
+                                      borderColor: `${role.accent}26`,
+                                      background: `${role.accent}0D`,
+                                    }}
+                                  >
+                                    Buka portal
+                                  </Link>
+                                </div>
+                                <p className="mt-0.5 text-xs text-slate-600">
+                                  {role.desc}
+                                </p>
+
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {role.links.map((l) => (
+                                    <Link
+                                      key={l.href}
+                                      href={l.href}
+                                      className="text-xs font-semibold text-slate-700 transition hover:text-slate-900 hover:underline underline-offset-4"
+                                    >
+                                      {l.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <Menu className="size-4" />
+                  <span className="sr-only">Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[320px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 grid gap-2">
+                  {mobileLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={isHomePage ? item.href : item.href}
+                      className="rounded-xl border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+
+                  <div className="pt-2">
+                    <p className="px-1 text-[10px] font-extrabold uppercase tracking-[0.18em] text-muted-foreground">
+                      Portal roles
+                    </p>
+                    <div className="mt-2 grid gap-2">
+                      {ROLE_PORTALS.map((r) => (
+                        <Link
+                          key={r.id}
+                          href={r.href}
+                          className="flex items-center gap-3 rounded-2xl border bg-background px-4 py-3 text-left hover:bg-muted/40"
+                        >
+                          <div className="relative h-10 w-10 overflow-hidden rounded-xl ring-1 ring-black/5">
+                            <Image src={r.imageSrc} alt="" fill sizes="40px" className="object-cover" />
+                            <div className="absolute inset-x-0 top-0 h-1" style={{ background: r.accent }} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-foreground">{r.label}</p>
+                            <p className="truncate text-xs text-muted-foreground">{r.desc}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Dropdown Profile */}
-                  {showProfileMenu && (
-                    <div className="absolute right-0 top-12 w-48 bg-white/95 backdrop-blur-md border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] rounded-2xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-top-2">
-                      <div className="px-4 py-3 border-b border-gray-50/50">
-                        <p className="text-[10px] uppercase font-bold tracking-widest text-indigo-500 mb-0.5">Role Pengguna</p>
-                        <p className="text-sm font-bold text-gray-800 capitalize">{userRole || "User"}</p>
-                      </div>
-                      <Link href={`/${userRole}/dashboard`} className="block px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-indigo-600 hover:bg-indigo-50/50 transition-colors">
-                        Dasbor Saya
+                  {session?.user ? (
+                    <>
+                      <Link
+                        href={dashboardHref}
+                        className="rounded-xl border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40"
+                      >
+                        Dashboard
                       </Link>
                       <button
+                        type="button"
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2.5 text-xs font-semibold text-red-500 hover:text-red-600 hover:bg-red-50/50 transition-colors"
+                        className="rounded-xl border bg-background px-4 py-3 text-left text-sm font-medium text-foreground hover:bg-muted/40"
                       >
                         Keluar
                       </button>
-                    </div>
+                    </>
+                  ) : (
+                    <Link
+                      href="/auth/login"
+                      className="rounded-xl border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40"
+                    >
+                      Masuk
+                    </Link>
                   )}
-                </>
-              ) : (
-                <Link
-                  href="/auth/login"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    display: "inline-block",
-                    padding: "8px 18px",
-                    borderRadius: 9999,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: "#fff",
-                    background:
-                      "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)",
-                    boxShadow: "0 4px 14px rgba(99,102,241,0.35)",
-                    textDecoration: "none",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Login / Sign Up
-                </Link>
-              )}
-            </div>
-          </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
 
-          {/* ── MOBILE: CardNav GSAP ── */}
-          {isMobile && isExpanded && (
-            <div style={{ borderTop: mobileMenuOpen ? "0.5px solid rgba(0,0,0,0.06)" : "none" }}>
-              <MobileNavCards
-                isOpen={mobileMenuOpen}
-                onLinkClick={() => setMobileMenuOpen(false)}
-                cards={NAV_LINKS.map((l, i) => {
-                  const bogaStops = ["#6366f1", "#4480e7", "#259bdd", "#06b6d4"];
-                  const targetHref = isHomePage ? l.href : (l.href.startsWith("#") ? `/${l.href}` : l.href);
-                  return {
-                    label: l.label,
-                    href: targetHref,
-                    bgColor: bogaStops[i] ?? bogaStops[bogaStops.length - 1],
-                    textColor: "#ffffff",
-                  };
-                })}
-              />
-            </div>
+          {session?.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-full border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40"
+                >
+                  <span className="inline-flex size-7 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
+                    {(session.user.name || "U").slice(0, 1).toUpperCase()}
+                  </span>
+                  <span className="hidden max-w-[140px] truncate md:block">{session.user.name || "Akun"}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
+                <div className="px-2 py-1.5">
+                  <p className="text-xs font-semibold text-foreground">Signed in</p>
+                  <p className="text-xs text-muted-foreground capitalize">{userRole || "user"}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={dashboardHref}>
+                    <LayoutDashboard className="size-4" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                  <LogOut className="size-4" />
+                  Keluar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              asChild
+              className={
+                isHomePage
+                  ? "hidden rounded-full bg-white text-slate-900 hover:bg-white/90 md:inline-flex"
+                  : "hidden rounded-full md:inline-flex"
+              }
+              variant={isHomePage ? "secondary" : "default"}
+            >
+              <Link href="/auth/login">Masuk</Link>
+            </Button>
           )}
         </div>
       </div>
-    </div>
+    </header>
   );
 }

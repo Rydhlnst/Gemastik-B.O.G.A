@@ -3,53 +3,70 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-// Route yang punya sidebar sendiri — tidak perlu Navbar, Footer, maupun padding top
-const SIDEBAR_ROUTES = ["/goverment", "/supplier", "/vendor"];
+// App surfaces (dashboard-like): full height, no marketing footer
+const APP_SURFACE_ROUTES = ["/goverment", "/sppg", "/supplier", "/vendor", "/logistik", "/sekolah"];
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/sekolah/mitra", label: "Mitra" },
-  { href: "/sekolah/about", label: "About Us" },
-  { href: "/sekolah/contact", label: "Contact" },
+  { href: "/#how", label: "How it works" },
+  { href: "/#primitives", label: "Primitives" },
+  { href: "/#roles", label: "Roles" },
 ];
 
 function Footer() {
   return (
-    <footer style={{ background: "#0a0e28" }} className="text-white/50 py-8 px-6 md:px-16 flex flex-col md:flex-row justify-between items-center text-sm gap-6 md:gap-0 mt-auto">
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold"
-          style={{ background: "linear-gradient(135deg, #6366f1 0%, #06b6d4 100%)" }}>B</div>
-        <span className="font-bold text-white">B.O.G.A</span>
+    <footer className="mt-auto border-t bg-background">
+      <div className="mx-auto max-w-6xl px-4 py-10 md:px-6">
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex size-9 items-center justify-center rounded-xl bg-foreground text-xs font-semibold text-background">
+              B
+            </span>
+            <div className="leading-tight">
+              <p className="text-sm font-semibold tracking-tight text-foreground">B.O.G.A</p>
+              <p className="text-xs text-muted-foreground">Operational supply chain platform</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="transition-colors hover:text-foreground"
+              >
+                {label}
+              </Link>
+            ))}
+            <Link href="/auth/login" className="transition-colors hover:text-foreground">
+              Masuk
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-2 border-t pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <span>(c) 2026 B.O.G.A. All rights reserved.</span>
+          <span>Privacy • Terms</span>
+        </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-        {NAV_LINKS.map(({ href, label }) => (
-          <Link key={href} href={href} className="no-underline text-white/40 hover:text-white/70 transition-colors w-full sm:w-auto text-center">{label}</Link>
-        ))}
-      </div>
-      <span className="text-center">© 2026 B.O.G.A Logistics. All rights reserved.</span>
     </footer>
   );
 }
 
 export default function MainWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hasSidebar = SIDEBAR_ROUTES.some((r) => pathname.startsWith(r));
-  const isLogistik = pathname.startsWith("/logistik");
-  
-  if (hasSidebar) {
-    // Halaman dashboard: full screen, tanpa padding, tanpa footer
+  const isAppSurface = APP_SURFACE_ROUTES.some((r) => pathname.startsWith(r));
+  const isAuth = pathname.startsWith("/auth");
+
+  if (isAppSurface) {
+    // App surfaces: full screen, tanpa footer marketing
     return <main className="flex-1 w-full h-screen overflow-hidden">{children}</main>;
   }
 
-  const isSekolah = pathname.startsWith("/sekolah");
-
   return (
     <>
-      <main className={`flex-1 w-full ${isLogistik ? "pt-0" : (isSekolah ? "pt-0 md:pt-[100px]" : "pt-[100px]")}`}>{children}</main>
-      {!isLogistik && (
-        <div className={isSekolah ? "hidden md:block" : ""}>
-          <Footer />
-        </div>
+      <main className="flex-1 w-full">{children}</main>
+      {!isAuth && (
+        <Footer />
       )}
     </>
   );

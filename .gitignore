@@ -21,6 +21,10 @@ coverage
 # Vercel
 .vercel
 
+# Codex / local tooling
+.claude/
+.npm-cache/
+
 # Build Outputs
 .next/
 out/
@@ -36,3 +40,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Local DB / generated artifacts
+apps/web/better-auth.sqlite
+apps/web/tsconfig.tsbuildinfo

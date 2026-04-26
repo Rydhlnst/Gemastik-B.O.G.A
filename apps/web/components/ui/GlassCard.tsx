@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface GlassCardProps {
   children: ReactNode;
@@ -10,8 +11,8 @@ interface GlassCardProps {
 }
 
 /**
- * Reusable glass-morphism card used across the Logistik dashboard.
- * Supports fluid scaling and optional hover effects.
+ * Reusable premium surface container.
+ * Keeps layout logic but uses design tokens (no hardcoded colors).
  */
 export function GlassCard({ 
   children, 
@@ -21,20 +22,17 @@ export function GlassCard({
 }: GlassCardProps) {
   return (
     <div
-      className={`
-        relative rounded-2xl border border-white/10 p-5 overflow-hidden
-        ${hoverable ? "hover:-translate-y-1 transition-transform duration-200 cursor-default" : ""}
-        ${className}
-      `}
+      className={cn(
+        "relative overflow-hidden rounded-[var(--radius-xl)] border border-border bg-surface/85 backdrop-blur-xl shadow-card",
+        hoverable
+          ? "cursor-default transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated"
+          : "",
+        className
+      )}
       style={{
-        background: "rgba(255,255,255,0.06)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
         aspectRatio: aspect,
       }}
     >
-      {/* top-edge gloss line (implemented via class if global, but keeping inline for robustness) */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent shadow-[0_1px_0_rgba(255,255,255,0.1)]" />
       {children}
     </div>
   );

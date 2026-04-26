@@ -50,7 +50,7 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
 
   // Auth simulation
   const isAuth = true; 
-  const avatarGradient = "linear-gradient(135deg,#6366f1,#06b6d4)";
+  const avatarGradient = "linear-gradient(135deg,var(--role-primary),var(--role-accent))";
 
   const handleRate = (key: keyof typeof rating, val: number) => {
     setRating(prev => ({ ...prev, [key]: val }));
@@ -69,7 +69,7 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="bg-white rounded-[1.5rem] border border-slate-100 shadow-xl flex flex-col h-full overflow-hidden"
+      className="bg-surface rounded-[var(--radius-xl)] border border-border shadow-lg flex flex-col h-full overflow-hidden"
     >
       {/* Header */}
       <div className="p-4 border-b border-slate-50 relative bg-gradient-to-br from-slate-50/50 to-white">
@@ -137,7 +137,16 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
             >
               {vendors.map((v, idx) => (
                 <div key={v.id} className="transform scale-[0.85] origin-top -mb-8">
-                  <VendorCard data={v} color={["#6366f1", "#10b981", "#f59e0b"][idx % 3]} />
+                  <VendorCard
+                    data={v}
+                    color={
+                      [
+                        "hsl(var(--status-info))",
+                        "hsl(var(--status-success))",
+                        "hsl(var(--status-warning))",
+                      ][idx % 3]
+                    }
+                  />
                 </div>
               ))}
             </motion.div>

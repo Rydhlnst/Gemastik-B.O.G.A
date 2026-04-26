@@ -2,12 +2,15 @@
 
 import { AnimatedScene } from "@/components/ui/animatedbg";
 import { Phone, MessageSquare, Mail, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function LogistikContact() {
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] font-sans">
+    <div className="w-full min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <div className="w-full h-[320px] relative overflow-hidden bg-white border-b" style={{borderColor: 'rgba(44,110,73,0.12)'}}>
+      <div className="w-full h-[320px] relative overflow-hidden bg-surface border-b border-border">
         <div className="absolute inset-0 opacity-40"><AnimatedScene /></div>
         <div className="absolute inset-0 logistik-hero-gradient" />
         
@@ -33,71 +36,67 @@ export default function LogistikContact() {
           
           {/* Card Info */}
           <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-gray-800">Hubungi Dispatcher</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-2xl font-semibold tracking-tight">Hubungi Dispatcher</h3>
+            <p className="text-sm text-muted-foreground">
               Tim Dispatcher (Pengendali Jaringan) siap menerima laporan kritis 24/7. Hubungi kami secepatnya jika kondisi berisiko tinggi.
             </p>
             
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+            <div className="bg-surface rounded-[var(--radius-lg)] p-6 border border-border shadow-card">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-[#eaf4ee] rounded-xl flex items-center justify-center">
-                  <Phone className="w-5 h-5" style={{color: '#2c6e49'}} />
+                <div className="w-12 h-12 bg-status-success-bg rounded-xl flex items-center justify-center border border-status-success/25">
+                  <Phone className="w-5 h-5 text-status-success" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hotline Darurat Armada</p>
-                  <p className="text-lg font-bold text-gray-800">1-500-LOG-BOGA</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Hotline Darurat Armada</p>
+                  <p className="text-lg font-semibold text-foreground">1-500-LOG-BOGA</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-blue-500" />
+                <div className="w-12 h-12 bg-status-info-bg rounded-xl flex items-center justify-center border border-status-info/25">
+                  <MessageSquare className="w-5 h-5 text-status-info" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">WhatsApp Tim Rute</p>
-                  <p className="text-lg font-bold text-gray-800">+62 811 2345 6789</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">WhatsApp Tim Rute</p>
+                  <p className="text-lg font-semibold text-foreground">+62 811 2345 6789</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-indigo-500" />
+                <div className="w-12 h-12 bg-surface-raised rounded-xl flex items-center justify-center border border-border">
+                  <Mail className="w-5 h-5 text-role-primary" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">HUBUNGAN GMAIL</p>
-                  <p className="text-lg font-bold text-gray-800">LOGISITIK@gmail.com</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Email</p>
+                  <p className="text-lg font-semibold text-foreground">LOGISITIK@gmail.com</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5">
-              <h4 className="text-sm font-bold text-orange-800 mb-1 flex items-center gap-2">
+            <div className="bg-status-warning-bg border border-status-warning/25 rounded-[var(--radius-lg)] p-5">
+              <h4 className="text-sm font-semibold text-status-warning mb-1 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4" /> SOP Keadaan Darurat
               </h4>
-              <p className="text-xs text-orange-700 leading-relaxed">
+              <p className="text-xs text-status-warning leading-relaxed">
                 Apabila terjadi ban bocor, kecelakaan, atau makanan tumpah, <strong>tekan tombol merah Darurat SOS di tablet armada</strong> terlebih dahulu sebelum menelepon hotline. Server akan otomatis mengunci lokasi armada Anda.
               </p>
             </div>
           </div>
 
           {/* Form Laporan */}
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 border-b pb-4">Formulir Laporan / Tiket Kendala</h3>
+          <div className="bg-surface p-8 rounded-[var(--radius-xl)] border border-border shadow-card">
+            <h3 className="text-xl font-semibold tracking-tight mb-6 border-b border-border pb-4">Formulir Laporan / Tiket Kendala</h3>
             
             <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Subjek / ID Rute</label>
-                <input 
-                  type="text" 
-                  placeholder="Misal: RUTE-AG-04 Mogok" 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#2c6e49] focus:ring-1 focus:ring-[#2c6e49]/50 text-sm"
-                />
+                <label className="block text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-widest">Subjek / ID Rute</label>
+                <Input type="text" placeholder="Misal: RUTE-AG-04 Mogok" className="h-11" />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Kategori</label>
-                  <select className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#2c6e49] focus:ring-1 focus:ring-[#2c6e49]/50 text-sm text-gray-600 bg-white">
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-widest">Kategori</label>
+                  <select className="h-11 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/35">
                     <option>Kendaraan Bermasalah</option>
                     <option>Masalah Makanan/Porsi</option>
                     <option>Keterlambatan Ekstrim</option>
@@ -105,8 +104,8 @@ export default function LogistikContact() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Level Prioritas</label>
-                  <select className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#2c6e49] focus:ring-1 focus:ring-[#2c6e49]/50 text-sm text-gray-600 bg-white">
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-widest">Level Prioritas</label>
+                  <select className="h-11 w-full rounded-[var(--radius-md)] border border-border bg-surface px-3 text-sm text-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/35">
                     <option>Sedang - Kuning</option>
                     <option>Tinggi - Oranye</option>
                     <option>Kritis - Merah</option>
@@ -115,17 +114,13 @@ export default function LogistikContact() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">Detail Laporan</label>
-                <textarea 
-                  rows={4}
-                  placeholder="Jelaskan situasinya secara ringkas..." 
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-[#2c6e49] focus:ring-1 focus:ring-[#2c6e49]/50 text-sm"
-                ></textarea>
+                <label className="block text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-widest">Detail Laporan</label>
+                <Textarea rows={4} placeholder="Jelaskan situasinya secara ringkas..." />
               </div>
 
-              <button className="w-full py-3.5 rounded-xl text-white font-bold text-sm logistik-gradient hover:opacity-90 transition-all shadow-md mt-4">
+              <Button className="w-full h-11 mt-4">
                 Buat Tiket Laporan
-              </button>
+              </Button>
             </form>
           </div>
 

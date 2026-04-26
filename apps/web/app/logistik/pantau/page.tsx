@@ -10,9 +10,9 @@ const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: 
 export default function PantauRutePage() {
   const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">
+    <div className="w-full min-h-screen bg-background text-foreground pb-20">
       
-      <div className="w-full h-[280px] relative overflow-hidden bg-white border-b" style={{borderColor: 'rgba(44,110,73,0.12)'}}>
+      <div className="w-full h-[280px] relative overflow-hidden bg-surface border-b border-border">
         <div className="absolute inset-0 opacity-40"><AnimatedScene /></div>
         <div className="absolute inset-0 logistik-hero-gradient" />
         
@@ -33,7 +33,7 @@ export default function PantauRutePage() {
       </div>
 
       <div className="container max-w-7xl mx-auto pt-10 px-6">
-        <div className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 h-[600px]">
+        <div className="bg-surface p-6 rounded-[var(--radius-xl)] shadow-card border border-border h-[600px]">
           <MapLibreMap 
             selectedSchool={selectedSchool}
             onSchoolSelect={setSelectedSchool}

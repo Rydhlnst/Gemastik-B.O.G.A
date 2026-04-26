@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Sun, X, ArrowRight, AlertCircle, BadgeCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, ArrowRight, BadgeCheck, Sun, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
 
 interface BriefingData {
   porsiHariIni: number;
@@ -21,10 +23,7 @@ export function DailyBriefing({ data }: { data: BriefingData }) {
   useEffect(() => {
     const hour = new Date().getHours();
     const isDismissed = sessionStorage.getItem(SESSION_KEY) === "true";
-    // Show only in the morning (before noon) and if not dismissed this session
-    if (hour < 12 && !isDismissed) {
-      setVisible(true);
-    }
+    if (hour < 12 && !isDismissed) setVisible(true);
   }, []);
 
   const handleDismiss = () => {
@@ -42,54 +41,50 @@ export function DailyBriefing({ data }: { data: BriefingData }) {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="px-6 pt-4"
         >
-          <div className="flex items-center gap-4 px-5 py-4 bg-gradient-to-r from-indigo-50 to-cyan-50 border border-indigo-100 rounded-2xl">
-            {/* Icon */}
-            <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+          <div className="flex items-center gap-4 px-5 py-4 bg-role-surface border border-border rounded-[var(--radius-xl)]">
+            <div className="flex-shrink-0 w-10 h-10 rounded-[var(--radius-xl)] bg-role-primary flex items-center justify-center text-white shadow-card">
               <Sun className="w-5 h-5" />
             </div>
 
-            {/* Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-0.5">
+              <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-0.5">
                 Briefing Pagi
               </p>
-              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+              <p className="text-sm font-medium text-foreground leading-relaxed">
                 Hari ini:{" "}
-                <span className="font-black text-slate-900">
+                <span className="font-semibold tabular-nums">
                   {data.porsiHariIni.toLocaleString("id-ID")} porsi
                 </span>{" "}
                 dijadwalkan —{" "}
                 {data.sengketaAktif > 0 ? (
-                  <span className="inline-flex items-center gap-1 font-black text-red-600">
+                  <span className="inline-flex items-center gap-1 font-semibold text-status-danger">
                     <AlertCircle className="w-3 h-3" />
                     {data.sengketaAktif} sengketa menunggu keputusan BGN
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 font-black text-emerald-600">
+                  <span className="inline-flex items-center gap-1 font-semibold text-status-success">
                     <BadgeCheck className="w-3 h-3" />
                     Tidak ada sengketa aktif
                   </span>
                 )}{" "}
                 —{" "}
-                <span className="font-black text-amber-600">
+                <span className="font-semibold text-status-warning">
                   {data.vendorMenunggu} vendor baru menunggu verifikasi SBT
                 </span>
               </p>
             </div>
 
-            {/* CTA */}
-            <button
+            <Button
               onClick={() => router.push(data.urgentHref)}
-              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all shadow-md shadow-indigo-500/20"
+              className="flex-shrink-0 h-9 px-4 gap-2 text-xs font-semibold uppercase tracking-wider"
             >
               Mulai Review
               <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            </Button>
 
-            {/* Dismiss */}
             <button
               onClick={handleDismiss}
-              className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
+              className="flex-shrink-0 w-7 h-7 rounded-[var(--radius-sm)] flex items-center justify-center text-muted hover:text-foreground hover:bg-muted-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -99,3 +94,4 @@ export function DailyBriefing({ data }: { data: BriefingData }) {
     </AnimatePresence>
   );
 }
+

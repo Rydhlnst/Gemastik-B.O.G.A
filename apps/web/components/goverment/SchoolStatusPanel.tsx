@@ -12,6 +12,7 @@ import {
 } from "@/lib/mbgdummydata"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { Input } from "@/components/ui/input"
 import {
   MapPin, AlertCircle, ChevronRight, CheckCircle2,
   Clock, HelpCircle, ArrowRight, Package, RefreshCw, Info, Check, ChevronLeft,
@@ -22,20 +23,20 @@ import {
 const STATUS_CFG: Record<SchoolDeliveryStatus, {
   label: string; dotClass: string; textClass: string; shape: string; bgClass: string; borderClass: string
 }> = {
-  sengketa:   { label: "Sengketa",   dotClass: "bg-orange-500 animate-pulse", textClass: "text-orange-700", shape: "✕", bgClass: "bg-orange-50",  borderClass: "border-orange-200" },
-  gagal:      { label: "Gagal",      dotClass: "bg-red-500",                  textClass: "text-red-700",    shape: "✕", bgClass: "bg-red-50",     borderClass: "border-red-200" },
-  on_transit: { label: "On-Transit", dotClass: "bg-amber-400",                textClass: "text-amber-700",  shape: "▲", bgClass: "bg-amber-50",   borderClass: "border-amber-200" },
-  pending:    { label: "Pending",    dotClass: "bg-slate-400",                textClass: "text-slate-600",  shape: "—", bgClass: "bg-slate-50",   borderClass: "border-slate-200" },
-  terkirim:   { label: "Terkirim",   dotClass: "bg-emerald-500",              textClass: "text-emerald-700",shape: "●", bgClass: "bg-emerald-50", borderClass: "border-emerald-200" },
+  sengketa:   { label: "Sengketa",   dotClass: "bg-status-warning animate-pulse", textClass: "text-status-warning", shape: "✕", bgClass: "bg-status-warning-bg",  borderClass: "border-status-warning/25" },
+  gagal:      { label: "Gagal",      dotClass: "bg-status-danger",               textClass: "text-status-danger",  shape: "✕", bgClass: "bg-status-danger-bg",   borderClass: "border-status-danger/25" },
+  on_transit: { label: "On-Transit", dotClass: "bg-status-info",                 textClass: "text-status-info",    shape: "▲", bgClass: "bg-status-info-bg",     borderClass: "border-status-info/25" },
+  pending:    { label: "Pending",    dotClass: "bg-status-pending",              textClass: "text-status-pending", shape: "—", bgClass: "bg-status-pending-bg",  borderClass: "border-status-pending/25" },
+  terkirim:   { label: "Terkirim",   dotClass: "bg-status-success",              textClass: "text-status-success", shape: "●", bgClass: "bg-status-success-bg",  borderClass: "border-status-success/25" },
 }
 
 // ── Activity type config ──────────────────────────────────────────────────────
 
 const ACTIVITY_CFG: Record<ActivityLogItem["type"], { color: string; shape: string; needsAction: boolean }> = {
-  success: { color: "#10b981", shape: "●", needsAction: false },
-  warning: { color: "#f59e0b", shape: "▲", needsAction: true },
-  refund:  { color: "#6366f1", shape: "◆", needsAction: false },
-  info:    { color: "#06b6d4", shape: "—", needsAction: false },
+  success: { color: "hsl(var(--status-success))", shape: "●", needsAction: false },
+  warning: { color: "hsl(var(--status-warning))", shape: "▲", needsAction: true },
+  refund:  { color: "hsl(var(--role-primary))", shape: "◆", needsAction: false },
+  info:    { color: "hsl(var(--status-info))", shape: "—", needsAction: false },
 }
 
 // ── Porsi Mini-Bar ────────────────────────────────────────────────────────────
@@ -45,16 +46,22 @@ function PorsiBar({ received, target }: { received: number; target: number }) {
   const ok = pct >= 90
   return (
     <div className="flex items-center gap-1.5 min-w-[80px]" aria-label={`${received} dari ${target} porsi diterima`}>
-      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+      <div className="flex-1 h-1.5 bg-muted/30 rounded-full overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           className="h-full rounded-full"
-          style={{ background: ok ? "#10b981" : pct >= 60 ? "#f59e0b" : "#ef4444" }}
+          style={{
+            background: ok
+              ? "hsl(var(--status-success))"
+              : pct >= 60
+              ? "hsl(var(--status-warning))"
+              : "hsl(var(--status-danger))",
+          }}
           aria-hidden
         />
       </div>
-      <span className="text-[9px] font-black text-slate-500 tabular-nums">{received}</span>
+      <span className="text-xs font-semibold text-muted-foreground tabular-nums">{received}</span>
     </div>
   )
 }
@@ -62,13 +69,13 @@ function PorsiBar({ received, target }: { received: number; target: number }) {
 // ── Ketepatan Pill ──────────────────────────────────────────────────────────
 
 function KetepatanPill({ menit }: { menit: number | null }) {
-  if (menit === null) return <span className="text-[9px] text-slate-400">—</span>
-  if (menit === 0) return <span className="text-[9px] font-black text-emerald-600">● Tepat</span>
+  if (menit === null) return <span className="text-xs text-muted-foreground">—</span>
+  if (menit === 0) return <span className="text-xs font-semibold text-status-success">● Tepat</span>
   if (menit < 0)
-    return <span className="text-[9px] font-black text-emerald-600">● {Math.abs(menit)} mnt lebih awal</span>
+    return <span className="text-xs font-semibold text-status-success">● {Math.abs(menit)} mnt lebih awal</span>
   if (menit <= 15)
-    return <span className="text-[9px] font-black text-amber-600">▲ +{menit} mnt</span>
-  return <span className="text-[9px] font-black text-red-600">✕ +{menit} mnt terlambat</span>
+    return <span className="text-xs font-semibold text-status-warning">▲ +{menit} mnt</span>
+  return <span className="text-xs font-semibold text-status-danger">✕ +{menit} mnt terlambat</span>
 }
 
 // ── Inline Detail Panel ───────────────────────────────────────────────────────
@@ -85,14 +92,14 @@ function DetailPanel({ row, onClose }: { row: SchoolTableRow; onClose: () => voi
       exit={{ opacity: 0 }}
     >
       <td colSpan={6} className="px-4 pb-3">
-        <div className={cn("rounded-xl border p-4 flex flex-col gap-3", cfg.bgClass, cfg.borderClass)}>
+        <div className={cn("rounded-[var(--radius-lg)] border p-4 flex flex-col gap-3", cfg.bgClass, cfg.borderClass)}>
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs font-black text-slate-700">{row.nama}</p>
-              <p className="text-[9px] text-slate-400 mt-0.5">{row.kecamatan}, {row.kota} · Vendor: {row.vendorNama}</p>
+              <p className="text-sm font-semibold text-foreground">{row.nama}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{row.kecamatan}, {row.kota} · Vendor: {row.vendorNama}</p>
             </div>
             <span
-              className={cn("text-[9px] font-black px-2 py-0.5 rounded-full flex items-center gap-1", cfg.textClass, cfg.bgClass, "border", cfg.borderClass)}
+              className={cn("text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1", cfg.textClass, cfg.bgClass, "border", cfg.borderClass)}
               aria-label={`Status: ${cfg.label}`}
             >
               {cfg.shape} {cfg.label}
@@ -101,25 +108,27 @@ function DetailPanel({ row, onClose }: { row: SchoolTableRow; onClose: () => voi
 
           <div className="grid grid-cols-3 gap-3 text-center">
             <div>
-              <p className="text-[8px] text-slate-400 font-bold uppercase">Porsi Diterima</p>
-              <p className="text-sm font-black text-slate-800">{row.porsiDiterima.toLocaleString()} <span className="text-[9px] text-slate-400">/ {row.porsiTarget.toLocaleString()}</span></p>
-              <div className="w-full h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
-                <div className="h-full rounded-full bg-indigo-400" style={{ width: `${pct}%` }} aria-hidden />
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">Porsi Diterima</p>
+              <p className="text-sm font-semibold text-foreground tabular-nums">
+                {row.porsiDiterima.toLocaleString()} <span className="text-xs text-muted-foreground">/ {row.porsiTarget.toLocaleString()}</span>
+              </p>
+              <div className="w-full h-1.5 bg-muted/30 rounded-full mt-1 overflow-hidden">
+                <div className="h-full rounded-full bg-role-primary" style={{ width: `${pct}%` }} aria-hidden />
               </div>
             </div>
             <div>
-              <p className="text-[8px] text-slate-400 font-bold uppercase">Jam Tiba</p>
-              <p className="text-sm font-black text-slate-800">{row.jamTiba}</p>
-              <p className="text-[9px] text-slate-400">target {row.jamTarget}</p>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">Jam Tiba</p>
+              <p className="text-sm font-semibold text-foreground tabular-nums">{row.jamTiba}</p>
+              <p className="text-xs text-muted-foreground">target {row.jamTarget}</p>
             </div>
             <div>
-              <p className="text-[8px] text-slate-400 font-bold uppercase">Selisih</p>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">Selisih</p>
               <KetepatanPill menit={row.selisihMenit} />
             </div>
           </div>
 
           {row.catatan && (
-            <p className="text-[9px] text-slate-500 bg-white/60 rounded-lg px-3 py-2 border border-slate-200">
+            <p className="text-xs text-muted-foreground bg-surface/70 rounded-[var(--radius-md)] px-3 py-2 border border-border">
               ℹ {row.catatan}
             </p>
           )}
@@ -128,17 +137,17 @@ function DetailPanel({ row, onClose }: { row: SchoolTableRow; onClose: () => voi
             <button
               onClick={() => router.push(`/goverment/pengawasan?school=${row.id}`)}
               aria-label={`Lihat ${row.nama} di peta pengawasan`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-[9px] font-black hover:bg-indigo-700 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] bg-role-primary text-white text-xs font-semibold hover:bg-role-primary-hover transition-colors"
             >
-              <MapPin className="w-3 h-3" aria-hidden /> Lihat di Peta
+              <MapPin className="w-4 h-4" aria-hidden /> Lihat di Peta
             </button>
             {row.status === "sengketa" && (
               <button
                 onClick={() => router.push(`/goverment/verifikasi?case=${row.id}`)}
                 aria-label={`Tangani sengketa ${row.nama}`}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500 text-white text-[9px] font-black hover:bg-orange-600 transition-all animate-pulse"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-[var(--radius-md)] bg-status-warning text-white text-xs font-semibold hover:opacity-90 transition-colors"
               >
-                <AlertCircle className="w-3 h-3" aria-hidden /> Tangani Sengketa
+                <AlertCircle className="w-4 h-4" aria-hidden /> Tangani Sengketa
               </button>
             )}
           </div>
@@ -180,16 +189,16 @@ function SchoolTable() {
     <div className="flex flex-col gap-3">
       {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <p className="text-[9px] text-slate-400 ml-auto">{filtered.length} sekolah ditemukan</p>
+        <p className="text-xs text-muted-foreground ml-auto">{filtered.length} sekolah ditemukan</p>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-100">
+      <div className="overflow-x-auto rounded-[var(--radius-lg)] border border-border">
         <table className="w-full" aria-label="Tabel status sekolah MBG">
           <thead>
-            <tr className="border-b border-slate-100">
+            <tr className="border-b border-border bg-surface-raised">
               {["Sekolah", "Jenjang", "Status", "Porsi", "Ketepatan", "Aksi"].map((h) => (
-                <th key={h} className="px-3 py-2 text-[8px] font-black uppercase tracking-widest text-slate-400 text-left">
+                <th key={h} className="px-3 py-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground text-left">
                   {h}
                 </th>
               ))}
@@ -198,7 +207,7 @@ function SchoolTable() {
           <tbody>
             {paginated.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-[11px] text-slate-400">
+                <td colSpan={6} className="px-4 py-12 text-center text-sm text-muted-foreground">
                   Tidak ada data sekolah
                 </td>
               </tr>
@@ -208,66 +217,60 @@ function SchoolTable() {
               const isExpanded = expandedId === row.id
               return (
                 <Fragment key={row.id}>
-                  <tr
-                    className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
-                  >
+                  <tr className="border-b border-border hover:bg-muted/20 transition-colors">
                     {/* Nama — klik untuk expand */}
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-3">
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : row.id)}
                         aria-expanded={isExpanded}
                         aria-controls={`detail-${row.id}`}
-                        className="text-[11px] font-bold text-slate-700 hover:text-indigo-600 transition-colors text-left flex items-center gap-1"
+                        className="text-sm font-semibold text-foreground hover:text-role-primary transition-colors text-left flex items-center gap-1.5"
                       >
                         <ChevronRight
-                          className={cn("w-3 h-3 text-slate-300 transition-transform shrink-0", isExpanded && "rotate-90")}
+                          className={cn("w-4 h-4 text-muted-foreground transition-transform shrink-0", isExpanded && "rotate-90")}
                           aria-hidden
                         />
-                        {row.nama}
+                        <span className="truncate">{row.nama}</span>
                       </button>
                     </td>
                     {/* Jenjang */}
-                    <td className="px-3 py-2.5">
-                      <span className={cn(
-                        "text-[9px] font-black px-1.5 py-0.5 rounded-md",
-                        row.jenjang === "SD" ? "bg-rose-100 text-rose-700" :
-                        row.jenjang === "SMP" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-700"
-                      )}>
+                    <td className="px-3 py-3">
+                      <span className="inline-flex items-center rounded-full border border-border bg-surface-raised px-2.5 py-0.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
                         {row.jenjang}
                       </span>
                     </td>
                     {/* Status — shape + color */}
-                    <td className="px-3 py-2.5">
-                      <span className={cn("text-[9px] font-black flex items-center gap-1", cfg.textClass)}>
+                    <td className="px-3 py-3">
+                      <span className={cn("text-xs font-semibold flex items-center gap-2", cfg.textClass)}>
                         <span className={cn("w-2 h-2 rounded-full inline-block", cfg.dotClass)} aria-hidden />
                         {cfg.shape} {cfg.label}
                       </span>
                     </td>
                     {/* Porsi mini-bar */}
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-3">
                       <PorsiBar received={row.porsiDiterima} target={row.porsiTarget} />
                     </td>
                     {/* Ketepatan */}
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-3">
                       <KetepatanPill menit={row.selisihMenit} />
                     </td>
                     {/* Aksi */}
-                    <td className="px-3 py-2.5">
-                      <div className="flex items-center gap-1">
+                    <td className="px-3 py-3">
+                      <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => router.push(`/goverment/pengawasan?school=${row.id}`)}
                           aria-label={`Lihat ${row.nama} di peta`}
-                          className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                          className="h-8 w-8 rounded-[var(--radius-md)] flex items-center justify-center text-muted-foreground hover:text-role-primary hover:bg-muted/30 transition-colors"
                         >
-                          <MapPin className="w-3.5 h-3.5" aria-hidden />
+                          <MapPin className="w-4 h-4" aria-hidden />
                         </button>
                         {row.status === "sengketa" && (
                           <button
                             onClick={() => router.push(`/goverment/verifikasi?case=${row.id}`)}
                             aria-label={`Tangani sengketa ${row.nama}`}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 transition-all animate-pulse"
+                            className="h-8 w-8 rounded-[var(--radius-md)] flex items-center justify-center text-status-danger hover:bg-status-danger-bg transition-colors"
                           >
-                            <AlertCircle className="w-3.5 h-3.5" aria-hidden />
+                            <AlertCircle className="w-4 h-4" aria-hidden />
                           </button>
                         )}
                       </div>
@@ -293,16 +296,16 @@ function SchoolTable() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             aria-label="Halaman sebelumnya"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 transition-all"
+            className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 disabled:opacity-30 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" aria-hidden />
           </button>
-          <span className="text-[10px] font-black text-slate-500">{page} / {totalPages}</span>
+          <span className="text-xs font-semibold text-muted-foreground tabular-nums">{page} / {totalPages}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             aria-label="Halaman berikutnya"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 disabled:opacity-30 transition-all"
+            className="w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/30 disabled:opacity-30 transition-colors"
           >
             <ChevronRight className="w-4 h-4" aria-hidden />
           </button>
@@ -332,28 +335,28 @@ function ActivityLog() {
             key={item.id}
             onClick={() => router.push(item.href)}
             aria-label={`${item.message} — ${item.timeLabel}. Klik untuk lihat detail`}
-            className="flex items-start gap-2 text-left hover:bg-slate-50 rounded-lg px-2 py-1.5 transition-all group"
+            className="flex items-start gap-2 text-left hover:bg-muted/30 rounded-[var(--radius-md)] px-2 py-1.5 transition-colors group"
           >
             {/* Timeline dot + connector */}
             <div className="flex flex-col items-center shrink-0 mt-0.5">
               <span
-                className="text-[11px] leading-none"
+                className="text-sm leading-none"
                 style={{ color: cfg.color }}
                 aria-hidden
               >
                 {cfg.shape}
               </span>
               {cfg.needsAction && (
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-0.5" aria-label="Butuh tindakan" />
+                <span className="w-1.5 h-1.5 rounded-full bg-status-danger mt-0.5" aria-label="Butuh tindakan" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-semibold text-slate-700 leading-snug group-hover:text-indigo-600 transition-colors">
+              <p className="text-xs font-semibold text-foreground leading-snug group-hover:text-role-primary transition-colors">
                 {item.message}
               </p>
-              <p className="text-[8px] text-slate-400 mt-0.5">{item.timeLabel}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{item.timeLabel}</p>
             </div>
-            <ArrowRight className="w-3 h-3 text-slate-200 group-hover:text-indigo-400 transition-colors shrink-0 mt-1" aria-hidden />
+            <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-role-primary transition-colors shrink-0 mt-1" aria-hidden />
           </button>
         )
       })}
@@ -364,16 +367,16 @@ function ActivityLog() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             aria-label="Halaman log sebelumnya"
-            className="text-[9px] text-slate-400 hover:text-slate-700 disabled:opacity-30"
+            className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
           >
             ← Lama
           </button>
-          <span className="text-[9px] text-slate-400">{page}/{totalPages}</span>
+          <span className="text-xs text-muted-foreground tabular-nums">{page}/{totalPages}</span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             aria-label="Halaman log berikutnya"
-            className="text-[9px] text-slate-400 hover:text-slate-700 disabled:opacity-30"
+            className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors"
           >
             Baru →
           </button>
@@ -390,32 +393,40 @@ export function SchoolStatusPanel() {
   const [tab, setTab] = useState<"sekolah" | "log">("sekolah")
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-5">
+    <div className="bg-surface rounded-[var(--radius-lg)] border border-border p-5 shadow-card">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
-          {tab === "sekolah" ? "Status Sekolah MBG" : "Log Aktivitas Sistem"}
-        </p>
-        <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {tab === "sekolah" ? "Status Sekolah MBG" : "Log Aktivitas Sistem"}
+          </p>
+          <p className="mt-0.5 text-sm font-semibold text-foreground">
+            {tab === "sekolah" ? "Monitoring penerimaan & ketepatan" : "Peristiwa operasional terbaru"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
           {tab === "sekolah" && (
-            <input
+            <Input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Cari sekolah..."
               aria-label="Cari sekolah"
-              className="text-[10px] px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:border-indigo-300 w-40"
+              className="h-9 w-44"
             />
           )}
-          <div className="flex rounded-xl bg-slate-100 p-0.5">
+          <div className="flex rounded-[var(--radius-lg)] bg-surface-raised p-0.5 border border-border">
             {(["sekolah", "log"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 aria-pressed={tab === t}
                 className={cn(
-                  "px-3 py-1 text-[9px] font-black rounded-lg transition-all capitalize",
-                  tab === t ? "bg-white text-slate-700 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                  "px-3 py-1 text-xs font-semibold rounded-[var(--radius-md)] transition-colors capitalize",
+                  tab === t
+                    ? "bg-surface text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {t === "sekolah" ? "Sekolah" : "Log"}

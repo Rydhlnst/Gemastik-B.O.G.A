@@ -33,8 +33,8 @@ export default async function RiwayatDashboardPage() {
   const data = await getData()
 
   return (
-    <div className="w-full min-h-screen bg-[#f8fafc] font-sans pb-20">
-      <div className="w-full h-[280px] relative overflow-hidden bg-white border-b" style={{borderColor: 'rgba(44,110,73,0.12)'}}>
+    <div className="w-full min-h-screen bg-background text-foreground pb-20">
+      <div className="w-full h-[280px] relative overflow-hidden bg-surface border-b border-border">
         <div className="absolute inset-0 opacity-40"><AnimatedScene /></div>
         <div className="absolute inset-0 logistik-hero-gradient" />
         

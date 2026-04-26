@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { StatusBadge } from "@/components/ui/status-badge"
 
 export type LogistikDelivery = {
   id: string
@@ -17,17 +18,25 @@ export const columns: ColumnDef<LogistikDelivery>[] = [
   {
     accessorKey: "id",
     header: "ID Resi",
-    cell: ({ row }) => <div className="font-mono text-xs text-gray-500">{row.getValue("id")}</div>,
+    cell: ({ row }) => (
+      <div className="font-mono text-xs text-muted-foreground">
+        {row.getValue("id")}
+      </div>
+    ),
   },
   {
     accessorKey: "vendor",
     header: "Mitra Vendor",
-    cell: ({ row }) => <div className="font-semibold text-gray-800">{row.getValue("vendor")}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold text-foreground">{row.getValue("vendor")}</div>
+    ),
   },
   {
     accessorKey: "sekolah",
     header: "Tujuan (Sekolah)",
-    cell: ({ row }) => <div className="text-gray-600">{row.getValue("sekolah")}</div>,
+    cell: ({ row }) => (
+      <div className="text-muted-foreground">{row.getValue("sekolah")}</div>
+    ),
   },
   {
     accessorKey: "porsi",
@@ -46,13 +55,19 @@ export const columns: ColumnDef<LogistikDelivery>[] = [
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("porsi"))
       // Tambahkan padding proporsional agar tidak terlalu berdekatan
-      return <div className="font-medium pl-3" style={{ color: '#2c6e49' }}>{amount} Porsi</div>
+      return (
+        <div className="font-medium pl-3 text-role-primary tabular-nums">
+          {amount} Porsi
+        </div>
+      )
     },
   },
   {
     accessorKey: "waktu",
     header: "Waktu Update",
-    cell: ({ row }) => <div className="text-gray-500 text-xs">{row.getValue("waktu")}</div>,
+    cell: ({ row }) => (
+      <div className="text-muted-foreground text-xs">{row.getValue("waktu")}</div>
+    ),
   },
   {
     accessorKey: "status",
@@ -69,19 +84,8 @@ export const columns: ColumnDef<LogistikDelivery>[] = [
       )
     },
     cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      let badgeColor = "bg-gray-100 text-gray-800";
-      
-      if (status === "Selesai") badgeColor = "bg-[#eaf4ee] text-[#2c6e49] border-[#2c6e49]/20";
-      else if (status === "Sedang Dikirim") badgeColor = "bg-blue-100 text-blue-800 border-blue-200";
-      else if (status === "Kendala") badgeColor = "bg-red-100 text-red-800 border-red-200";
-      else if (status === "Diproses") badgeColor = "bg-orange-100 text-orange-800 border-orange-200";
-
-      return (
-        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeColor}`}>
-          {status}
-        </div>
-      )
+      const status = row.getValue("status") as string
+      return <StatusBadge status={status} />
     },
   },
 ]

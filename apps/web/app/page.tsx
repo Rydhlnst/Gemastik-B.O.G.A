@@ -1,517 +1,283 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Zap, Link2, BarChart3, Search, Activity, ShieldCheck, School, ChevronRight, Phone, MessageSquare, Mail, AlertTriangle, Send } from "lucide-react";
-import CountUp from "@/components/ui/CountUp";
-import { type Sekolah, sekolahList, getVendorsBySekolah } from "@/lib/mbgdummydata";
-import { SchoolDetailPanel } from "@/components/ui/SchoolDetailPanel";
-import { SplashScene } from "@/components/ui/SplashScene";
-import { BogaBelt } from "@/components/ui/BogaBelt";
-import { AboutSection } from "@/components/ui/AboutSection";
-import VendorRanking from "@/components/ui/vendorranking";
+import Image from "next/image";
+import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import {
+  ShieldCheck,
+  Lock,
+  MapPinned,
+  BadgeCheck,
+  ArrowRight,
+} from "lucide-react";
 
-const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: false });
+const PHASES = [
+  { title: "Phase 0", label: "Onboarding & Verifikasi", detail: "OCR + forensik dokumen, final approval pemerintah." },
+  { title: "Phase 1", label: "Pengadaan & Escrow Lock", detail: "PO tervalidasi HET, dana terkunci, hash tercatat." },
+  { title: "Phase 2", label: "Logistik & Multi‑Sig", detail: "3/3 tanda tangan, QC gate, anomali terdeteksi." },
+  { title: "Phase 3", label: "Penerimaan Sekolah", detail: "Geofencing 50m + anti replay scan untuk konfirmasi." },
+  { title: "Phase 4", label: "Evaluasi & Reputasi", detail: "Skor siswa → Keran 2 + SBT sebagai reputasi permanen." },
+];
+
+const FLOW_PHASES = [
+  {
+    title: "Phase 0",
+    label: "Onboarding & Verifikasi",
+    detail: "Pilih role, login, lalu proses verifikasi & approval (demo).",
+    href: "/auth/login",
+  },
+  {
+    title: "Phase 1",
+    label: "Pengadaan & Escrow Lock",
+    detail: "SPPG buat PO + bidding vendor, lalu lock escrow (simulasi).",
+    href: "/sppg/dashboard",
+  },
+  {
+    title: "Phase 2",
+    label: "Logistik & Validasi",
+    detail: "Pantau rute + scan QR manifest di proses pickup/delivery (demo).",
+    href: "/logistik/dashboard",
+  },
+  {
+    title: "Phase 3",
+    label: "Penerimaan Sekolah",
+    detail: "Sekolah scan manifest untuk konfirmasi penerimaan (demo).",
+    href: "/sekolah/admin",
+  },
+  {
+    title: "Phase 4",
+    label: "Evaluasi & Reputasi",
+    detail: "Ranking, performa, dan feedback siswa untuk reputasi vendor/SPPG.",
+    href: "/sekolah/siswa",
+  },
+] as const;
+
+const TRUST = [
+  { icon: Lock, title: "Escrow", desc: "Dana ditahan sampai kondisi terpenuhi, bukan asumsi." },
+  { icon: ShieldCheck, title: "Multi‑Sig", desc: "Keputusan penting butuh 3 peran, bukan satu klik." },
+  { icon: MapPinned, title: "Geofencing", desc: "Scan hanya valid pada radius lokasi yang benar." },
+  { icon: BadgeCheck, title: "SBT", desc: "Reputasi terikat identitas—persisten, audit‑friendly." },
+];
+
+const ROLE_GATEWAYS = [
+  { label: "Pemerintah", href: "/goverment/dashboard", accent: "from-[#B45309] to-[#78350F]" },
+  { label: "Vendor", href: "/vendor/dashboard", accent: "from-[#064E3B] to-[#065F46]" },
+  { label: "SPPG", href: "/sppg/dashboard", accent: "from-[#9A3412] to-[#7C2D12]" },
+  { label: "Logistik", href: "/logistik/dashboard", accent: "from-[#0E7490] to-[#155E75]" },
+  { label: "Sekolah", href: "/sekolah/admin", accent: "from-[#1E3A8A] to-[#1D4ED8]" },
+];
 
 export default function Home() {
-  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
-  const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
-  const [showSplash, setShowSplash] = useState(true);
-  const [showRanking, setShowRanking] = useState(false);
-  const [rankingType, setRankingType] = useState<"vendor" | "sppg">("vendor");
-
-  const features = [
-    {
-      title: "Visibilitas Real-Time",
-      subtitle: "Pantau setiap aliran distribusi.",
-      icon: MapPin,
-      desc: "Lacak posisi armada dan status pengiriman sekolah secara langsung dalam dashboard terintegrasi."
-    },
-    {
-      title: "ETA Berbasis AI",
-      subtitle: "Prediksi keterlambatan pintar.",
-      icon: Zap,
-      desc: "Mesin Kecerdasan Buatan (AI) kami sanggup meninjau pola lalu lintas dan algoritma riwayat untuk estimasi kedatangan yang lebih akurat."
-    },
-    {
-      title: "Kontrol End-to-End",
-      subtitle: "Satu platform terintegrasi.",
-      icon: Link2,
-      desc: "Hubungkan dapur pusat, vendor, dan titik pengiriman dalam satu ekosistem yang kohesif."
-    },
-    {
-      title: "Laporan Transparan",
-      subtitle: "Akses data terbuka.",
-      icon: BarChart3,
-      desc: "Seluruh log transaksi dan bukti serah terima tersimpan permanen untuk transparansi total."
-    },
-  ];
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 140]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.02, 1]);
 
   return (
-    <>
-      <AnimatePresence>
-        {showSplash && (
-          <SplashScene onLift={() => setShowSplash(false)} />
-        )}
-      </AnimatePresence>
+    <div className="bg-black text-white">
+      <section id="home" ref={heroRef} className="relative min-h-svh overflow-hidden">
+        <motion.div
+          className="absolute inset-0"
+          style={{ y: imageY, scale: imageScale }}
+          aria-hidden
+        >
+          <Image
+            src="/mbg3.png"
+            alt="Distribusi MBG"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </motion.div>
 
-      <div className={`w-full min-h-screen bg-[#f8faff] text-slate-900 font-sans selection:bg-indigo-100 pb-0 pt-0 transition-all duration-1000 ${showSplash ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-        }`}>
+        <div className="absolute inset-0 bg-[radial-gradient(1200px_620px_at_20%_10%,rgba(255,255,255,0.18),transparent_55%),linear-gradient(to_bottom,rgba(0,0,0,0.55),rgba(0,0,0,0.78))]" />
+        <div className="absolute inset-0 opacity-25 [background-image:radial-gradient(rgba(255,255,255,0.22)_1px,transparent_1px)] [background-size:18px_18px]" />
 
-        {/* SVG Gradient Definitions for Lucide Icons */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="boga-icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#4f46e5" />
-              <stop offset="100%" stopColor="#06b6d4" />
-            </linearGradient>
-          </defs>
-        </svg>
+        <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-4 pb-12 pt-20 md:px-6 md:pb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.2, 0, 0.2, 1] }}
+            className="max-w-3xl"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              B.O.G.A • MBG Operations Ledger
+            </p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-6xl">
+              Distribusi MBG yang rapi, terukur, dan siap diaudit.
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg">
+              Satu alur operasional lintas peran: pengadaan, escrow, logistik, penerimaan sekolah,
+              hingga evaluasi—semua dengan guardrail yang jelas.
+            </p>
 
-        <main className="max-w-7xl mx-auto px-6 mt-0">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              >
+                Masuk
+                <ArrowRight className="size-4" />
+              </Link>
+              <a
+                href="#how"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Lihat alur
+              </a>
+            </div>
+          </motion.div>
 
-          {/* TOP ROW: HERO & BOGA CARD */}
-          <div id="home" className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
-
-            {/* HERO CARD */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={showSplash ? {} : { opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="lg:col-span-8 bg-white rounded-[1.25rem] p-4 md:p-5 border border-slate-100 shadow-sm relative overflow-hidden flex flex-col justify-center min-h-[120px]"
-            >
-              <div className="relative z-10">
-                <h1 className="text-2xl md:text-4xl font-black text-slate-800 tracking-tighter mb-0.5">
-                  End-to-End <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Supply Chain</span>
-                </h1>
-                <p className="text-slate-400 font-bold tracking-[0.3em] uppercase text-[8px] mb-3">
-                  Distribusi MBG · Scale
-                </p>
-                <div className="flex gap-2">
-                  <span className="bg-[#f0fdf4] text-[#16a34a] border border-emerald-50 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                    25% hemat
-                  </span>
-                  <span className="bg-[#f0f9ff] text-[#0284c7] border border-sky-50 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">
-                    99% on-time
-                  </span>
-                </div>
+          <div className="mt-10 grid gap-2 border-t border-white/15 pt-6 md:grid-cols-3">
+            {[
+              ["Transparansi", "Audit trail dari PO sampai delivery."],
+              ["Ketertiban Proses", "Gate + role-based verification."],
+              ["Keputusan Cepat", "Signal operasional yang ringkas."],
+            ].map(([k, v]) => (
+              <div key={k} className="flex items-start justify-between gap-4">
+                <p className="text-sm font-semibold">{k}</p>
+                <p className="text-sm text-white/65">{v}</p>
               </div>
-              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/30 blur-[80px] rounded-full -mr-16 -mt-16" />
-            </motion.div>
-
-            {/* B.O.G.A GRADIENT CARD */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={showSplash ? {} : { opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="lg:col-span-4 bg-gradient-to-br from-[#4f46e5] via-[#0ea5e9] to-[#22d3ee] rounded-[1.25rem] p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-xl shadow-blue-100 min-h-[120px]"
-            >
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="flex gap-0.5">
-                  {"B.O.G.A".split("").map((letter, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.5 + (i * 0.1),
-                        duration: 0.5,
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        repeatDelay: 2
-                      }}
-                      className="text-3xl md:text-5xl font-black tracking-widest text-white drop-shadow-lg"
-                    >
-                      {letter}
-                    </motion.span>
-                  ))}
-                </div>
-              </div>
-              <div className="absolute inset-0 opacity-10 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
-              </div>
-            </motion.div>
+            ))}
           </div>
+        </div>
+      </section>
 
-          {/* MIDDLE ROW: MAP & FEATURE STACK */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mb-3">
-
-            {/* MAP CARD */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={showSplash ? {} : { opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="lg:col-span-9 bg-white rounded-[1.25rem] p-4 border border-slate-100 shadow-sm relative flex flex-col min-h-[440px]"
-            >
-              <div className="flex flex-col mb-3">
-                <h2 className="text-indigo-600 font-black text-[8px] uppercase tracking-[0.3em] mb-0.5">
-                  Peta Distribusi
-                </h2>
-                <p className="text-slate-400 text-[9px] font-medium">
-                  Klik sekolah untuk detail insight
-                </p>
-              </div>
-
-              <div className="flex-1 rounded-[1.25rem] overflow-hidden border border-slate-50 relative bg-slate-50">
-                <MapLibreMap
-                  selectedSchool={selectedSchool}
-                  onSchoolSelect={setSelectedSchool}
-                />
-              </div>
-            </motion.div>
-
-            {/* SIDEBAR: FEATURE STACK OR SCHOOL DETAILS */}
-            <div className="lg:col-span-3 flex flex-col h-full">
-              <AnimatePresence mode="wait">
-                {selectedSchool ? (
-                  <SchoolDetailPanel
-                    key="school-details"
-                    school={selectedSchool}
-                    vendors={getVendorsBySekolah(selectedSchool.id)}
-                    onClose={() => setSelectedSchool(null)}
-                    readOnly={true}
-                  />
-                ) : (
-                  <motion.div
-                    key="feature-stack"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={showSplash ? {} : { opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="flex flex-col gap-1.5 h-full"
-                  >
-                    {features.map((f, i) => (
-                      <motion.div
-                        key={f.title}
-                        onClick={() => setSelectedFeature(selectedFeature === i ? null : i)}
-                        className={`group bg-white rounded-[1.25rem] p-3.5 border transition-all duration-300 cursor-pointer flex flex-col justify-center flex-1 ${selectedFeature === i
-                            ? 'bg-gradient-to-br from-indigo-600 to-cyan-500 border-transparent text-white shadow-xl shadow-indigo-100'
-                            : 'border-slate-100 hover:bg-gradient-to-br hover:from-indigo-600 hover:to-cyan-500 hover:border-transparent hover:text-white shadow-sm'
-                          }`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex-1">
-                            <h3 className={`text-[13px] font-black tracking-tight leading-none mb-1 transition-colors ${selectedFeature === i ? 'text-white' : 'text-slate-900 group-hover:text-white'
-                              }`}>
-                              {f.title}
-                            </h3>
-                            <p className={`text-[9px] font-bold transition-colors ${selectedFeature === i ? 'text-indigo-100' : 'text-slate-400 group-hover:text-indigo-100'
-                              }`}>
-                              {f.subtitle}
-                            </p>
-                          </div>
-                          <div className={`p-2.5 rounded-xl transition-all ${selectedFeature === i
-                              ? 'bg-white/20 text-white'
-                              : 'bg-slate-50 group-hover:bg-white/20'
-                            }`}>
-                            <f.icon
-                              className="w-4 h-4"
-                              style={{ stroke: selectedFeature === i ? 'white' : 'url(#boga-icon-gradient)' }}
-                            />
-                          </div>
-                        </div>
-
-                        <AnimatePresence>
-                          {selectedFeature === i && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="mt-4 pt-4 border-t border-white/20 flex-1 overflow-y-auto"
-                            >
-                              {f.tag && (
-                                <span className={`text-[9px] font-black px-3 py-1 rounded-md tracking-widest mb-3 inline-block ${selectedFeature === i ? 'bg-white text-indigo-600' : 'bg-indigo-50 text-indigo-600'
-                                  }`}>
-                                  {f.tag}
-                                </span>
-                              )}
-                              <p className={`text-[11px] font-medium leading-relaxed ${selectedFeature === i ? 'text-white/80' : 'text-slate-500'
-                                }`}>
-                                {f.desc}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+      <section id="how" className="bg-white text-slate-900">
+        <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          <div className="grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                How it works
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+                Phase-based, bukan “dashboard penuh kartu”.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600">
+                Setiap phase punya satu tujuan, satu bukti, dan satu status yang mudah dibaca.
+              </p>
             </div>
 
+            <ol className="divide-y divide-slate-200 rounded-3xl border border-slate-200 bg-white">
+              {FLOW_PHASES.map((p) => (
+                <li key={p.title} className="px-5 py-5 md:px-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
+                      {p.title}
+                    </p>
+                    <p className="text-sm font-semibold text-slate-900">{p.label}</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{p.detail}</p>
+                  <div className="mt-4">
+                    <Link
+                      href={p.href}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900 transition hover:translate-x-0.5"
+                    >
+                      Buka modul <ArrowRight className="size-4" />
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="primitives" className="bg-slate-950 text-white">
+        <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          <div className="flex items-end justify-between gap-6">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/60">
+                Trust primitives
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+                Guardrail yang terasa di operasi harian.
+              </h2>
+            </div>
+            <p className="hidden max-w-sm text-sm text-white/60 md:block">
+              Dibuat untuk operator: status jelas, aksi jelas, log jelas.
+            </p>
           </div>
 
-          {/* BOTTOM ROW: STATS */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pb-4 md:pb-8">
-            {[
-              { label: "Sekolah", value: 6, unit: "unit", icon: School },
-              { label: "Porsi", value: 2693, unit: "0/hari", icon: Activity },
-              { label: "Gudang", value: 0, unit: "0 titik", icon: ShieldCheck },
-              { label: "Mitra", value: 0, unit: "0 vendor", icon: ChevronRight }
-            ].map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={showSplash ? {} : { opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 + (i * 0.1) }}
-                className="bg-white rounded-[1.25rem] p-4 border border-slate-100 shadow-sm flex flex-col items-center justify-center text-center hover:shadow-md transition-all group"
+          <div className="mt-10 grid gap-3 md:grid-cols-4">
+            {TRUST.map((t) => (
+              <div
+                key={t.title}
+                className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur"
               >
-                <h3 className="text-[13px] font-black text-slate-900 tracking-tight mb-1.5 group-hover:text-indigo-600 transition-colors">
-                  {stat.label}
-                </h3>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-black text-slate-800 tabular-nums">
-                    <CountUp to={stat.value} />
-                  </span>
-                  <span className="text-[9px] font-bold text-slate-400">
-                    {stat.unit}
-                  </span>
+                <t.icon className="size-5 text-white/80" />
+                <p className="mt-3 text-sm font-semibold">{t.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/65">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="roles" className="bg-white text-slate-900">
+        <div className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                Role gateways
+              </p>
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
+                Masuk sesuai peran, kerja sesuai SOP.
+              </h2>
+            </div>
+            <p className="max-w-md text-sm text-slate-600">
+              Tiap portal punya tone dan aksen sendiri, tapi pola layout sama: orientasi → status → aksi.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-3 md:grid-cols-5">
+            {ROLE_GATEWAYS.map((r) => (
+              <motion.a
+                key={r.label}
+                href={r.href}
+                whileHover={{ y: -2 }}
+                transition={{ duration: 0.18 }}
+                className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-4"
+              >
+                <div
+                  className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${r.accent}`}
+                  aria-hidden
+                />
+                <p className="text-sm font-semibold">{r.label}</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  Buka dashboard
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  Mulai
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
 
-        </main>
-
-        <div className="mt-0">
-          <AboutSection />
-        </div>
-
-        <BogaBelt />
-
-        {/* VENDOR & SPPG RANKING SECTION */}
-        <section id="performance" className="relative px-6 pb-2 pt-24 bg-slate-50 flex justify-center border-t border-slate-200 overflow-hidden min-h-[60vh]">
-          {/* Subtle Floating Interactive Background Particles */}
-          <BackgroundParticles />
-          <div className="w-full max-w-[1400px] flex flex-col items-center">
-
-            <button
-              onClick={() => setShowRanking(!showRanking)}
-              className="group flex flex-col items-center gap-2 mb-8"
-            >
-              <h2 className="text-3xl font-black text-slate-900 text-center tracking-tight group-hover:text-indigo-600 transition-colors">
-                Top Performance Tracker
-              </h2>
-              <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-indigo-500 transition-colors">
-                <span>{showRanking ? "Hide Ranking" : "View Global Ranking"}</span>
-                <ChevronRight className={`w-4 h-4 transition-transform duration-300 ${showRanking ? "rotate-90" : ""}`} />
+          <div className="mt-12 rounded-3xl border border-slate-200 bg-slate-50 p-6 md:p-8">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold">Perlu akses demo cepat?</p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Login sebagai role yang tersedia, lalu eksplor dashboard berdasarkan alur phase.
+                </p>
               </div>
-            </button>
-
-            <AnimatePresence>
-              {showRanking && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0, scale: 0.98 }}
-                  animate={{ height: "auto", opacity: 1, scale: 1 }}
-                  exit={{ height: 0, opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-full overflow-hidden"
-                >
-                  {/* Context Toggle - Premium sliding glass pill */}
-                  <div className="flex justify-center mb-10">
-                    <div className="bg-slate-200/50 backdrop-blur-md p-1 rounded-[2.5rem] flex items-center relative border border-white shadow-inner w-[320px]">
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bg-white rounded-full shadow-lg shadow-indigo-100/50 border border-slate-100"
-                        initial={false}
-                        animate={{
-                          x: rankingType === "vendor" ? 0 : 158,
-                        }}
-                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                        style={{ 
-                          width: '158px',
-                          height: 'calc(100% - 8px)',
-                          top: '4px',
-                          left: '4px'
-                        }}
-                      />
-                      
-                      <button
-                        onClick={() => setRankingType("vendor")}
-                        className={`relative z-10 flex-1 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-colors duration-500 ${rankingType === "vendor" ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                        Vendor Performa
-                      </button>
-                      <button
-                        onClick={() => setRankingType("sppg")}
-                        className={`relative z-10 flex-1 py-3 rounded-full text-[11px] font-black uppercase tracking-widest transition-colors duration-500 ${rankingType === "sppg" ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}
-                      >
-                        SPPG Performa
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="pt-6 border-t border-slate-200 transition-all duration-500">
-                    <VendorRanking type={rankingType} />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              >
+                Masuk sekarang
+              </Link>
+            </div>
           </div>
-        </section>
-
-        {/* SUPPORT / CONTACT US SECTION */}
-        <section id="contact" className="relative px-6 pt-2 pb-12 bg-slate-100 flex justify-center">
-          <div className="w-full max-w-[1400px]">
-            <WebsiteSupportSection />
-          </div>
-        </section>
-
-      </div>
-    </>
+        </div>
+      </section>
+    </div>
   );
 }
-
-const BackgroundParticles = () => {
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-      {/* Massive geometric Hexagon (Kiri Atas) */}
-      <motion.div
-        className="absolute"
-        style={{ left: '-10%', top: '-20%', width: '600px', height: '600px' }}
-        animate={{ rotate: 360, y: [0, 40, 0] }}
-        transition={{
-          rotate: { duration: 60, repeat: Infinity, ease: "linear" },
-          y: { duration: 15, repeat: Infinity, ease: "easeInOut" }
-        }}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full stroke-indigo-200/40 fill-none" style={{ strokeWidth: 0.8 }}>
-          <polygon points="50,5 89,27.5 89,72.5 50,95 11,72.5 11,27.5" />
-          <polygon points="50,15 80.3,32.5 80.3,67.5 50,85 19.7,67.5 19.7,32.5" className="stroke-indigo-200/20" style={{ strokeWidth: 0.4 }} />
-        </svg>
-      </motion.div>
-
-      {/* Massive geometric Diamond (Kanan Bawah) */}
-      <motion.div
-        className="absolute"
-        style={{ right: '-5%', bottom: '-30%', width: '500px', height: '500px' }}
-        animate={{ rotate: -360, y: [0, -30, 0] }}
-        transition={{
-          rotate: { duration: 50, repeat: Infinity, ease: "linear" },
-          y: { duration: 12, repeat: Infinity, ease: "easeInOut" }
-        }}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full stroke-cyan-200/40 fill-none" style={{ strokeWidth: 1 }}>
-          <polygon points="50,5 95,50 50,95 5,50" />
-          <polygon points="50,18 82,50 50,82 18,50" className="stroke-cyan-200/20" style={{ strokeWidth: 0.5 }} />
-        </svg>
-      </motion.div>
-    </div>
-  );
-};
-
-const WebsiteSupportSection = () => {
-  return (
-    <div className="module-reveal pt-4 space-y-8 z-10 relative">
-      <div>
-        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-          Pusat Bantuan & Pengaduan
-        </h2>
-        <p className="text-xs text-slate-500 font-medium italic tracking-[0.05em]">Laporan kendala teknis sistem atau laporan keamanan aplikasi</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Contact Info */}
-        <div className="space-y-6">
-          <div className="bg-white/45 backdrop-blur-[40px] rounded-[32px] p-8 border border-white/60 border-t-white/80 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.25)]">
-            <h3 className="text-lg font-black text-slate-900 mb-8 tracking-tight">Hubungi Tim B.O.G.A</h3>
-
-            <div className="space-y-4">
-              <div className="flex items-center gap-5 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 hover:border-white/40 transition-all group cursor-pointer shadow-sm">
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center border border-emerald-500/10 group-hover:scale-110 transition-transform">
-                  <Phone className="w-6 h-6 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Call Center</p>
-                  <p className="text-base font-black text-slate-900">1-500-BOGA-WEB</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-5 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 hover:border-white/40 transition-all group cursor-pointer shadow-sm">
-                <div className="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center border border-sky-500/10 group-hover:scale-110 transition-transform">
-                  <MessageSquare className="w-6 h-6 text-sky-600" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Live Chat Admin</p>
-                  <p className="text-base font-black text-slate-900">+62 811 2345 6789</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-5 p-5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 hover:border-white/40 transition-all group cursor-pointer shadow-sm">
-                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center border border-indigo-500/10 group-hover:scale-110 transition-transform">
-                  <Mail className="w-6 h-6 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">Email Bantuan Teknis</p>
-                  <p className="text-base font-black text-slate-900">support@boga.id</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-rose-500/10 backdrop-blur-[40px] border border-white/60 border-t-white/80 rounded-[32px] p-8 relative overflow-hidden group shadow-[0_40px_80px_-20px_rgba(0,0,0,0.25)]">
-            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-transform">
-              <AlertTriangle className="w-16 h-16 text-rose-600" />
-            </div>
-            <h4 className="text-[10px] font-black text-rose-600 mb-3 flex items-center gap-2 uppercase tracking-[0.2em]">
-              <ShieldCheck className="w-4 h-4" /> Kendala Keamanan
-            </h4>
-            <p className="text-xs text-slate-600 leading-relaxed font-bold">
-              Untuk indikasi terjadinya <span className="text-rose-600/80">pelanggaran data (data breach)</span> atau <span className="text-rose-600/80">akses mencurigakan</span> pada dashboard ekosistem, segera hubungi Hotline Darurat kami agar akun Anda dapat ditangguhkan sementara demi keamanan.
-            </p>
-          </div>
-        </div>
-
-        {/* Report Form */}
-        <div className="bg-white/45 backdrop-blur-[40px] p-10 rounded-[32px] border border-white/60 border-t-white/80 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.25)]">
-          <h3 className="text-lg font-black text-slate-900 mb-8 tracking-tight">Buat Tiket Laporan</h3>
-
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Judul Kendala / Fitur Bermasalah</label>
-              <input
-                type="text"
-                placeholder="Contoh: Dashboard Vendor Gagal Dimuat"
-                className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500/30 transition-all text-sm font-bold text-slate-900 placeholder:text-slate-300 shadow-inner"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Kategori</label>
-                <select className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500/30 transition-all text-sm font-bold text-slate-900 appearance-none cursor-pointer shadow-inner">
-                  <option className="bg-white">Bug & Error Sistem</option>
-                  <option className="bg-white">Autentikasi / Gagal Login</option>
-                  <option className="bg-white">Visual & Tampilan</option>
-                  <option className="bg-white">Saran Fitur / Lainnya</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Prioritas</label>
-                <select className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500/30 transition-all text-sm font-bold text-slate-900 appearance-none cursor-pointer shadow-inner">
-                  <option className="bg-white">Tanya Normal - Biru</option>
-                  <option className="bg-white">Error Tinggi - Kuning</option>
-                  <option className="bg-white">Sistem Mati - Merah</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Detail Laporan</label>
-              <textarea
-                rows={4}
-                placeholder="Berikan keterangan detail mengenai kendala website yang dialami..."
-                className="w-full px-5 py-4 rounded-xl border border-slate-200 bg-slate-50/50 outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500/30 transition-all text-sm font-bold text-slate-900 placeholder:text-slate-300 shadow-inner"
-              ></textarea>
-            </div>
-
-            <button className="w-full py-5 rounded-2xl text-white font-black text-xs uppercase tracking-[0.2em] bg-emerald-500/80 hover:bg-emerald-500 transition-all shadow-xl shadow-black/40 flex items-center justify-center gap-3 mt-4 group">
-              Kirim Tiket Laporan <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};

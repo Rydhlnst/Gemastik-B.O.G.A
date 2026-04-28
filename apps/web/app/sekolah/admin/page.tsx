@@ -11,7 +11,7 @@ import {
   Phone,
   ShieldCheck,
   School as SchoolIcon,
-  ScanLine,
+  QrCode,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 import {
   type Sekolah,
@@ -38,15 +39,14 @@ import {
 import { SchoolDetailPanel } from "@/components/ui/SchoolDetailPanel";
 import VendorRanking from "@/components/ui/vendorranking";
 import VendorPerformanceDashboard from "@/components/ui/VendorPerformanceDashboard";
-import { QRScannerModal } from "@/components/ui/QRScannerModal";
 import { KpiCard } from "@/components/ui/kpi-card";
 
 const MapLibreMap = dynamic(() => import("@/components/ui/MapLibreMap"), { ssr: false });
 
 export default function SekolahAdminPage() {
   const [viewMode, setViewMode] = useState<"school" | "aggregate">("school");
+  const [activeMitraTab, setActiveMitraTab] = useState<"performa" | "ranking">("performa");
   const [selectedSchool, setSelectedSchool] = useState<Sekolah | null>(null);
-  const [showRanking, setShowRanking] = useState(false);
   const [selectedEntityId, setSelectedEntityId] = useState<number>(1);
   const [scanOpen, setScanOpen] = useState(false);
   const [lastScan, setLastScan] = useState<string | null>(null);
@@ -168,9 +168,6 @@ export default function SekolahAdminPage() {
               Agregat sistem
             </Button>
           </div>
-          <Button variant="outline" onClick={() => setShowRanking((v) => !v)}>
-            {showRanking ? "Tutup ranking" : "Buka ranking"}
-          </Button>
         </div>
       }
     >
@@ -181,7 +178,7 @@ export default function SekolahAdminPage() {
             <CardDescription>Klik sekolah untuk melihat detail, tanpa integrasi API map baru.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="overflow-hidden rounded-xl border border-border bg-muted/10">
+            <div className="h-[500px] overflow-hidden rounded-xl border border-border bg-muted/10">
               <MapLibreMap
                 selectedSchool={selectedSchool}
                 onSchoolSelect={setSelectedSchool}
@@ -227,30 +224,35 @@ export default function SekolahAdminPage() {
             </Card> 
           )} 
 
+        </div> 
+
+        <div className="lg:col-span-12">
           <Card>
-            <CardHeader>
-              <CardTitle>Konfirmasi penerimaan (Phase 3)</CardTitle>
-              <CardDescription>
-                Scan manifest QR untuk mengonfirmasi penerimaan di sekolah. (Simulasi.)
-              </CardDescription>
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Validasi Penerimaan Logistik (Phase 3)</CardTitle>
+                <CardDescription>
+                  Generate QR Code agar mitra pengirim dapat melakukan pemindaian serah terima barang di lokasi.
+                </CardDescription>
+              </div>
+              <Button className="rounded-full shadow-sm bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setScanOpen(true)}>
+                <QrCode className="w-4 h-4 mr-2" />
+                Generate QR Terima
+              </Button>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="rounded-xl border border-border bg-muted/20 p-4">
-                <p className="text-xs font-medium text-muted-foreground">Scan terakhir</p>
+            <CardContent className="flex flex-col sm:flex-row gap-4 sm:items-center justify-between text-sm">
+              <div className="rounded-xl border border-border bg-muted/20 p-4 flex-1">
+                <p className="text-xs font-medium text-muted-foreground">Scan terakhir oleh Mitra</p>
                 <p className="mt-1 font-mono text-xs text-foreground break-all">
                   {lastScan ?? "—"}
                 </p>
               </div>
-              <Button className="w-full rounded-full" onClick={() => setScanOpen(true)}>
-                <ScanLine data-icon="inline-start" />
-                Scan manifest
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Setelah scan, status batch akan terlihat di dashboard sekolah dan modul pengawasan.
+              <p className="text-xs text-muted-foreground flex-1">
+                Setelah QR berhasil dipindai oleh pihak pengirim, status serah terima akan otomatis terverifikasi di dalam sistem.
               </p>
             </CardContent>
           </Card>
-        </div> 
+        </div>
       </section> 
 
       <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Ringkasan sekolah">
@@ -265,40 +267,55 @@ export default function SekolahAdminPage() {
         ))}
       </section>
 
-      <section className="mt-6 grid gap-6 lg:grid-cols-12">
-        <Card className="lg:col-span-7">
-          <CardHeader>
-            <CardTitle>Performa mitra</CardTitle>
-            <CardDescription>Panel performa existing (tetap digunakan).</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-center gap-2 pb-4">
-              <Label htmlFor="entityId" className="text-sm">
-                Entity ID
-              </Label>
-              <Input
-                id="entityId"
-                type="number"
-                value={selectedEntityId}
-                onChange={(e) => setSelectedEntityId(Number(e.target.value))}
-                className="h-9 w-28"
-              />
-              <Badge variant="secondary">type: vendor</Badge>
+      <section className="mt-6">
+        <Card>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Mitra Operasional</CardTitle>
+              <CardDescription>Pantau performa individu atau peringkat mitra teratas.</CardDescription>
             </div>
-            <VendorPerformanceDashboard type="vendor" entityId={selectedEntityId} />
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-5">
-          <CardHeader>
-            <CardTitle>Ranking vendor</CardTitle>
-            <CardDescription>Ringkasan vendor teratas untuk konteks sekolah.</CardDescription>
+            <div className="flex bg-muted/50 p-1 rounded-lg border border-border">
+              <Button 
+                variant={activeMitraTab === "performa" ? "default" : "ghost"} 
+                size="sm"
+                className="rounded-md"
+                onClick={() => setActiveMitraTab("performa")}
+              >
+                Audit Performa
+              </Button>
+              <Button 
+                variant={activeMitraTab === "ranking" ? "default" : "ghost"} 
+                size="sm"
+                className="rounded-md"
+                onClick={() => setActiveMitraTab("ranking")}
+              >
+                Leaderboard Ranking
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            {showRanking ? (
-              <VendorRanking type="vendor" />
+            {activeMitraTab === "performa" ? (
+              <div className="max-w-4xl mx-auto">
+                <div className="flex flex-wrap items-center gap-2 pb-4">
+                  <Label htmlFor="entityId" className="text-sm">
+                    Entity ID
+                  </Label>
+                  <Input
+                    id="entityId"
+                    type="number"
+                    value={selectedEntityId}
+                    onChange={(e) => setSelectedEntityId(Number(e.target.value))}
+                    className="h-9 w-28"
+                  />
+                  <Badge variant="secondary">type: sppg</Badge>
+                </div>
+                <VendorPerformanceDashboard type="sppg" entityId={selectedEntityId} />
+              </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Ranking disembunyikan.</p>
+              <div className="space-y-6 bg-slate-50/50 p-4 sm:p-6 rounded-2xl">
+                <VendorRanking type="vendor" />
+                <VendorRanking type="sppg" />
+              </div>
             )}
           </CardContent>
         </Card>
@@ -426,17 +443,40 @@ export default function SekolahAdminPage() {
       </section>
     </DashboardShell>
 
-    <QRScannerModal
-      isOpen={scanOpen}
-      onClose={() => setScanOpen(false)}
-      onScan={(data) => {
-        setLastScan(data);
-        setScanOpen(false);
-        toast.success("Penerimaan dikonfirmasi (demo).", {
-          description: "Manifest berhasil dipindai oleh sekolah.",
-        });
-      }}
-    />
+    <Dialog open={scanOpen} onOpenChange={setScanOpen}>
+      <DialogContent className="sm:max-w-md bg-white border-slate-100 flex flex-col items-center justify-center p-8 text-center text-slate-800">
+        <DialogHeader className="mb-4">
+          <DialogTitle className="text-2xl font-black text-slate-800 tracking-tight text-center">
+            QR Serah Terima
+          </DialogTitle>
+          <DialogDescription className="text-slate-500 text-xs text-center max-w-xs mx-auto mt-2">
+            Minta mitra pengirim (vendor / logistik) untuk memindai kode ini dari aplikasi mereka.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm inline-flex mb-8">
+          <QrCode className="w-64 h-64 text-slate-800" strokeWidth={1} />
+        </div>
+
+        <div className="flex gap-3 w-full">
+          <Button variant="outline" className="flex-1 rounded-full text-xs font-bold" onClick={() => setScanOpen(false)}>
+            Batal
+          </Button>
+          <Button 
+            className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold" 
+            onClick={() => {
+              setLastScan(`QR-ACC-${Date.now()}`);
+              setScanOpen(false);
+              toast.success("Pemindaian Mitra Berhasil", {
+                description: "Serah terima barang telah terverifikasi.",
+              });
+            }}
+          >
+            Simulasikan Pindai
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }

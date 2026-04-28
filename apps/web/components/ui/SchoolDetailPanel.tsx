@@ -40,9 +40,6 @@ interface SchoolDetailPanelProps {
 }
 
 export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, vendors, onClose, readOnly = false }) => {
-  const [activeTab, setActiveTab] = useState<"vendor" | "comment" | "sppg">("vendor");
-  const [newComment, setNewComment] = useState("");
-  const [rating, setRating] = useState({ rasa: 0, higiene: 0, porsi: 0, waktu: 0 });
   const [submitted, setSubmitted] = useState(false);
   
   const comments = generateComments(school.nama);
@@ -114,14 +111,6 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
         >
           Unit (SPPG)
         </button>
-        <button
-          onClick={() => setActiveTab("comment")}
-          className={`flex-1 py-2.5 text-[9px] font-black uppercase tracking-widest transition-all ${
-            activeTab === "comment" ? "text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/30" : "text-slate-400 hover:text-slate-600"
-          }`}
-        >
-          Feedback
-        </button>
       </div>
 
       {/* Content */}
@@ -150,7 +139,7 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
                 </div>
               ))}
             </motion.div>
-          ) : activeTab === "sppg" ? (
+          ) : (
             <motion.div 
               key="sppg-tab"
               initial={{ opacity: 0, y: 10 }}
@@ -189,59 +178,6 @@ export const SchoolDetailPanel: React.FC<SchoolDetailPanelProps> = ({ school, ve
                   <p className="text-[10px] font-bold text-slate-400 italic">Data SPPG tidak ditemukan untuk sekolah ini.</p>
                 </div>
               )}
-            </motion.div>
-          ) : (
-            <motion.div 
-              key="comment-tab"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-3"
-            >
-              {/* Quick Comment Form */}
-              {!readOnly && (
-                <div className="flex gap-2 mb-3 bg-slate-50 p-1.5 rounded-lg border border-slate-100 group focus-within:border-indigo-200 transition-all">
-                  <input 
-                    type="text" 
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    disabled={submitted}
-                    placeholder={submitted ? "Komentar terkirim..." : "Tulis feedback..."}
-                    className="flex-1 bg-transparent border-none text-[10px] font-bold focus:ring-0 placeholder:text-slate-400 disabled:opacity-50"
-                  />
-                  <button 
-                    onClick={submitRating}
-                    disabled={!newComment || submitted}
-                    className={`p-2 rounded-md transition-all ${
-                      submitted ? "bg-emerald-500 text-white" : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
-                    }`}
-                  >
-                    {submitted ? <Check className="w-3.5 h-3.5" /> : <MessageCircle className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              )}
-
-              {comments.map((c) => (
-                <div key={c.id} className="bg-slate-50/50 p-2.5 rounded-xl border border-white">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center text-[9px] font-bold text-indigo-600">
-                      {c.avatar}
-                    </div>
-                    <div className="flex-1 line-clamp-1">
-                      <p className="text-[9px] font-black text-slate-800">{c.user}</p>
-                      <p className="text-[7px] text-slate-400">{c.time}</p>
-                    </div>
-                  </div>
-                  <p className="text-[9px] text-slate-600 leading-tight mb-1.5">
-                    {c.content}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-1 text-[8px] font-bold text-slate-400 hover:text-indigo-600">
-                      <ThumbsUp className="w-2.5 h-2.5" /> {c.likes}
-                    </button>
-                  </div>
-                </div>
-              ))}
             </motion.div>
           )}
         </AnimatePresence>

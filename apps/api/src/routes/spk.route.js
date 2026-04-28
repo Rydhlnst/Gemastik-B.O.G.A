@@ -1,128 +1,304 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
-const { queryD1 } = require('../services/d1.service'); 
-const { authenticateToken } = require('../middlewares/auth.middleware');
 
-// ==========================================
-// FASE 1: SPPG MENGIRIM DRAFT SPK KE VENDOR
-// (Route ini tanpa JWT Token untuk mempermudah simulasi test)
-// ==========================================
-router.post('/draft', async (req, res) => {
+/**
+ * POST /api/spk/create
+ * Membuat Surat Pesanan (PO) & Mengunci Dana di Escrow (DOKU Mock)
+ */
+router.post('/create', async (req, res) => {
     try {
-        // Anggap data ini dikirim oleh Aplikasi SPPG saat Checkout
-        const { vendorId, katalogId, jumlahPesanan, tanggalKebutuhan } = req.body;
+        // items adalah array dari object: { itemId, quantity }
+        const { sppgId, vendorId, items } = req.body;
+        const db = req.db;
 
-        if (!vendorId || !katalogId || !jumlahPesanan || !tanggalKebutuhan) {
-            return res.status(400).json({ error: "Data pesanan tidak lengkap!" });
-        }
+        console.log(`[SPK] Memproses pesanan dari SPPG ${sppgId} ke Vendor ${vendorId}...`);
 
-        // 1. Cek dulu, apakah barangnya beneran ada di E-Katalog dan harganya 'SAFE'?
-        const dbKatalog = await queryD1(`
-            SELECT nama_menu, harga_per_porsi, status_harga 
-            FROM katalog_vendor 
-            WHERE id = ? AND vendor_id = ?
-        `, [katalogId, vendorId]);
+        const poId = crypto.randomUUID();
+        let totalAmount = 0;
+        const poItemsData = [];
 
-        if (dbKatalog.results.length === 0) {
-            return res.status(404).json({ error: "Barang tidak ditemukan di katalog Vendor ini." });
-        }
+        // 1. VALIDASI ZERO-TRUST: Ambil harga langsung dari Database, BUKAN dari Frontend!
+        for (const item of items) {
+            const dbItem = await db.prepare(`
+                SELECT final_price, current_stock FROM VendorItems WHERE id = ? AND vendor_id = ?
+            `).bind(item.itemId, vendorId).first();
 
-        const barang = dbKatalog.results[0];
+            if (!dbItem) throw new Error(`Barang dengan ID ${item.itemId} tidak valid atau bukan milik vendor ini!`);
+            if (dbItem.current_stock < item.quantity) throw new Error(`Stok barang tidak mencukupi!`);
 
-        // 2. Cegah SPPG beli barang yang udah di-Markup (Fitur Anti-Korupsi berjalan!)
-        if (barang.status_harga === 'MARKUP_DETECTED') {
-            return res.status(403).json({ 
-                error: "DIBLOKIR SISTEM!", 
-                message: "SPPG dilarang membeli barang yang terindikasi Mark-up Anggaran Negara." 
+            const subtotal = dbItem.final_price * item.quantity;
+            totalAmount += subtotal;
+
+            poItemsData.push({
+                poItemId: crypto.randomUUID(),
+                itemId: item.itemId,
+                quantity: item.quantity,
+                priceAtPurchase: dbItem.final_price, // Mengunci harga saat ini
+                subtotal: subtotal
             });
         }
 
-        // 3. Hitung Total Harga Kontrak
-        const totalHarga = barang.harga_per_porsi * jumlahPesanan;
+        // 2. SIMPAN SURAT PESANAN UTAMA
+        await db.prepare(`
+            INSERT INTO PurchaseOrders (id, sppg_id, vendor_id, total_amount, status)
+            VALUES (?, ?, ?, ?, 'ESCROW_HOLD')
+        `).bind(poId, sppgId, vendorId, totalAmount).run();
 
-        // 4. Buat Draft SPK di Database
-        await queryD1(`
-            INSERT INTO kontrak_spk (vendor_id, katalog_id, jumlah_pesanan, total_harga, tanggal_kebutuhan, status) 
-            VALUES (?, ?, ?, ?, ?, 'DRAFT')
-        `, [vendorId, katalogId, jumlahPesanan, totalHarga, tanggalKebutuhan]);
+        // 3. SIMPAN DETAIL KERANJANG BELANJA
+        for (const poItem of poItemsData) {
+            await db.prepare(`
+                INSERT INTO PurchaseOrderItems (id, po_id, item_id, quantity, price_at_purchase, subtotal)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(poItem.poItemId, poId, poItem.itemId, poItem.quantity, poItem.priceAtPurchase, poItem.subtotal).run();
+        }
+
+        // 4. CIPTAKAN KUNCI ESCROW (Simulasi DOKU Holding)
+        const escrowId = crypto.randomUUID();
+        const dokuRefId = `DOKU-MOCK-${Date.now()}`; // Simulasi kembalian dari Payment Gateway
+
+        await db.prepare(`
+            INSERT INTO EscrowTransactions (id, po_id, doku_ref_id, amount, status)
+            VALUES (?, ?, ?, ?, 'HOLD_3_DAYS')
+        `).bind(escrowId, poId, dokuRefId, totalAmount).run();
+
+        console.log(`[SPK] Sukses! Dana Rp${totalAmount} ditahan di Escrow.`);
 
         res.status(201).json({
-            message: "Draft SPK berhasil dikirim ke Vendor!",
+            status: "success",
+            message: "Pesanan berhasil dibuat. Dana diamankan dalam Escrow!",
             data: {
-                menu: barang.nama_menu,
-                jumlahPesanan: `${jumlahPesanan} Porsi`,
-                totalHarga: `Rp ${totalHarga}`,
-                status: "DRAFT (Menunggu Persetujuan Vendor)"
+                purchaseOrderId: poId,
+                totalAmount: totalAmount,
+                escrowRef: dokuRefId,
+                securityNote: "Dana ditahan (HOLD) sampai mendapat 3 tanda tangan (Multi-Sig)"
             }
         });
 
     } catch (error) {
-        console.error("❌ Error buat Draft SPK:", error.message);
-        res.status(500).json({ error: "Gagal membuat Draft SPK." });
+        console.error("[SPK Error]:", error.message);
+        res.status(500).json({ status: "error", message: error.message });
     }
 });
 
-// ==========================================
-// FASE 2: VENDOR SETUJU KONTRAK & POTONG STOK (ANTI STOK GAIB)
-// ==========================================
-router.put('/:id/approve', authenticateToken, async (req, res) => {
+/**
+ * POST /api/spk/approve-escrow
+ * Fitur Zero-Trust: Multi-Signature (3/3) untuk mencairkan dana Escrow
+ */
+router.post('/approve-escrow', async (req, res) => {
     try {
-        const vendorId = req.user.id; // Dari Token JWT Vendor
-        const spkId = req.params.id; // Dari URL param (misal: /api/spk/1/approve)
+        // role yang diizinkan: 'QC', 'ADMIN', 'LOGISTIK'
+        const { poId, role } = req.body;
+        const db = req.db;
 
-        console.log(`🛡️ Memvalidasi Persetujuan SPK ID: ${spkId} oleh Vendor ID: ${vendorId}`);
+        console.log(`[Escrow] Menerima tanda tangan dari otorisasi: ${role}...`);
 
-        // 1. Ambil Data SPK
-        const dbSpk = await queryD1(`SELECT * FROM kontrak_spk WHERE id = ? AND vendor_id = ? AND status = 'DRAFT'`, [spkId, vendorId]);
-        
-        if (dbSpk.results.length === 0) {
-            return res.status(404).json({ error: "Draft SPK tidak ditemukan atau sudah diproses." });
+        // 1. Cek status Escrow saat ini
+        const escrow = await db.prepare(`SELECT * FROM EscrowTransactions WHERE po_id = ?`).bind(poId).first();
+        if (!escrow) throw new Error("Transaksi Escrow tidak ditemukan!");
+        if (escrow.status !== 'HOLD_3_DAYS') throw new Error(`Dana tidak bisa diproses. Status saat ini: ${escrow.status}`);
+
+        // 2. Berikan Tanda Tangan (Digital Signature) sesuai Role
+        let updateQuery = "";
+        if (role === 'QC') updateQuery = "qc_approved = 1";
+        else if (role === 'ADMIN') updateQuery = "admin_approved = 1";
+        else if (role === 'LOGISTIK') updateQuery = "logistik_approved = 1";
+        else throw new Error("Akses Ditolak! Role tidak memiliki otorisasi pencairan.");
+
+        await db.prepare(`UPDATE EscrowTransactions SET ${updateQuery} WHERE po_id = ?`).bind(poId).run();
+
+        // 3. CEK KONDISI MULTI-SIG (Apakah 3/3 sudah tanda tangan?)
+        const updatedEscrow = await db.prepare(`SELECT * FROM EscrowTransactions WHERE po_id = ?`).bind(poId).first();
+
+        let message = `Tanda tangan divisi ${role} berhasil direkam!`;
+        let isReleased = false;
+
+        // Jika ketiganya sudah bernilai 1 (True)
+        if (updatedEscrow.qc_approved === 1 && updatedEscrow.admin_approved === 1 && updatedEscrow.logistik_approved === 1) {
+            // CAIRKAN DANA TAHAP 1!
+            await db.prepare(`UPDATE EscrowTransactions SET status = 'STAGE_1_RELEASED' WHERE po_id = ?`).bind(poId).run();
+            message = "🔥 MULTI-SIG COMPLETE! Dana Tahap 1 resmi dicairkan ke dompet Vendor!";
+            isReleased = true;
+        } else {
+            // Hitung progress tanda tangan
+            const signs = [updatedEscrow.qc_approved, updatedEscrow.admin_approved, updatedEscrow.logistik_approved].filter(val => val === 1).length;
+            message += ` (Progress Keamanan: ${signs}/3 Tanda Tangan)`;
         }
 
-        const spk = dbSpk.results[0];
-
-        // ========================================================
-        // 🚨 LOGIKA SMART LEDGER (SIMULASI KEBUTUHAN BAHAN) 🚨
-        // Asumsi hackathon: 1 Porsi butuh 0.1 Kg (100 gram) Beras
-        // ========================================================
-        const KEBUTUHAN_BERAS_PER_PORSI = 0.1;
-        const totalBerasDibutuhkan = spk.jumlah_pesanan * KEBUTUHAN_BERAS_PER_PORSI; 
-
-        // 2. CEK STOK GUDANG (ANTI-STOK GAIB)
-        const dbStok = await queryD1(`SELECT total_kg FROM stock_balances WHERE vendor_id = ? AND nama_bahan = 'Beras'`, [vendorId]);
-
-        const stokBerasSaatIni = dbStok.results.length > 0 ? dbStok.results[0].total_kg : 0;
-
-        if (stokBerasSaatIni < totalBerasDibutuhkan) {
-            return res.status(403).json({
-                error: "TRANSAKSI DITOLAK: INDIKASI STOK FIKTIF!",
-                message: `Anda butuh ${totalBerasDibutuhkan} kg Beras untuk ${spk.jumlah_pesanan} porsi, tapi stok di sistem Anda hanya ${stokBerasSaatIni} kg.`
-            });
-        }
-
-        // 3. JIKA LOLOS: POTONG STOK (OUTBOUND)
-        await queryD1(`
-            UPDATE stock_balances 
-            SET total_kg = total_kg - ?, last_updated = CURRENT_TIMESTAMP 
-            WHERE vendor_id = ? AND nama_bahan = 'Beras'
-        `, [totalBerasDibutuhkan, vendorId]);
-
-        // 4. UBAH STATUS SPK MENJADI DISEPAKATI
-        await queryD1(`UPDATE kontrak_spk SET status = 'VENDOR_ACCEPTED' WHERE id = ?`, [spkId]);
-
-        res.status(200).json({
-            message: "SPK Berhasil Disetujui! Stok otomatis dipotong.",
+        res.json({
+            status: "success",
+            message: message,
             data: {
-                spkId: spkId,
-                status: "VENDOR_ACCEPTED (Menunggu SPPG Mengunci Dana)",
-                stokDipotong: `${totalBerasDibutuhkan} kg Beras`,
-                sisaStokGudang: `${stokBerasSaatIni - totalBerasDibutuhkan} kg Beras`
+                purchaseOrderId: poId,
+                isReleased: isReleased,
+                currentStatus: isReleased ? 'STAGE_1_RELEASED' : 'HOLD_3_DAYS'
             }
         });
 
     } catch (error) {
-        console.error("❌ Error approve SPK:", error.message);
-        res.status(500).json({ error: "Gagal menyetujui SPK." });
+        console.error("[Escrow Error]:", error.message);
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+/**
+ * GET /api/spk/vendor/:vendorId
+ * Fitur Next.js Frontend: Vendor melihat daftar Surat Pesanan (PO) yang masuk
+ */
+router.get('/vendor/:vendorId', async (req, res) => {
+    try {
+        const { vendorId } = req.params;
+        const db = req.db;
+
+        console.log(`[SPK] Menarik riwayat pesanan untuk Vendor: ${vendorId}...`);
+
+        // 1. Ambil data utama PO digabung dengan status Escrow-nya
+        const orders = await db.prepare(`
+            SELECT 
+                po.id as po_id, 
+                po.sppg_id, 
+                po.total_amount, 
+                po.status as po_status, 
+                po.created_at,
+                e.status as escrow_status,
+                e.qc_approved,
+                e.admin_approved,
+                e.logistik_approved
+            FROM PurchaseOrders po
+            LEFT JOIN EscrowTransactions e ON po.id = e.po_id
+            WHERE po.vendor_id = ?
+            ORDER BY po.created_at DESC
+        `).bind(vendorId).all();
+
+        // Jika belum ada pesanan sama sekali
+        if (!orders || orders.length === 0) {
+            return res.json({
+                status: "success",
+                message: "Belum ada pesanan masuk.",
+                data: []
+            });
+        }
+
+        // 2. ZERO-TRUST DATA MAPPING: Ambil detail barang di dalam setiap karung pesanan
+        const detailedOrders = [];
+        for (const order of orders) {
+            const items = await db.prepare(`
+                SELECT 
+                    poi.id as po_item_id,
+                    poi.quantity,
+                    poi.price_at_purchase,
+                    poi.subtotal,
+                    vi.item_name,
+                    vi.unit
+                FROM PurchaseOrderItems poi
+                JOIN VendorItems vi ON poi.item_id = vi.id
+                WHERE poi.po_id = ?
+            `).bind(order.po_id).all();
+
+            detailedOrders.push({
+                purchaseOrderId: order.po_id,
+                sppgId: order.sppg_id,
+                orderDate: order.created_at,
+                financials: {
+                    totalAmount: order.total_amount,
+                    escrowStatus: order.escrow_status,
+                    signatures: {
+                        qc: order.qc_approved === 1 ? 'SIGNED' : 'PENDING',
+                        admin: order.admin_approved === 1 ? 'SIGNED' : 'PENDING',
+                        logistik: order.logistik_approved === 1 ? 'SIGNED' : 'PENDING'
+                    }
+                },
+                items: items // Array daftar barang (Beras, dll)
+            });
+        }
+
+        res.json({
+            status: "success",
+            message: "Data SPK berhasil ditarik secara utuh!",
+            data: detailedOrders
+        });
+
+    } catch (error) {
+        console.error("[SPK Vendor Error]:", error.message);
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+/**
+ * POST /api/spk/:poId/ready-for-pickup
+ * AKTOR: VENDOR
+ * Logika: Vendor nge-klik "Barang Siap". Backend bikin PIN 6 Digit (Bisa dirender jadi QR di Frontend).
+ */
+router.post('/:poId/ready-for-pickup', async (req, res) => {
+    try {
+        const { poId } = req.params;
+        const { vendorId } = req.body;
+        const db = req.db;
+
+        // Bikin PIN Rahasia 6 Digit
+        const pickupPin = Math.floor(100000 + Math.random() * 900000).toString();
+
+        const result = await db.prepare(`
+            UPDATE PurchaseOrders 
+            SET status = 'READY_FOR_PICKUP', pickup_pin = ? 
+            WHERE id = ? AND vendor_id = ? AND status = 'ESCROW_HOLD'
+        `).bind(pickupPin, poId, vendorId).run();
+
+        if (result.meta.changes === 0) {
+            throw new Error("Gagal! PO tidak ditemukan, bukan milik Anda, atau status belum masuk Escrow.");
+        }
+
+        res.json({
+            status: "success",
+            message: "Barang siap diambil! Tunjukkan PIN / QR Code ini kepada petugas SPPG.",
+            data: { poId, status: "READY_FOR_PICKUP", pickupPin }
+        });
+
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+/**
+ * POST /api/spk/:poId/confirm-pickup
+ * AKTOR: SPPG
+ * Logika: Petugas SPPG yang datang nge-scan QR Vendor (yang isinya PIN 6 digit tadi).
+ */
+router.post('/:poId/confirm-pickup', async (req, res) => {
+    try {
+        const { poId } = req.params;
+        const { sppgId, inputPin } = req.body;
+        const db = req.db;
+
+        // Cek apakah PIN cocok dan statusnya memang sedang menunggu diambil
+        const order = await db.prepare(`
+            SELECT pickup_pin FROM PurchaseOrders 
+            WHERE id = ? AND sppg_id = ? AND status = 'READY_FOR_PICKUP'
+        `).bind(poId, sppgId).first();
+
+        if (!order) {
+            return res.status(403).json({ status: "error", message: "Pesanan tidak valid atau belum siap diambil." });
+        }
+
+        if (order.pickup_pin !== inputPin) {
+            return res.status(401).json({ status: "error", message: "Akses Ditolak! PIN / Barcode Tidak Cocok." });
+        }
+
+        // Kalau PIN Cocok, Selesaikan Pesanan!
+        await db.prepare(`
+            UPDATE PurchaseOrders 
+            SET status = 'COMPLETED_PICKUP', pickup_pin = NULL 
+            WHERE id = ?
+        `).bind(poId).run();
+
+        res.json({
+            status: "success",
+            message: "Serah terima BARANG BERHASIL! Rantai pasok Fase 1 selesai.",
+            data: { poId, status: "COMPLETED_PICKUP" }
+        });
+
+    } catch (error) {
+        res.status(500).json({ status: "error", message: error.message });
     }
 });
 

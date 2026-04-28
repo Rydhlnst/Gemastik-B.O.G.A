@@ -18,7 +18,9 @@ function roleForPath(pathname: string): AppRole | null {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/auth")) {
+  // Public pages — no auth required
+  const PUBLIC_PATHS = ["/auth", "/vendor/register", "/vendor/katalog", "/vendor/inbound", "/vendor/po"];
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 

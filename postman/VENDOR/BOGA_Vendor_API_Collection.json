@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "boga-vendor-api-collection",
+		"name": "B.O.G.A Vendor Module",
+		"description": "Koleksi API untuk proses Pendaftaran Vendor (Onboarding), Manajemen E-Katalog, dan Mutasi Stok (Inbound) B.O.G.A",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Pendaftaran Vendor (Onboarding)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nik\": \"3273012010900099\",\n    \"name\": \"Haji Ujang Baru (Perwakilan)\",\n    \"email\": \"ujang.baru@gmail.com\",\n    \"phone_number\": \"08123456789\",\n    \"password\": \"Rahasia123!\",\n    \"wallet_address\": \"0xUjang_WaaS_Address\",\n    \"business_name\": \"PT. Pangan Nusantara Baru\",\n    \"business_email\": \"cs@pangannusantarabaru.com\",\n    \"business_phone\": \"022-123456\",\n    \"business_address\": \"Jl. Soekarno Hatta No. 123, Bandung\",\n    \"latitude\": -6.940027,\n    \"longitude\": 107.653457,\n    \"npwp_number\": \"01.234.567.8-901.000\",\n    \"nib_number\": \"9120101234567\",\n    \"logo_url\": \"https://pub-r2.cloudflare.com/logo-pt-pangan.png\",\n    \"akta_document_url\": \"https://pub-r2.cloudflare.com/akta-pt-pangan.pdf\",\n    \"sk_kemenkumham_url\": \"https://pub-r2.cloudflare.com/sk-pt-pangan.pdf\",\n    \"npwp_document_url\": \"https://pub-r2.cloudflare.com/npwp-pt-pangan.pdf\",\n    \"nib_document_url\": \"https://pub-r2.cloudflare.com/nib-pt-pangan.pdf\",\n    \"sppg_readiness_document_url\": \"https://pub-r2.cloudflare.com/sppg-kesiapan.pdf\",\n    \"bank_name\": \"Bank BJB\",\n    \"bank_account_number\": \"1234567890\",\n    \"bank_account_name\": \"PT Pangan Nusantara Baru\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/vendors/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"vendors",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Tambah Komoditas (E-Katalog)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vendor_id\": \"ACC-VEN-XXX\",\n    \"pihps_id\": \"PIHPS-BERAS\",\n    \"name\": \"Beras Premium Cap Ramos\",\n    \"price\": 18000,\n    \"unit\": \"kg\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/vendors/commodities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"vendors",
+						"commodities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Vendor Stock Inbound (Masuk Barang)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"vendor_id\": \"ACC-VEN-XXX\",\n    \"quantity\": 1500,\n    \"origin_source_name\": \"Kelompok Tani Harapan Maju\",\n    \"origin_source_location\": \"Desa Suka Tani, Kec. Ciwidey, Kab. Bandung\",\n    \"origin_proof_url\": \"https://pub-r2.cloudflare.com/nota-pembelian-tani.jpg\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/vendors/commodities/COM-XXX/stock-in",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"vendors",
+						"commodities",
+						"COM-XXX",
+						"stock-in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4. Get Semua Komoditas Vendor",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/vendors/ACC-VEN-XXX/commodities",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"vendors",
+						"ACC-VEN-XXX",
+						"commodities"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

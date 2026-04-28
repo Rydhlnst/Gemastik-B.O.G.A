@@ -1,60 +1,54 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
-const { authenticateToken } = require('../middlewares/auth.middleware');
 
-// Pastikan lu import fungsi queryD1 lu di sini (sesuaikan path-nya)
-const { queryD1 } = require('../services/d1.service');
-
-// ==========================================
-// TAHAP 1: VENDOR CATAT BARANG MASUK (INBOUND)
-// ==========================================
-router.post('/inbound', authenticateToken, async (req, res) => {
+/**
+ * POST /api/inventory/movement
+ * Fitur Inbound (Stok Masuk) & Outbound (Stok Keluar)
+ */
+router.post('/movement', async (req, res) => {
     try {
-        // 1. Ambil data dari tiket JWT
-        const vendorId = req.user.id; 
-        
-        // 2. Ambil data dari Postman
-        const { namaBahan, jumlahKg, hargaBeliTotal, notaUrl } = req.body;
+        const { itemId, type, quantity, referenceId, notes } = req.body;
+        const db = req.db;
 
-        if (!namaBahan || !jumlahKg || !hargaBeliTotal || !notaUrl) {
-            return res.status(400).json({ error: "Semua data belanja wajib diisi!" });
+        // 1. Ambil stok saat ini (Current Stock)
+        const item = await db.prepare(`
+            SELECT current_stock FROM VendorItems WHERE id = ?
+        `).bind(itemId).first();
+
+        if (!item) return res.status(404).json({ message: "Item tidak ditemukan" });
+
+        const previousStock = item.current_stock;
+        let newStock = 0;
+
+        // 2. Hitung stok baru berdasarkan tipe mutasi
+        if (type === 'INBOUND') {
+            newStock = previousStock + parseFloat(quantity);
+        } else if (type === 'OUTBOUND') {
+            if (previousStock < quantity) throw new Error("Stok tidak mencukupi!");
+            newStock = previousStock - parseFloat(quantity);
         }
 
-        console.log(`📦 Mencatat Inbound ${jumlahKg}kg ${namaBahan} untuk Vendor ID: ${vendorId}`);
+        // 3. Update tabel VendorItems (Atomic Update)
+        await db.prepare(`UPDATE VendorItems SET current_stock = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
+            .bind(newStock, itemId).run();
 
-        // 3. Catat di Buku Riwayat (Ledger)
-        await queryD1(`
-            INSERT INTO stock_inbounds (vendor_id, nama_bahan, jumlah_kg, harga_beli_total, nota_url) 
-            VALUES (?, ?, ?, ?, ?)
-        `, [vendorId, namaBahan, jumlahKg, hargaBeliTotal, notaUrl]);
+        // 4. Catat sejarah mutasi di StockMovements (Zero-Trust Audit Trail)
+        const movementId = crypto.randomUUID();
+        await db.prepare(`
+            INSERT INTO StockMovements (id, item_id, movement_type, quantity, previous_stock, new_stock, reference_id, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(movementId, itemId, type, quantity, previousStock, newStock, referenceId, notes).run();
 
-        // 4. Update Saldo Akhir Gudang (Upsert: Kalau belum ada dibikin, kalau ada ditambah)
-        await queryD1(`
-            INSERT INTO stock_balances (vendor_id, nama_bahan, total_kg)
-            VALUES (?, ?, ?)
-            ON CONFLICT(vendor_id, nama_bahan) 
-            DO UPDATE SET 
-                total_kg = total_kg + excluded.total_kg,
-                last_updated = CURRENT_TIMESTAMP
-        `, [vendorId, namaBahan, jumlahKg]);
-
-        // 5. Cek Saldo Terkini buat dikirim ke Frontend
-        const dbSaldo = await queryD1(`
-            SELECT total_kg FROM stock_balances WHERE vendor_id = ? AND nama_bahan = ?
-        `, [vendorId, namaBahan]);
-
-        res.status(201).json({
-            message: "Barang berhasil masuk ke gudang digital!",
-            data: {
-                namaBahan: namaBahan,
-                penambahan: `${jumlahKg} kg`,
-                saldoSaatIni: `${dbSaldo.results[0].total_kg} kg`
-            }
+        res.json({
+            status: "success",
+            message: `Mutasi ${type} berhasil dicatat!`,
+            data: { movementId, previousStock, newStock }
         });
 
     } catch (error) {
-        console.error("❌ Error catat inbound:", error.message);
-        res.status(500).json({ error: "Gagal mencatat stok barang." });
+        console.error("[Inventory Error]:", error.message);
+        res.status(500).json({ status: "error", message: error.message });
     }
 });
 

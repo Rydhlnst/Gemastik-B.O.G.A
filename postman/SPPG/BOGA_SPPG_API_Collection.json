@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "boga-sppg-api-collection",
+		"name": "B.O.G.A SPPG Module",
+		"description": "Koleksi API untuk Satuan Pelayanan Pemenuhan Gizi (SPPG) meliputi melihat E-Katalog dan menerbitkan Purchase Order (PO)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Lihat E-Katalog (Browsing)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/sppg/katalog",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"sppg",
+						"katalog"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Checkout Purchase Order (PO)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sppg_id\": \"ACC-SPPG-01\",\n    \"vendor_id\": \"ACC-VEN-38910BDB\",\n    \"items\": [\n        {\n            \"commodity_id\": \"COM-3FF766FA\",\n            \"quantity\": 500,\n            \"unit\": \"kg\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/sppg/purchase-orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"sppg",
+						"purchase-orders"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

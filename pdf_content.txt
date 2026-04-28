@@ -1,0 +1,1139 @@
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+B.O.G.A: Blockchain Operasional Gizi Akuntabel dengan Zero-Trust Architecture 
+untuk Mitigasi Fraud pada Program Makan Bergizi Gratis 
+ 
+Dirancang Oleh : 
+101032430001 
+M. Naufal hazmi 
+Ketua 
+101032430017 
+Raenaldi Ardiansyah Sidik 
+Anggota 1 
+101032430027 Muhammad Riyadhul Jinan Nasution Anggota 2 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+UNIVERSITAS TELKOM 
+BANDUNG 
+2026 
+1. 
+Latar Belakang 
+Tantangan gizi buruk dan stunting masih menjadi hambatan serius di Indonesia. 
+Berdasarkan data Survei Status Gizi Indonesia (SSGI) tahun 2024, meskipun terdapat 
+tren penurunan prevalensi stunting nasional dalam lima tahun terakhir dari 27,7%  
+menjadi 19,8% pada 2024, kesenjangan antarwilayah masih terlihat drastis [1]. Provinsi 
+Nusa Tenggara Timur dan Sulawesi Barat tercatat memiliki stunting kritis di atas 35%, 
+hal tersebut berbanding terbalik dengan Provinsi Bali yang berhasil menekan angka 
+hingga 8,6% [1]. Visualisasi mengenai disparitas angka stunting di berbagai provinsi 
+tersebut dapat dilihat pada Gambar 1. 
+ 
+Gambar 1. Penurunan Stunting dan Disparitas Wilayah [1] 
+Kondisi disparitas stunting yang masih tinggi tersebut menunjukkan bahwa upaya 
+penanganan belum merata, sehingga mendorong pemerintah untuk mengambil langkah 
+strategis melalui program Makan Bergizi Gratis (MBG). Pemerintahan Presiden 
+Prabowo Subianto menempatkan pembangunan sumber daya manusia sebagai prioritas 
+utama dengan target menurunkan stunting hingga 14,2% pada tahun 2029 [1], serta 
+mendorong ekonomi sirkular di berbagai daerah [2], [3]. Berdasarkan data Badan Gizi 
+Nasional (BGN), program MBG merupakan manuver logistik dan finansial masif di 
+mana 93% anggaran negara disalurkan ke 25.574 Satuan Pelayanan Pemenuhan Gizi 
+(SPPG) di Indonesia [2]. Setiap SPPG mengelola alokasi sekitar Rp1 miliar per bulan, 
+sehingga program ini mendorong perputaran dana hingga puluhan triliun rupiah secara 
+nasional. Di Provinsi Jawa Barat, perputaran dana tersebut mencapai sekitar Rp5 triliun 
+per bulan [2]. 
+Seiring dengan besarnya skala perputaran dana dan kompleksitas operasional 
+program, pengelolaan MBG menuntut sistem tata kelola yang kuat dan terintegrasi. 
+Namun, dalam implementasinya, kondisi tersebut berpotensi membuka celah kerawanan 
+yang signifikan. Komisi Pemberantasan Korupsi (KPK) secara resmi tengah memetakan 
+potensi korupsi, menyusul banyaknya laporan manipulasi anggaran [4]. Berdasarkan 
+temuan BGN, banyak mitra SPPG yang melakukan penggelembungan harga bahan baku 
+jauh di atas Harga Eceran Tertinggi dan menyuplai bahan pangan berkualitas buruk [4], 
+[5]. Tidak hanya itu, praktik monopoli supplier di lapangan juga secara langsung 
+mencederai amanat Pasal 38 ayat (1) dan Pasal 43 huruf j dalam Perpres No. 115 Tahun 
+2025, yang secara eksplisit memprioritaskan pelibatan usaha mikro, koperasi, serta 
+memberdayakan petani lokal sebagai penyedia bahan pangan segar [3]. Analisis 
+kerawanan pada alur tata kelola rantai pasok eksisting tersebut diilustrasikan pada 
+Gambar 2. 
+ 
+Gambar 2. Analisis Celah Korupsi dan Dampak Monopoli MBG [4] 
+Praktik monopoli tersebut selanjutnya memunculkan fenomena makelar 
+pengadaan atau titip supplier yang merugikan ekosistem rantai pasok daerah. Dalam 
+skema rantai pasok saat ini, pihak yang memenangkan pesanan di E-Katalog sering kali 
+bukanlah petani atau peternak asli, melainkan perusahaan perantara yang hanya 
+bermodalkan kelengkapan administrasi [14], [15]. Vendor perantara ini kemudian 
+melakukan subkontrak kepada penyedia riil di lapangan dengan harga yang ditekan 
+serendah mungkin, sementara mereka meraup margin keuntungan yang masif dari negara 
+[4]. Akibat dari panjangnya rantai pasok birokratis ini, kualitas makanan yang tersalurkan 
+kepada siswa sekolah menjadi di bawah standar kelayakan karena anggaran gizi telah 
+tersunat oleh pihak perantara. Alur rantai pasok eksisting yang dipenuhi oleh makelar 
+dan rawan manipulasi diilustrasikan pada Gambar 3. 
+ 
+Gambar 3. Tata Kelola Alur rantai pasok eksisting 
+Permasalahan dalam rantai pasok tersebut pada dasarnya muncul akibat 
+keterbatasan sistem pengadaan yang digunakan saat ini. Pemerintah sejatinya telah 
+menggunakan sistem digital konvensional untuk mengelola anggaran negara. Namun, 
+apabila dibandingkan dengan arsitektur teknologi modern, sistem ini memiliki celah 
+karena hanya berfungsi sebagai etalase pasif yang tidak mengikat aliran dana dengan 
+validasi fisik di lapangan [14], [15]. Apabila tidak ditangani secara sistemik, kerawanan 
+ini berpotensi menyebabkan pemborosan anggaran negara dalam skala nasional serta 
+menghambat efektivitas program penurunan stunting. Titik kerawanan fatal terjadi pada 
+tahap pencairan dana APBN di mana manipulasi Berita Acara Pekerjaan (BAP) berbasis 
+kertas sangat mudah dilakukan oleh oknum untuk mencairkan uang negara, meskipun 
+barang yang diterima fiktif atau berdampak fatal pada keracunan siswa [5], [9], [14].  
+Keterbatasan tersebut pada akhirnya menciptakan ketergantungan tinggi pada 
+integritas individu dalam sistem pelaporan yang terpusat [10], [12]. Sebagai upaya 
+memutus rantai manipulasi tersebut, diperlukan pergeseran menuju infrastruktur digital 
+yang mampu mengeliminasi ketergantungan pada faktor manusia melalui teknologi 
+Blockchain [13]. Dalam sektor pengadaan publik, Blockchain berfungsi sebagai sistem 
+pencatatan terdistribusi yang mengunci data logistik, pelaporan fisik, dan riwayat 
+transaksi ke dalam struktur yang tidak dapat diubah [11]. Secara sederhana, sistem ini 
+memastikan bahwa dana hanya dapat dicairkan apabila seluruh proses di lapangan telah 
+tervalidasi secara nyata. Melalui pendekatan ini, proses pengawasan tidak lagi 
+bergantung pada laporan manual, melainkan dieksekusi secara otomatis oleh algoritma 
+Smart Contract yang memastikan kepastian hukum dan keamanan pangan secara real-
+time [10]. 
+Menjawab keterbatasan pengawasan tersebut, dikembangkan sebuah sistem 
+berbasis Blockchain yang terintegrasi dalam konsep Blockchain Operasional Gizi 
+Akuntabel (B.O.G.A) dengan pendekatan Zero-Trust Architecture (ZTA). Berbeda 
+dengan sistem pengadaan konvensional yang bersifat pasif, B.O.G.A tidak hanya 
+mencatat transaksi, tetapi secara aktif mengendalikan pencairan dana berdasarkan 
+validasi kondisi nyata di lapangan. Ekosistem tersebut memastikan transparansi serta 
+validasi identitas pelaku dalam rantai pasok melalui mekanisme verifikasi berlapis bagi 
+setiap entitas vendor penyedia bahan baku. Pada tahap awal, sistem memanfaatkan 
+teknologi Artificial Intelligence (AI) untuk memvalidasi dokumen legalitas usaha dan 
+mendeteksi potensi manipulasi data sebelum dilakukan persetujuan oleh pihak 
+berwenang. Setelah identitas terverifikasi, vendor dapat berpartisipasi dalam sistem 
+pengadaan digital. Hal ini memungkinkan Satuan Pelayanan Pemenuhan Gizi (SPPG) 
+melakukan proses pemesanan secara lebih aman dan terkontrol. 
+Sebagai kelanjutan dari arsitektur tersebut, B.O.G.A mengintegrasikan Smart 
+Contract dengan sistem pembayaran digital untuk mengatur pencairan dana secara 
+otomatis dan berdasarkan kondisi operasional di lapangan. Mekanisme ini 
+memungkinkan dana disalurkan secara bertahap berdasarkan pemenuhan kewajiban di 
+setiap titik rantai pasok, sehingga setiap proses mulai dari pengadaan bahan baku hingga 
+distribusi makanan tervalidasi secara sistematis. Selain itu, sistem juga menerapkan 
+mekanisme pengendalian risiko dengan menunda atau membekukan pencairan dana 
+apabila terjadi ketidaksesuaian dalam proses operasional, sehingga memberikan ruang 
+evaluasi sekaligus menjaga akuntabilitas penggunaan anggaran. Dengan pendekatan ini, 
+B.O.G.A mentransformasi sistem pengadaan dari berbasis kepercayaan manusia menjadi 
+verifikasi otomatis yang transparan dan tidak dapat dimanipulasi. Pendekatan ini 
+memperkuat pengawasan anggaran sekaligus mendukung percepatan penurunan stunting 
+di Indonesia. 
+2. 
+Tujuan 
+Pengembangan sistem B.O.G.A ini memiliki tujuan utama bagi berbagai pihak 
+sebagai berikut: 
+a. 
+Meningkatkan transparansi dan keadilan dalam pengadaan bahan pangan dengan 
+mencegah praktik manipulasi harga yang merugikan negara. 
+b. 
+Menjamin legalitas dan integritas vendor dalam ekosistem pengadaan guna 
+menghindari keterlibatan pihak perantara atau entitas fiktif. 
+c. 
+Mengamankan proses pencairan dana APBN agar hanya dilakukan berdasarkan 
+pemenuhan kondisi operasional yang tervalidasi di lapangan. 
+d. 
+Meningkatkan akuntabilitas distribusi dan kualitas pangan melalui mekanisme 
+pengawasan yang terintegrasi dari hulu hingga hilir. 
+3. 
+Manfaat  
+Pengembangan sistem B.O.G.A ini diharapkan dapat memberikan manfaat yang 
+signifikan dan terukur bagi berbagai pihak, di antaranya: 
+a. 
+Melindungi anggaran negara dari potensi kebocoran akibat praktik korupsi, 
+manipulasi data, dan penggelembungan harga dalam proses pengadaan pangan. 
+b. 
+Meningkatkan transparansi dan kemampuan pengawasan pemerintah terhadap 
+pergerakan logistik dan penggunaan anggaran secara menyeluruh. 
+c. 
+Menciptakan ekosistem rantai pasok yang lebih adil dengan mengurangi peran 
+perantara serta memperluas akses pasar bagi pelaku usaha lokal dan UMKM. 
+d. 
+Memberikan kepastian dan perlindungan finansial bagi seluruh pihak yang terlibat 
+melalui mekanisme pencairan dana yang lebih terjamin dan terkontrol. 
+e. 
+Mendorong transformasi digital dalam tata kelola pengadaan publik melalui 
+penerapan teknologi yang meningkatkan akuntabilitas dan kepercayaan sistem. 
+4. 
+Batasan Perangkat  
+Sistem B.O.G.A dirancang dengan batasan perangkat tertentu yang terukur untuk 
+memastikan fokus dan efektivitas, di antaranya: 
+a. 
+Sistem mencakup empat pengguna utama: Pemerintah, Vendor, SPPG, dan 
+Sekolah. Distribusi pangan sepenuhnya menjadi tanggung jawab operasional 
+SPPG, mulai dari penjemputan komoditas ke vendor hingga pengiriman ke 
+sekolah, sehingga sistem tidak menyediakan fitur pelacakan armada logistik pihak 
+ketiga. 
+b. 
+Lingkup simulasi dan pengujian purwarupa B.O.G.A dibatasi pada wilayah Kota 
+Bandung, Jawa Barat. Cakupan ini meliputi dataset lokasi SPPG, sekolah 
+penerima, serta vendor lokal. Pembatasan ini bertujuan untuk memastikan 
+validitas pengujian alur logistik dan pemetaan harga pangan sebelum 
+implementasi skala nasional.. 
+c. 
+Penyimpanan data menggunakan pendekatan hybrid Web2.5. Data esensial 
+disimpan secara on-chain, metadata reputasi token SBT disimpan terdesentralisasi 
+di IPFS, sedangkan aset biner berukuran besar disimpan secara off-chain melalui 
+peladen Cloudflare D1 dan R2. 
+d. 
+Vision Service difokuskan secara eksklusif pada proses validasi otentikasi berkas 
+dokumen pengajuan vendor (Nomor Induk Berusaha/NIB). Persetujuan dokumen 
+tersebut kemudian ditindaklanjuti melalui otorisasi final oleh entitas pemerintah. 
+e. 
+Smart Contract berfungsi murni sebagai instrumen escrow dan immutable ledger 
+tanpa melibatkan penggunaan cryptocurrency publik. Aliran dana pembayaran 
+operasional sepenuhnya dilakukan dalam mata uang Rupiah melalui integrasi 
+Payment Gateway DOKU. 
+f. 
+Penanganan sengketa tidak dieksekusi secara instan oleh Smart Contract. Sistem 
+menerapkan batasan penangguhan dana di dalam escrow DOKU selama 3x24 jam 
+saat anomali terdeteksi, guna memberikan ruang bagi pemerintah untuk 
+melakukan investigasi manual sebelum mengeksekusi refund ke kas negara atau 
+penurunan reputasi permanen. 
+g. 
+Integrasi dengan API PIHPS terbatas pada komoditas yang datanya tersedia di 
+peladen publik. Untuk komoditas yang tidak terdaftar, sistem menggunakan 
+parameter HET yang disetujui secara manual oleh administrator pemerintah. 
+h. 
+Implementasi layanan gerbang pembayaran DOKU pada purwarupa ini dibatasi 
+hanya pada Sandbox Environment. Simulasi pencairan dana dua keran 
+menggunakan Virtual Account uji coba tanpa melibatkan perputaran dana rupiah 
+riil. 
+i. 
+Deployment jaringan Private Ethereum Virtual Machine (EVM) dilakukan pada 
+lingkungan Testnet seperti Sepolia menggunakan framework Hardhat dan node 
+cloud berskala kecil. Sistem purwarupa ini belum diimplementasikan pada 
+infrastruktur peladen tertutup (Mainnet) milik pemerintah berskala penuh. 
+j. 
+AI Vision Service dibatasi pada ekstraksi teks (OCR) dan analisis forensik piksel 
+untuk mendeteksi indikasi pemalsuan dokumen administrasi di tahap awal. Sistem 
+ini tidak digunakan untuk menilai kualitas fisik bahan pangan secara langsung; 
+pengawasan mutu komoditas fisik tetap mengandalkan verifikasi manusia dari staf 
+Quality Control (QC) SPPG di lapangan. 
+5. 
+Metodologi 
+5.1. Metode Pengumpulan Data 
+Tahap inisiasi pengembangan B.O.G.A didasarkan pada pengumpulan data 
+komprehensif untuk memastikan akurasi alur ekosistem Business-to-Government 
+(B2G) sekaligus kepatuhannya terhadap standar operasional teknologi finansial 
+yang berlaku [6]. Pengumpulan data dilakukan melalui beberapa pendekatan 
+sebagai berikut: 
+a. 
+Studi literatur dilakukan dengan menganalisis regulasi terkait, seperti 
+Peraturan Presiden No. 115 Tahun 2025 [8], serta dokumentasi teknis 
+layanan pembayaran digital DOKU. Tahap ini bertujuan untuk memahami 
+mekanisme pengelolaan dana, termasuk konsep escrow dan penangguhan 
+transaksi dalam sistem keuangan digital. 
+b. 
+Validasi praktisi dilakukan melalui konsultasi dengan pelaku pengadaan 
+barang ataupun pemerintah terkait guna memperoleh gambaran nyata 
+mengenai alur birokrasi serta proses distribusi logistik oleh Satuan 
+Pelayanan Pemenuhan Gizi (SPPG) di lapangan [14], [15]. 
+c. 
+Simulasi data dilakukan dengan membangun himpunan data tiruan 
+terstruktur berbasis skenario lokal, seperti wilayah Kota Bandung untuk 
+mendukung pengujian sistem secara komputasional. Himpunan data yang 
+digunakan seperti data visual dokumen Nomor Induk Berusaha (NIB) untuk 
+pengujian modul Artificial Intelligence (AI) Vision, data koordinat spasial 
+untuk kalibrasi algoritma geofencing, serta data identitas representatif 
+entitas seperti vendor, SPPG, dan Nomor Induk Siswa Nasional (NISN) 
+sebagai aktor dalam sistem. 
+5.2. Metode Pengembangan Sistem 
+Sistem B.O.G.A dikembangkan menggunakan metodologi Agile dengan 
+kerangka Scrum untuk mendukung fleksibilitas terhadap perubahan kebutuhan 
+[16]. Mengingat keterbatasan tim, beberapa peran dirangkap tanpa mengurangi 
+prinsip Agile, dengan pembagian tanggung jawab sebagai berikut: 
+a. 
+Product Owner bertanggung jawab dalam penyusunan product backlog serta 
+memastikan kesesuaian fitur dengan regulasi dan kebutuhan sistem. 
+b. 
+Backend Engineer (Scrum Master) berfokus pada pengembangan logika 
+backend, integrasi API eksternal, serta pengelolaan siklus sprint. 
+c. 
+Frontend Engineer bertanggung jawab pada pengembangan antarmuka 
+pengguna serta integrasi interaksi sistem dengan teknologi Web3. 
+Siklus pengembangan sistem B.O.G.A dibagi ke dalam tahapan Sprint yang 
+berkesinambungan: 
+5.2.1. Sprint Planning 
+Siklus pertama berfokus pada pemetaan arsitektur sistem secara 
+menyeluruh dan perancangan fidelitas tinggi antarmuka pengguna 
+menggunakan perangkat Figma. Tim menyusun Unified Modeling 
+Language (UML) dan rancangan basis data relasional guna memastikan 
+seluruh relasi data aktor tersusun secara sistematis. Tech-stack utama yang 
+ditetapkan dalam perencanaan ini meliputi Next.js dan Tailwind CSS pada 
+sisi frontend, serta Node.js untuk menangani logika backend. Jaringan 
+blockchain berbasis Solidity juga dipersiapkan pada tahap ini untuk 
+mendukung fungsi smart contract yang akan dikembangkan pada tahapan 
+selanjutnya. 
+5.2.2. Sprint 1 Infrastruktur Fundamental 
+Siklus kedua difokuskan pada transformasi desain UI/UX menjadi 
+komponen dashboard interaktif yang responsif pada berbagai perangkat. 
+Pada tahap ini, tim mulai membangun skema penyimpanan basis data pada 
+Cloudflare D1 serta infrastruktur penyimpanan objek pada Cloudflare R2 
+untuk aset dokumen. Pustaka Leaflet.js turut diintegrasikan pada 
+antarmuka frontend guna memfasilitasi visualisasi pemetaan lokasi sekolah 
+dan vendor secara presisi. Langkah ini krusial untuk memastikan fondasi 
+data spasial telah siap sebelum algoritma Geofencing diimplementasikan 
+pada siklus berikutnya. 
+5.2.3. Sprint 2 Logika Bisnis dan Validasi 
+Siklus ketiga difokuskan pada implementasi logika bisnis inti di 
+lingkungan Node.js, termasuk modul pendaftaran vendor yang divalidasi 
+oleh AI Vision. Fitur validasi dokumen identitas usaha (NIB) 
+dikembangkan menggunakan teknik OCR untuk mengekstraksi data asli 
+secara otomatis dari foto dokumen yang diunggah. Selain itu, algoritma 
+Geofencing berbasis rumus Haversine dilakukan untuk memvalidasi lokasi 
+distribusi secara akurat [17]. Tahap ini bertujuan memastikan seluruh 
+parameter validasi fisik di lapangan dapat terintegrasi ke dalam sistem 
+secara real-time 
+5.2.4. Sprint 3 Integrasi Web3 dan Escrow 
+Siklus terakhir berfokus pada pengembangan Smart Contract 
+menggunakan Solidity untuk mengelola mekanisme escrow dan dual-
+tranche disbursement [13], [20], [21]. Integrasi API DOKU diaktifkan 
+untuk mendukung pemicu pembayaran otomatis bagi vendor dan SPPG 
+setelah syarat verifikasi kriptografis dinyatakan sah oleh sistem. Tim juga 
+mengimplementasikan fitur penangguhan dana selama 3x24 jam guna 
+memberikan ruang bagi pemerintah untuk melakukan investigasi jika 
+terdeteksi anomali transaksi. Dengan selesainya siklus ini, sistem B.O.G.A 
+dinyatakan siap untuk melalui tahap pengujian akhir sebelum dilakukan 
+rilis produk. 
+5.3. Metode Pengujian Sistem 
+Dalam menjamin keamanan, B.O.G.A menerapkan tiga tahapan evaluasi 
+utama, yaitu pengujian fungsional, keamanan, dan pengalaman pengguna. 
+Tahapan tersebut difokuskan pada validasi titik kritis mitigasi fraud dari proses 
+pendaftaran vendor hingga distribusi akhir kepada pengguna. Pengujian terbagi ke 
+dalam tahapan berikut: 
+5.3.1. Pengujian Fungsional dan Integrasi API 
+Tahap ini menggunakan instrumen Postman untuk memverifikasi 
+integritas dan keamanan seluruh jalur data pada lingkungan Node.js 
+melalui pengujian fungsional berbasis skenario. Pengujian fungsional 
+secara spesifik difokuskan pada akurasi modul AI Vision dalam mendeteksi 
+anomali gambar dokumen Nomor Induk Berusaha (NIB) saat proses 
+pendaftaran vendor, serta kalibrasi presisi jarak pada algoritma Geofencing 
+Haversine. Simulasi aliran dana transaksi logistik juga diuji coba secara 
+komprehensif 
+menggunakan 
+lingkungan 
+Sandbox 
+dari 
+gerbang 
+pembayaran DOKU guna memastikan keandalan sistem escrow. 
+5.3.2. Pengujian Keamanan Smart Contract 
+Proses audit keamanan tingkat dasar dan simulasi eksekusi 
+transaksi massal dijalankan secara terisolasi menggunakan framework 
+pengujian lokal Hardhat. Pengujian ini menargetkan validasi menyeluruh 
+terhadap logika kedua pencairan dan ketepatan waktu eksekusi fitur 
+penangguhan dana selama 3x24 jam. Setelah dipastikan aman dari celah 
+manipulasi dan kerentanan logika bisnis, Smart Contract tersebut baru 
+akan dipublikasikan secara resmi ke dalam jaringan Ethereum Sepolia 
+Testnet. 
+5.3.3. Pengujian Usability Pengguna Akhir 
+Evaluasi 
+antarmuka 
+aplikasi 
+diukur 
+secara 
+kuantitatif 
+menggunakan instrumen kuesioner baku System Usability Scale (SUS) 
+yang melibatkan representasi vendor, staf SPPG, hingga operator sekolah 
+[18]. Pengujian ini menargetkan pencapaian ambang batas skor kelayakan 
+di atas 68 yang merujuk pada standar global literatur User Experience 
+(UX). Melalui pengujian lapangan berbasis data pengguna ini, tim dapat 
+memastikan bahwa penyematan teknologi kompleks seperti blockchain 
+dan AI tidak menghambat kemudahan pengoperasian aplikasi di dunia 
+nyata. 
+6. 
+Analisis Kebutuhan dan Desain Solusi 
+6.1. Analisis Kebutuhan Sistem 
+Tahap ini mengidentifikasi spesifikasi teknis dan operasional yang kemudian 
+diklasifikasikan menjadi kebutuhan fungsional dan non-fungsional. 
+6.1.1. Kebutuhan Fungsional 
+Kebutuhan fungsional mendefinisikan interaksi spesifik dan layanan 
+inti yang wajib dieksekusi oleh sistem B.O.G.A berdasarkan hak akses 
+masing-masing aktor di dalam ekosistem. Pendekatan berbasis aktor ini 
+diterapkan guna memastikan prinsip least privilege berjalan optimal dan 
+tidak ada tumpang tindih wewenang fungsional. Rincian spesifikasi layanan 
+tersebut adalah sebagai berikut: 
+6.1.1.1. 
+Pemerintah (BGN/KPK) 
+Sistem menyediakan dasbor pengawasan makro yang 
+memfasilitasi pemerintah untuk melacak serapan anggaran dan 
+pergerakan logistik pangan secara real-time. Antarmuka ini 
+memberikan wewenang eksklusif bagi pemerintah untuk 
+melakukan otorisasi final terhadap pendaftaran akun vendor 
+setelah divalidasi oleh mesin. Selain itu, sistem memfasilitasi 
+antarmuka resolusi sengketa yang terhubung dengan gerbang 
+pembayaran DOKU. Melalui modul ini, pemerintah dapat 
+menginvestigasi dan mengeksekusi keputusan final berupa 
+pencairan paksa atau penarikan dana ke kas negara selama masa 
+penangguhan 3x24 jam. 
+6.1.1.2. 
+Vendor Penyedia Bahan Baku  
+Sistem mewajibkan modul verifikasi identitas di mana 
+vendor harus mengunggah dokumen legalitas seperti Nomor 
+Induk Berusaha (NIB) dan data rekening bank. Proses 
+pendaftaran ini terintegrasi dengan modul Artificial Intelligence 
+(AI) Vision yang akan mengekstraksi teks (Optical Character 
+Recognition) dan memvalidasi keaslian dokumen secara 
+otonom. Setelah dinyatakan sah, sistem membuka akses modul 
+E-Katalog bagi vendor untuk memasukkan daftar inventaris 
+komoditas beserta harga jualnya. Input harga dari vendor 
+tersebut secara otomatis akan divalidasi dan diblokir oleh 
+sistem apabila nilainya terdeteksi melampaui Harga Eceran 
+Tertinggi (HET) dari API PIHPS. 
+6.1.1.3. 
+Satuan Pelayanan Pemenuhan Gizi (SPPG) 
+Sistem menyediakan kapabilitas bagi SPPG untuk 
+menerbitkan Purchase Order (PO) secara langsung kepada 
+vendor yang telah terverifikasi di dalam ekosistem E-Katalog. 
+Modul logistik hulu memfasilitasi pencatatan konfirmasi fisik 
+saat staf SPPG melakukan penjemputan komoditas langsung ke 
+lokasi vendor. Selanjutnya, sistem mewajibkan otorisasi 
+persetujuan kualitas dari staf Quality Control (QC) yang akan 
+menjadi pemicu pencairan dana keran pertama dari escrow 
+DOKU ke rekening vendor. Sistem juga mengelola manajemen 
+inventaris ganda, di mana jumlah porsi makanan matang yang 
+didistribusikan tidak boleh melebihi volume bahan mentah 
+yang masuk ke dalam smart ledger. 
+6.1.1.4. 
+Sekolah 
+Sistem mengamankan serah terima makanan di hilir 
+melalui modul pemindai barcode yang terikat ketat dengan 
+protokol Geofencing Haversine. Akses pemindaian oleh 
+operator sekolah hanya dapat terbuka apabila koordinat 
+perangkat pembaca berada dalam radius lima puluh meter dari 
+titik koordinat statis sekolah penerima. Setelah validasi lokasi 
+terpenuhi, sistem memfasilitasi modul evaluasi bagi entitas 
+siswa untuk memberikan ulasan kualitas rasa secara 
+independen. Identitas siswa diverifikasi menggunakan NISN 
+terenkripsi, di mana akumulasi rating tersebut akan memicu 
+pencairan dana keran kedua ke SPPG sekaligus dicetak sebagai 
+Soulbound Token (SBT) sebagai identitas reputasi digital yang 
+tidak dapat dipindahtangankan. 
+6.1.2. Kebutuhan Non-Fungsional 
+Kebutuhan non-fungsional berfokus pada kualitas operasi sistem 
+B.O.G.A untuk menjamin ketersediaan, keamanan, dan skalabilitas 
+ekosistem secara keseluruhan. Parameter teknis ini perlu dipenuhi agar 
+arsitektur Zero-Trust dapat berjalan optimal tanpa mengorbankan 
+pengalaman pengguna. Berikut adalah rincian standar kualitas operasi 
+sistem: 
+6.1.2.1. 
+Keamanan dan Integritas Arsitektur 
+Sistem diwajibkan menjamin integritas data transaksi, 
+rekam pelaporan fisik, dan skor reputasi aktor melalui 
+penyimpanan permanen pada immutable ledger di jaringan 
+blockchain privat berbasis Ethereum yang disebut Private 
+EVM. Seluruh dokumen bukti di lapangan diamankan melalui 
+proses hashing kriptografis (SHA-256) untuk mencegah 
+manipulasi data. Eksekusi penguncian dan pelepasan dana 
+APBN harus sepenuhnya diatur oleh algoritma Smart Contract 
+yang otonom agar kebal terhadap intervensi sepihak. 
+6.1.2.2. 
+Kegunaan dan Aksesibilitas Pengguna 
+Antarmuka pengguna harus dirancang secara ergonomis 
+dan ramah bagi pengguna non-teknis dengan menyembunyikan 
+seluruh kompleksitas interaksi blockchain di belakang layar. 
+Sistem wajib mengimplementasikan pendekatan Wallet-as-a-
+Service (WaaS) sebagai mekanisme otomatisasi pengelolaan 
+dompet digital berbasis blockchain agar pembuatan dompet 
+digital dan eksekusi tanda tangan digital dapat berjalan secara 
+otomatis tanpa intervensi manual. Melalui abstraksi teknis ini, 
+pengguna tingkat akar rumput seperti staf dapur dan operator 
+sekolah 
+dapat 
+mengoperasikan 
+B.O.G.A 
+selayaknya 
+menggunakan aplikasi web konvensional sehari-hari. 
+6.1.2.3. 
+Skalabilitas dan Optimasi Performa 
+Infrastruktur peladen harus dirancang menggunakan 
+metodologi pemisahan beban kerja untuk mempertahankan 
+responsivitas sistem saat diakses oleh puluhan ribu SPPG 
+secara bersamaan. Data relasional konvensional dan berkas aset 
+media berukuran besar dirancang agar tidak membebani node 
+blockchain secara signifikan, melainkan harus disimpan secara 
+aman melalui layanan off-chain seperti basis data Cloudflare 
+D1 dan penyimpanan objek R2. Selain itu, sistem dirancang 
+untuk 
+menggunakan 
+mekanisme 
+Edge 
+Caching 
+yaitu 
+penyimpanan data sementara di server terdekat pengguna untuk 
+menyimpan data API eksternal sehingga latensi aplikasi tetap 
+rendah di berbagai kondisi jaringan. 
+6.2. Arsitektur Sistem dan Infrastruktur 
+Arsitektur sistem B.O.G.A dirancang secara komprehensif untuk menjawab 
+kebutuhan transparansi, keamanan, dan skalabilitas dalam pengelolaan dana publik 
+skala nasional. Sebagai fondasi desentralisasi, sistem dibangun di atas jaringan 
+blockchain privat berbasis Ethereum (Private EVM) dengan memanfaatkan 
+Hyperledger Besu atau Polygon Edge sebagai basis infrastruktur. Simpul jaringan 
+dioperasikan oleh institusi berwenang seperti BGN dan KPK guna memastikan 
+integritas serta kepemilikan data tetap terjaga. Pemilihan arsitektur ini bertujuan 
+untuk menghindari lonjakan biaya transaksi pada jaringan publik sekaligus 
+menjaga privasi data anggaran dari pihak eksternal.. 
+Lapisan akses pengguna dirancang menggunakan pendekatan Web2.5 
+melalui Wallet-as-a-Service (WaaS) guna memastikan adopsi sistem yang inklusif. 
+Infrastruktur ini didukung oleh Software Development Kit (SDK) seperti Thirdweb 
+Engine atau Web3Auth yang memungkinkan pengguna berinteraksi tanpa harus 
+mengelola private key secara manual. Pada sisi backend, Node.js dipadukan 
+dengan mekanisme Multi-Party Computation (MPC) untuk memproses pembuatan 
+dompet digital secara otomatis. Selain itu, sistem menerbitkan Soulbound Token 
+(SBT) sebagai identitas reputasi permanen yang merekam hasil evaluasi kualitas 
+makanan oleh siswa berbasis NISN. 
+Lapisan aplikasi bertanggung jawab dalam mengelola interaksi pengguna 
+melalui dashboard berbasis web yang responsif. Lapisan frontend terhubung 
+dengan backend Node.js melalui API berkecepatan tinggi yang memproses seluruh 
+logika bisnis sistem. Backend ini terintegrasi dengan modul AI Vision berbasis 
+Python untuk ekstraksi data dokumen vendor, serta layanan pembayaran DOKU 
+untuk pengelolaan escrow dan resolusi sengketa. Pada lapisan aplikasi, sistem 
+dikembangkan menggunakan Next.js dan Tailwind CSS untuk menghasilkan 
+antarmuka dashboard interaktif. Lapisan frontend terhubung dengan backend 
+Node.js melalui API berkecepatan tinggi yang memproses seluruh logika bisnis 
+sistem. Backend ini terintegrasi dengan modul AI Vision berbasis Python untuk 
+ekstraksi data dokumen vendor, serta layanan pembayaran DOKU untuk 
+pengelolaan escrow dan resolusi sengketa. 
+Lapisan penyimpanan dan optimasi performa dirancang menggunakan 
+pendekatan off-chain untuk menjaga efisiensi sistem. arsitektur sistem tersebut 
+memanfaatkan penyimpanan off-chain menggunakan Cloudflare D1 sebagai basis 
+data relasional dan Cloudflare R2 untuk penyimpanan objek media. Pendekatan ini 
+memastikan bahwa beban jaringan blockchain tetap optimal tanpa mengorbankan 
+ketersediaan data. Visualisasi arsitektur sistem B.O.G.A disajikan pada Gambar 4. 
+ 
+Gambar 4. Arsitektur Layered B.O.G.A Berbasis Private EVM dan Integrasi Escrow DOKU 
+6.3. Pemodelan Sistem Berorientasi Objek 
+Arsitektur perangkat lunak B.O.G.A dimodelkan secara komprehensif 
+menggunakan Unified Modeling Language (UML) untuk merepresentasikan logika 
+dan fungsionalitas sistem secara visual. Pendekatan berbasis objek ini 
+memungkinkan pengembang untuk melakukan verifikasi terhadap alur data dan 
+hierarki keamanan sebelum melangkah pada tahap implementasi kode program. 
+Visualisasi yang presisi pada tahap perancangan ini sangat krusial guna 
+memastikan arsitektur Zero-Trust berjalan sesuai dengan batasan wewenang entitas 
+tanpa adanya tumpang tindih. 
+6.3.1. Use Case Diagram 
+Diagram Use Case secara spesifik memetakan hak akses dan 
+fungsionalitas dari keempat aktor utama dalam sistem B.O.G.A 
+berdasarkan prinsip hak istimewa. Pembatasan wewenang yang terisolasi 
+ini dirancang sedemikian rupa untuk mencegah terjadinya penyalahgunaan 
+akses yang dapat memicu manipulasi data. Visualisasi komprehensif 
+mengenai batasan interaksi fungsional sistem tersebut disajikan pada 
+Gambar 5. 
+a. 
+Pemerintah (BGN/KPK) berfungsi sebagai pengawas utama 
+ekosistem dengan hak akses untuk melakukan otorisasi final terhadap 
+pendaftaran vendor yang telah melalui proses validasi oleh sistem 
+berbasis AI. Selain itu, pemerintah memanfaatkan dasbor 
+pengawasan untuk memantau pergerakan dana dan aktivitas logistik 
+secara real-time. Dalam kondisi tertentu, pemerintah juga memiliki 
+kewenangan untuk mengelola resolusi sengketa dengan melakukan 
+investigasi serta mengeksekusi penarikan dana dari sistem sesuai 
+dengan hasil verifikasi. 
+b. 
+Vendor menjalankan fungsi sebagai penyedia bahan pangan yang 
+diwajibkan melalui proses verifikasi identitas usaha berbasis 
+dokumen Nomor Induk Berusaha (NIB) menggunakan modul AI 
+Vision. Setelah memperoleh persetujuan dari pemerintah, vendor 
+dapat mengakses modul E-Katalog untuk mempublikasikan daftar 
+komoditas beserta harga jualnya. Selain itu, vendor memiliki akses 
+untuk memantau status pencairan dana yang diproses oleh sistem 
+berdasarkan penyelesaian tahapan operasional oleh pihak SPPG. 
+c. 
+Satuan Pelayanan Pemenuhan Gizi (SPPG) berfungsi sebagai 
+pengelola operasional yang menangani proses pengadaan dan 
+distribusi logistik pangan. Aktor ini memiliki kemampuan untuk 
+menerbitkan Purchase Order (PO) kepada vendor yang telah 
+terverifikasi, serta melakukan penjemputan logistik secara langsung 
+ke lokasi penyedia. Setelah proses pengadaan berlangsung, staf 
+Quality Control (QC) berwenang melakukan validasi kualitas barang 
+melalui mekanisme otorisasi yang terintegrasi dengan sistem sebagai 
+bagian dari kontrol penerimaan. 
+d. 
+Sekolah berperan sebagai penerima manfaat sekaligus pihak yang 
+melakukan validasi akhir dalam rantai distribusi. Operator sekolah 
+memiliki akses untuk melakukan verifikasi serah terima melalui 
+pemindaian 
+barcode 
+yang 
+terintegrasi 
+dengan 
+mekanisme 
+Geofencing guna memastikan lokasi distribusi sesuai dengan titik 
+tujuan. Di sisi lain, siswa sebagai pengguna akhir dapat memberikan 
+penilaian terhadap kualitas makanan melalui sistem berbasis 
+identitas terenkripsi, yang selanjutnya menjadi bagian dari evaluasi 
+layanan dalam ekosistem. 
+ 
+Gambar 5. Use Case Diagram Ekosistem B.O.G.A 
+6.3.2. Sequence Diagram 
+Diagram Sequence ini memvisualisasikan kronologi pertukaran pesan 
+pada proses penjemputan logistik oleh SPPG dari vendor dengan 
+menerapkan mekanisme Multi-Signature sebagai sistem otorisasi pencairan 
+dana. Melalui mekanisme ini, pendekatan ZTA mampu mengeliminasi titik 
+kegagalan tunggal dengan mendistribusikan wewenang validasi kepada 
+beberapa aktor independen. Siklus sekuensial ini dimulai setelah staf 
+logistik SPPG mengeksekusi proses penjemputan komoditas secara 
+langsung di lokasi vendor yang telah terverifikasi. Untuk mencegah 
+manipulasi kuantitas dan kualitas di tengah jalan, sistem mewajibkan tiga 
+entitas independen yakni Staf Logistik, Staf Admin, dan Staf Quality 
+Control (QC) untuk melakukan proses autentikasi secara berurutan ketika 
+proses logistik telah berada di dapur umum. Seluruh staf tersebut 
+mengakses dashboard berbasis Next.js untuk menyematkan tanda tangan 
+digital. Data tersebut kemudian diproses oleh backend Node.js sebelum 
+diteruskan ke jaringan blockchain. Pada lapisan blockchain tersebut, Smart 
+Contract bertugas menampung dan memvalidasi setiap tanda tangan hingga 
+syarat otorisasi terpenuhi. 
+Ketika sistem mendeteksi bahwa Multi-Sig telah tercapai, kontrak 
+secara otomatis memicu event pencairan dana pertama untuk pihak vendor. 
+Event on-chain tersebut kemudian ditangkap oleh backend Node.js untuk 
+mengirimkan instruksi pembayaran ke DOKU. Namun, sebagai bentuk 
+mitigasi preventif, apabila proses validasi gagal atau terdeteksi anomali 
+fisik oleh staf QC, instruksi pencairan akan dibatalkan dan dana akan 
+ditangguhkan di dalam escrow DOKU. Penangguhan selama masa 3x24 
+jam ini akan memicu protokol resolusi sengketa yang memberikan 
+wewenang bagi pemerintah untuk melakukan investigasi lanjutan sebelum 
+memutuskan eksekusi penarikan dana atau pelolosan transaksi. Visualisasi 
+alur pertukaran pesan ini disajikan pada Gambar 6. 
+ 
+Gambar 6. Sequence Diagram Multi-Signature dan Pencairan Escrow 
+6.4. Desain Basis Data dan Penyimpanan Terdesentralisasi 
+Arsitektur penyimpanan data pada B.O.G.A dirancang menggunakan 
+pendekatan terdesentralisasi sebagian dengan memanfaatkan infrastruktur 
+serverless Cloudflare. Data relasional dan operasional sistem, termasuk metadata 
+pendaftaran vendor hasil ekstraksi teks AI Vision, dikelola menggunakan basis 
+data Cloudflare D1. Untuk menjaga ketersediaan dan responsivitas sistem, 
+khususnya ketika layanan Pusat Informasi Harga Pangan Strategis (PIHPS) 
+mengalami gangguan, sistem mengimplementasikan strategi Edge Caching melalui 
+Cloudflare Workers KV. Data harga pangan diperbarui secara berkala dan 
+disimpan pada server terdekat pengguna sehingga aplikasi tetap dapat beroperasi 
+dengan latensi yang rendah. 
+Menangani penyimpanan berkas bukti fisik berkapasitas besar, sistem 
+memanfaatkan layanan objek Cloudflare R2 sebagai media penyimpanan utama. 
+Berkas yang disimpan mencakup dokumen Nomor Induk Berusaha (NIB) pada 
+tahap pendaftaran vendor serta Berita Acara Pekerjaan (BAP) pada tahap 
+operasional. Setiap berkas yang diunggah diproses menggunakan algoritma Secure 
+Hash Algorithm (SHA-256) untuk menghasilkan nilai hash unik sebagai 
+representasi integritas data. Nilai hash tersebut kemudian dicatat pada Smart 
+Contract sebagai bukti keaslian. Apabila terjadi perubahan pada berkas asli, 
+ketidaksesuaian nilai hash akan terdeteksi oleh sistem dan memicu penolakan 
+otomatis serta penangguhan dana dalam escrow DOKU selama 3x24 jam untuk 
+keperluan investigasi. 
+Struktur basis data dirancang untuk mendukung End-to-End Traceability 
+melalui pemisahan siklus logistik ke dalam fase inbound dan outbound. Sistem 
+mencatat aliran bahan baku dan distribusi makanan secara terintegrasi guna 
+memastikan kesesuaian antara volume bahan yang diterima dan jumlah porsi yang 
+didistribusikan. Selain itu, sistem mendukung mekanisme evaluasi terpisah, di 
+mana Quality Control (QC) SPPG memvalidasi kualitas komoditas vendor, 
+sementara siswa memberikan penilaian terhadap hasil distribusi menggunakan 
+identitas terenkripsi berbasis NISN. Data evaluasi tersebut diolah untuk 
+memperbarui skor reputasi on-chain secara permanen, yang digunakan sebagai 
+dasar penilaian kelayakan vendor dan SPPG pada periode pengadaan berikutnya. 
+Visualisasi rancangan relasi entitas disajikan pada Gambar 7. 
+ 
+Gambar 7. ERD End-to-End Traceability B.O.G.A 
+ 
+ 
+6.5. Operasional End-to-End dan Mitigasi Fraud 
+Pemodelan Activity Diagram pada sistem B.O.G.A dirancang untuk 
+memvisualisasikan alur operasional ekosistem secara makro, membentang dari 
+titik hulu pendaftaran entitas hingga hilir pelaporan konsumsi. Rangkaian aktivitas 
+ini merepresentasikan implementasi End-to-End Traceability yang mengawasi 
+pergerakan data, komoditas, dan aliran dana secara ketat serta terstruktur. Melalui 
+pemetaan visual ini, sistem mendemonstrasikan secara transparan berbagai titik 
+kritis mitigasi fraud yang telah diintegrasikan ke dalam setiap tahapan operasional 
+lapangan. Pendekatan holistik ini memastikan bahwa seluruh proses bisnis 
+mematuhi regulasi dengan sempurna sebelum memicu instruksi finansial apapun 
+di dalam ekosistem. 
+Siklus operasional diawali pada fase pra-pengadaan di mana entitas vendor 
+wajib memvalidasi identitas legal usahanya melalui ekstraksi dokumen oleh mesin 
+kecerdasan buatan (AI Vision) dan otorisasi persetujuan pemerintah. Setelah 
+terverifikasi dan masuk ke dalam E-Katalog, alur berlanjut pada tahap pengadaan 
+di mana staf logistik SPPG mengeksekusi penjemputan komoditas secara langsung 
+(jemput bola) ke lokasi vendor. Setibanya di fasilitas dapur umum, logistik fisik 
+tersebut harus melewati validasi oleh staf Quality Control (QC) yang kemudian 
+disahkan melalui tanda tangan kriptografis Multi-Signature. Apabila seluruh 
+persyaratan ini terpenuhi secara mutlak, sistem akan memicu pencairan dana 
+pertama dari escrow DOKU kepada vendor; namun jika terdeteksi anomali, dana 
+akan dibekukan selama masa penangguhan 3x24 jam untuk keperluan investigasi. 
+Memasuki fase hilir, proses transformasi bahan baku yang telah diolah 
+menjadi porsi makanan matang akan dilanjutkan dengan tahap pengiriman oleh 
+armada kurir menuju sekolah penerima sasaran. Sistem mitigasi fraud kembali 
+bekerja secara otonom pada fase ini melalui protokol Geofencing untuk mengunci 
+akses pemindaian guna mencegah praktik pelaporan serah terima fiktif di luar 
+radius koordinat yang sah. Rangkaian alur makro ini pada akhirnya bermuara pada 
+tahap evaluasi akhir, di mana siswa memberikan penilaian kualitas makanan secara 
+independen menggunakan otentikasi Nomor Induk Siswa Nasional (NISN). 
+Akumulasi ulasan tervalidasi inilah yang kemudian bertindak sebagai pemicu 
+pencairan dana operasional kedua dari DOKU kepada pihak SPPG, sekaligus 
+mencetak token reputasi permanen di dalam jaringan blockchain. Visualisasi 
+keseluruhan alur aktivitas makro tersebut disajikan secara komprehensif pada 
+Gambar 8. 
+ 
+Gambar 8. Activity Diagram End-to-End Sistem B.O.G.A 
+6.6. Mekanisme Distribusi Hilir dan Reputasi On-Chain 
+Pengamanan distribusi hilir pada sistem B.O.G.A diimplementasikan melalui 
+protokol geofencing yang memanfaatkan perbandingan koordinat spasial secara 
+real-time. Ketika armada logistik tiba di lokasi sekolah, sistem menghitung jarak 
+antara perangkat kurir dan titik koordinat sekolah menggunakan formula 
+Haversine. Apabila jarak terdeteksi berada di luar batas toleransi maksimum 
+sebesar 50 meter, maka sistem secara otomatis mengunci proses pemindaian 
+barcode. Mekanisme ini memastikan bahwa proses serah terima hanya dapat 
+dilakukan di lokasi yang sah dan mencegah manipulasi pelaporan fiktif. 
+Setelah distribusi makanan tervalidasi, sistem beralih ke tahap evaluasi 
+kualitas dengan melibatkan siswa sebagai auditor independen. Identitas siswa 
+diverifikasi menggunakan Nomor Induk Siswa Nasional (NISN) yang telah 
+terenkripsi untuk mencegah duplikasi penilaian. Skor kepuasan yang diberikan 
+tidak hanya disimpan secara konvensional, tetapi juga diproses menjadi Soulbound 
+Token (SBT) di dalam jaringan blockchain. Secara sederhana, mekanisme ini 
+memastikan bahwa setiap penilaian bersifat permanen dan tidak dapat 
+dimanipulasi. 
+Lebih lanjut, data evaluasi tersebut berfungsi sebagai pemicu utama dalam 
+pencairan dana operasional tahap kedua dari escrow DOKU ke rekening SPPG. 
+Apabila terjadi anomali atau validasi dari pihak sekolah tidak terpenuhi, sistem 
+akan menangguhkan pencairan dana selama 3x24 jam untuk keperluan investigasi 
+oleh pemerintah. Penggunaan arsitektur Soulbound Token (SBT) menjamin bahwa 
+rekam jejak kualitas pangan tersimpan secara permanen dan tidak dapat 
+dipindahtangankan. Akumulasi reputasi yang tercatat secara on-chain ini kemudian 
+digunakan sebagai parameter dalam Smart Contract untuk menentukan kelayakan 
+vendor dan SPPG secara otomatis. Dengan demikian, hanya entitas dengan rekam 
+jejak kinerja yang baik yang dapat menerima Purchase Order (PO) pada periode 
+berikutnya. 
+7. 
+Implementasi 
+Proses implementasi perangkat lunak B.O.G.A merupakan transisi teknis dari 
+desain arsitektur teoretis menjadi ekosistem komputasi yang fungsional dan terukur di 
+lingkungan produksi. Tahap ini berfokus pada penerjemahan prinsip ZTA [7] ke dalam 
+baris kode dengan standar Enterprise Software Development. Pengembangan dieksekusi 
+menggunakan perangkat keras RAM 16 GB dan editor Visual Studio Code. Untuk 
+menjamin stabilitas dan konsistensi dari tahap development hingga production, tim 
+mengimplementasikan Containerization menggunakan Docker. Siklus pemutakhiran 
+kode 
+dikelola 
+secara 
+otomatis 
+melalui 
+pipeline 
+CI/CD 
+(Continuous 
+Integration/Continuous Deployment) menggunakan GitHub Actions, di mana setiap push 
+repositori akan memicu pengujian unit otomatis sebelum peluncuran kode dilakukan. 
+Infrastruktur deployment dirancang dalam tiga environment yang terisolasi untuk 
+memastikan quality assurance yang ketat. Environment development menggunakan 
+Docker Compose dengan tiga container utama yang terdiri dari Backend Node.js, AI 
+Vision Service, dan Local Database. Environment staging di-deploy pada Cloudflare 
+Workers yang tersebar di 5 regional edge untuk pengujian performa global, dengan 
+Private EVM Testnet menggunakan Ethereum Sepolia sebagai jaringan blockchain 
+simulasi. Setelah melewati validasi fungsional dan pengujian beban, sistem kemudian 
+dipromosikan ke environment production yang memanfaatkan Cloudflare Workers di 15 
+regional edge dan Private EVM Mainnet berbasis Hyperledger Besu. Untuk 
+mengantisipasi bencana sistem, automated daily backup dikonfigurasi ke Cloudflare R2 
+dengan retention policy 30 hari guna memastikan disaster recovery yang cepat dan andal. 
+7.1. Implementasi Infrastruktur Cloud dan Web3 
+Sesuai dengan kebutuhan non-fungsional terkait skalabilitas, tim melakukan 
+inisiasi lingkungan serverless pada ekosistem Cloudflare. Tabel relasional pada 
+Cloudflare D1 dikonfigurasi dengan teknik indexing khusus pada kolom-kolom 
+krusial seperti vendor_id, po_id, dan transaction_hash untuk memastikan 
+throughput sistem mampu menangani beban hingga 500 Requests Per Second 
+(RPS) tanpa bottleneck. Cloudflare R2 dialokasikan sebagai storage utama untuk 
+dokumen NIB dan BAP berenkripsi dengan kapasitas unlimited dan zero egress 
+fee. Pada lapisan Web3, logika Smart Contract untuk Immutable Ledger disusun 
+menggunakan bahasa Solidity dan diuji secara komprehensif melalui framework 
+Hardhat sebelum dipublikasikan ke jaringan Private EVM berbasis Hyperledger 
+Besu. 
+Smart Contract telah melalui comprehensive testing dengan coverage 98,7% 
+yang diukur menggunakan Solidity Coverage. Pengujian mencakup 47 unit tests 
+untuk validasi logika bisnis, 12 integration tests untuk interaksi antar contract, dan 
+8 edge case scenarios untuk dispute mechanism. Interaksi backend Node.js dan 
+blockchain dijembatani oleh Web3 SDK yang secara sinkron mencatat hash SHA-
+256 dokumen dari Cloudflare R2 ke dalam rantai blok. Jaringan Private EVM 
+dioperasikan oleh 5 validator nodes yang didistribusikan kepada institusi 
+berwenang: Badan Gizi Nasional (2 nodes), Komisi Pemberantasan Korupsi (1 
+node), Kementerian Keuangan (1 node), dan Lembaga Kebijakan Pengadaan 
+Barang/Jasa Pemerintah (1 node). Mekanisme konsensus menggunakan Proof-of-
+Authority (PoA) dengan minimal 3/5 approval untuk finalisasi block guna 
+menjamin desentralisasi keputusan dan mencegah single point of failure. 
+7.2. Implementasi Logika Microservice AI dan Integrasi Payment Gateway 
+Modul AI Vision dibangun dengan arsitektur microservice berbasis Python 
+yang diisolasi di dalam Docker Container, dengan target performa waktu inferensi 
+(inference time) di bawah 2 detik per dokumen. Modul ini menggunakan kombinasi 
+Tesseract OCR untuk ekstraksi teks [22] dan custom-trained Convolutional Neural 
+Network (CNN) berbasis arsitektur ResNet-50 untuk fraud detection [23] dengan 
+akurasi target 95% pada dataset 10.000 dokumen NIB simulasi. Untuk memastikan 
+ketahanan sistem (fault tolerance), Node.js backend dilengkapi dengan Global 
+Error Handler dan integrasi Sentry guna melacak anomali (bug/error) di 
+production secara real-time dengan alert otomatis ke tim developer melalui Slack 
+dan email. 
+Pada integrasi Payment Gateway DOKU, keamanan data dijamin 
+menggunakan validasi HMAC Signature untuk mencegah request forgery dan 
+man-in-the-middle attack. Mekanisme penahanan dana APBN dieksekusi 
+menggunakan kombinasi Webhook listener yang menangkap event dari DOKU dan 
+blok proteksi pada Smart Contract berarsitektur Multi-Signature [21] dengan 
+representasi logika inti sebagai berikut: 
+// Snippet Logika Proteksi Dispute 3x24 Jam pada Smart Contract 
+function executeDisbursement(uint256 _poId) public onlyAuthorized { 
+    require(block.timestamp > deliveryTime[_poId] + 3 days, "Masih dalam masa Dispute 
+3x24 Jam"); 
+    require(isMultiSigValid[_poId] == true, "Otorisasi QC SPPG belum lengkap"); 
+    require(isNisnRated[_poId] == true, "Evaluasi Siswa (NISN) belum diterima"); 
+    _releaseFundsToVendorAndSPPG(_poId); 
+} 
+ 
+Melalui implementasi kode tersebut, pencairan dua keran (Vendor dan 
+SPPG) baru akan dieksekusi secara aman jika syarat Multi-Signature, Rating 
+NISN, validasi hash dokumen, dan masa dispute telah terverifikasi mutlak. Sistem 
+dilengkapi dengan observability stack menggunakan Prometheus untuk metrics 
+collection dan Grafana untuk real-time dashboard monitoring dengan alert 
+threshold: API latency lebih dari 500ms, error rate lebih dari 1%, atau CPU usage 
+lebih dari 80%. Seluruh endpoint API didokumentasikan menggunakan OpenAPI 
+3.0 specification dan di-host melalui Swagger UI untuk memudahkan integrasi 
+pihak ketiga. Rate limiting diterapkan pada tier 1.000 requests per hour per IP 
+address untuk mencegah abuse dan serangan Distributed Denial of Service 
+(DDoS). 
+7.3. Implementasi Algoritma Matematis  
+Keamanan fase distribusi hilir diimplementasikan pada lapisan middleware 
+backend untuk mencegah manipulasi GPS oleh klien. Middleware ini 
+menggunakan algoritma Haversine [17]  untuk mengkalkulasi jarak lingkaran besar 
+antara dua titik koordinat spasial di permukaan bumi dengan formula matematis: 
+ 
+Gambar 9. Formula matematis 
+di mana 𝑑 merepresentasikan jarak dalam meter, 𝑟adalah radius bumi 
+(6.371.000 meter), 𝜙 adalah latitude dalam radian, dan 𝜆 adalah longitude dalam 
+radian. Implementasi fungsi matematis ini dikonfigurasi untuk mengeksekusi 
+kalkulasi dengan latensi respons API di bawah 150 milidetik. Jika variabel jarak 
+(𝑑) melebihi toleransi 50 meter, endpoint akan otomatis memblokir permintaan 
+tersebut dan mencatat anomali ke dalam sistem log untuk keperluan audit. 
+Representasi kode implementasi algoritma Haversine pada backend Node.js adalah 
+sebagai berikut: 
+// Geofencing Middleware Validation 
+async function validateGeofencing(courierLatitude, courierLongitude, schoolId) { 
+    const schoolData = await db.getSchoolCoordinates(schoolId); 
+    const distanceInMeters = calculateHaversineDistance( 
+        courierLatitude, 
+        courierLongitude, 
+        schoolData.latitude, 
+        schoolData.longitude 
+    ); 
+    const MAX_DISTANCE_METERS = 50; 
+ 
+    if (distanceInMeters > MAX_DISTANCE_METERS) { 
+        await logAnomalyToBlockchain(schoolId, distanceInMeters); 
+        throw new ForbiddenError( 
+            `Invalid location. Distance: ${distanceInMeters.toFixed(2)}m (max: 
+${MAX_DISTANCE_METERS}m)` 
+        ); 
+    } 
+    return { 
+        valid: true, 
+        distance: distanceInMeters.toFixed(2) 
+    }; 
+} 
+ 
+// Haversine Distance Calculation 
+function calculateHaversineDistance(lat1, lon1, lat2, lon2) { 
+    const EARTH_RADIUS_METERS = 6371e3; 
+    const lat1Rad = lat1 * Math.PI / 180; 
+    const lat2Rad = lat2 * Math.PI / 180; 
+    const deltaLat = (lat2 - lat1) * Math.PI / 180; 
+    const deltaLon = (lon2 - lon1) * Math.PI / 180; 
+     
+    const a = 
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + 
+        Math.cos(lat1Rad) * Math.cos(lat2Rad) * 
+        Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2); 
+     
+    const angularDistance = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+    return EARTH_RADIUS_METERS * angularDistance; 
+} 
+ 
+Sebagai pelengkap akuntabilitas hilir, ulasan tervalidasi dari siswa via NISN 
+langsung dieksekusi melalui algoritma kriptografi untuk dicetak (minting) menjadi 
+Soulbound Token (SBT), memastikan reputasi aktor terkunci secara on-chain dan 
+kebal dari intervensi manual. Proses minting SBT dilakukan melalui Smart 
+Contract khusus yang mengimplementasikan standar ERC-721 dengan modifikasi 
+non-transferable property, di mana setiap token merepresentasikan agregasi rating 
+dari seluruh evaluasi siswa terhadap SPPG atau vendor tertentu. Metadata token 
+disimpan pada IPFS (InterPlanetary File System) untuk menjamin persistensi data 
+yang terdesentralisasi dan tidak dapat dihapus. 
+7.4. Strategi Deployment dan Rollback 
+Sistem B.O.G.A menggunakan Blue-Green Deployment strategy untuk 
+meminimalkan downtime saat update. Setiap release baru di-deploy ke 
+environment staging terlebih dahulu dan divalidasi melalui automated End-to-End 
+testing menggunakan Playwright yang mencakup 35 test scenarios mencakup 
+seluruh user journey dari pendaftaran vendor hingga pencairan dana. Setelah lulus 
+pengujian otomatis, dilakukan traffic switching secara bertahap menggunakan 
+pendekatan Canary Deployment di mana 10% traffic production dialihkan ke versi 
+baru untuk observasi selama 2 jam. Jika terdeteksi error rate melebihi 0,5% atau 
+API latency meningkat lebih dari 30% dibanding baseline, sistem otomatis 
+melakukan rollback ke versi sebelumnya dalam waktu kurang dari 60 detik 
+menggunakan Cloudflare Workers Rollback API. Proses deployment dan rollback 
+sepenuhnya diatur melalui pipeline GitHub Actions yang terintegrasi dengan Slack 
+untuk notifikasi real-time kepada tim DevOps. 
+ 
+ 
+8. 
+Screenshot Mockup Interface 
+8.1. Dashboard Pemerintah 
+ 
+Gambar 10. Dasbor Pengawasan Makro dan Kendali Ekosistem Pemerintah 
+Tangkapan layar di atas merepresentasikan antarmuka Dasbor Pengawasan 
+Makro yang bertindak sebagai pusat komando bagi entitas Pemerintah 
+(BGN/KPK). Pada panel metrik utama, administrator dapat memantau indikator 
+kinerja operasional secara real-time, mencakup total serapan pengeluaran 
+anggaran, volume porsi terdistribusi, serta jumlah sengketa aktif yang 
+membutuhkan tindakan resolusi di gerbang DOKU. Dasbor ini juga terintegrasi 
+langsung dengan modul manajemen aktor untuk memberikan otorisasi final pada 
+vendor yang berstatus pending pasca-ekstraksi dokumen oleh AI Vision. Lebih 
+lanjut, antarmuka menyajikan visibilitas pelacakan logistik hilir ke setiap unit 
+sekolah sasaran secara terpusat, lengkap dengan papan peringkat kepatuhan vendor 
+yang memungkinkan pemerintah untuk memantau rekam jejak reputasi sekaligus 
+mengeksekusi sanksi pembekuan secara langsung terhadap entitas yang melanggar. 
+ 
+ 
+8.2. Monitoring pengiriman logistik 
+ 
+Gambar 11. Pemantauan Spasial dan Pelacakan Armada Logistik Terintegrasi 
+Tangkapan layar di atas menampilkan antarmuka pemantauan spasial yang 
+memfasilitasi pelacakan pergerakan armada logistik secara real-time. Melalui 
+integrasi pemetaan dinamis, administrator dapat mengawasi alur distribusi 
+makanan matang secara presisi dari SPPG menuju sekolah sasaran. Modul ini 
+menyajikan visibilitas data operasional secara granular pada panel overlay, 
+mencakup identitas armada, estimasi waktu kedatangan, jarak tempuh tersisa, 
+hingga detail manifes volume porsi yang didistribusikan. Fitur pelacakan visual ini 
+merupakan manifestasi langsung dari prinsip End-to-End Traceability, yang 
+memastikan transparansi rantai pasok hilir sekaligus bertindak sebagai lapisan pra-
+validasi spasial sebelum protokol penguncian Geofencing Haversine dieksekusi 
+oleh operator sekolah pada saat serah terima di lokasi tujuan. 
+8.3. Reputasi kinerja vendor 
+ 
+Gambar 12. Statistik dan Reputasi On-Chain Berbasis Soulbound Token 
+Tangkapan layar di atas merepresentasikan antarmuka modul Statistik dan 
+Reputasi On-Chain, yang dirancang sebagai instrumen audit performa dan 
+kelayakan vendor secara absolut. Antarmuka ini memvisualisasikan akumulasi 
+metrik SBT ke dalam bentuk papan peringkat komprehensif. Melalui panel 
+tersebut, administrator pemerintah dapat melakukan pembedahan data terhadap 
+indeks performa vendor menjadi parameter yang lebih granular, mencakup tingkat 
+ketepatan waktu pengiriman, kualitas komoditas, hingga kepatuhan dokumen. Fitur 
+pencatatan indikator "Pelanggaran" yang terhubung langsung dengan immutable 
+ledger menjamin transparansi rekam jejak historis entitas tanpa risiko manipulasi 
+data. Modul ini secara efektif mengonversi kompleksitas data blockchain menjadi 
+wawasan visual yang actionable, memberikan landasan empiris bagi pemerintah 
+untuk mengeksekusi perpanjangan kontrak atau diskualifikasi vendor pada siklus 
+pengadaan berikutnya. 
+8.4. Validasi Sentimen Sekolah 
+ 
+Gambar 13. Agregasi Evaluasi Siswa dan Validasi Sentimen Sekolah 
+Tangkapan layar di atas merepresentasikan antarmuka dasbor evaluasi 
+tingkat sekolah yang berfungsi sebagai agregator umpan balik dari pengguna akhir 
+yaitu siswa. Modul ini secara otomatis mengompilasi raw data penilaian kuantitatif 
+dan kualitatif berbasis otentikasi NISN menjadi metrik sentimen tren seperti 
+indikator suhu atau tekstur makanan dan skor kepuasan kumulatif. Melalui panel 
+ini, operator sekolah bertindak sebagai auditor tingkat pertama yang dapat 
+melakukan tinjauan dan mitigasi tindak lanjut terhadap anomali laporan sebelum 
+data tersebut difinalisasi. Kumpulan data komprehensif yang telah divalidasi oleh 
+sekolah inilah yang selanjutnya akan dikirimkan ke server pusat sebagai pemicu 
+komputasional untuk mencairkan dana operasional tahap kedua dari escrow 
+DOKU, sekaligus dicetak secara mutlak menjadi Soulbound Token (SBT) reputasi 
+SPPG di jaringan blockchain. 
+8.5. Penilaian makanan oleh siswa 
+ 
+Gambar 14. Tampilan siswa untuk Evaluasi dan Trigger Reputasi On-Chain 
+Rangkaian tangkapan layar di atas merepresentasikan antarmuka aplikasi 
+seluler yang didesain secara ergonomis dengan pendekatan Mobile-First khusus 
+untuk pengguna akhir, yakni entitas siswa penerima manfaat. Desain ini 
+mengedepankan pengalaman pengguna yang intuitif dan elemen gamifikasi, 
+terbukti dari adanya sapaan personal yang terotentikasi langsung melalui identitas 
+NISN serta fitur Battle Leaderboard untuk transparansi performa vendor di mata 
+siswa. Melalui antarmuka ini, siswa difasilitasi untuk melakukan audit kualitas 
+pangan secara independen, baik secara kuantitatif melalui slider akurasi pesanan 
+yang interaktif maupun kualitatif melalui kolom masukan terstruktur. Submisi 
+umpan balik dari modul ini memegang peranan fungsional paling krusial dalam 
+arsitektur B.O.G.A dimana setiap ulasan yang dikirimkan tidak sekadar menjadi 
+log data pasif, melainkan bertindak sebagai pemicu komputasional mutlak yang 
+menginstruksikan backend Node.js untuk mencairkan dana operasional tahap akhir 
+di gerbang DOKU, seraya mencetak tingkat kepuasan tersebut menjadi SBT 
+permanen bagi pihak SPPG. 
+9. 
+Dokumentasi Cara Penggunaan 
+Dokumentasi penggunaan ekosistem B.O.G.A tidak disusun berdasarkan modul 
+individual, melainkan dirancang mengikuti User Journey (Perjalanan Pengguna) dari 
+hulu ke hilir untuk memastikan End-to-End Traceability. Berikut adalah panduan 
+eksekusi operasional yang terbagi ke dalam empat fase utama: 
+ 
+ 
+ 
+9.1. Fase Onboarding & Pengadaan Berbasis AI 
+a. 
+Calon vendor mengakses portal web B.O.G.A, mengisi formulir profil dasar, 
+dan mengunggah pindaian dokumen NIB serta profil rekening bank. 
+b. 
+Tanpa intervensi manusia, microservice AI akan memindai dokumen 
+tersebut dalam waktu kurang dari dua detik. Jika tidak terdeteksi indikasi 
+pemalsuan visual, status vendor akan berubah menjadi "Pending 
+Authorization". 
+c. 
+Operator BGN/KPK meninjau hasil ekstraksi AI melalui dasbor pengawasan 
+dan menekan tombol persetujuan untuk secara resmi memasukkan vendor 
+ke dalam whitelist Smart Contract dan modul E-Katalog. 
+9.2. Fase Manajemen Logistik & Escrow Multi-Sig 
+a. 
+Staf SPPG memilih komoditas dari E-Katalog (yang harganya telah 
+divalidasi tidak melebihi batas PIHPS) dan menerbitkan Purchase Order. 
+b. 
+Armada SPPG menjemput fisik komoditas di lokasi vendor. Setibanya di 
+dapur umum, staf Logistik, Admin, dan QC secara berurutan masuk (login) 
+ke dasbor masing-masing untuk memberikan persetujuan penerimaan. 
+c. 
+Saat otorisasi QC (tanda tangan ke-3) ditekan, sistem secara otomatis 
+mengeksekusi Webhook ke DOKU untuk mencairkan dana pembayaran 
+komoditas ke rekening vendor. Jika barang ditolak, QC menekan tombol 
+Reject, memicu penahanan dana 3x24 jam di escrow. 
+9.3. Fase Distribusi & Validasi Spasial 
+a. 
+Setelah makanan matang, kurir bergerak menuju sekolah. Aplikasi frontend 
+kurir secara real-time akan menyiarkan (broadcast) lokasi GPS mereka ke 
+peladen backend. 
+b. 
+Operator sekolah membuka aplikasi penerimaan. Sistem akan mengeksekusi 
+perhitungan Haversine. Jika kurir berada di luar radius 50 meter, aplikasi 
+sekolah akan menolak akses kamera pemindai. Jika sesuai, kamera terbuka, 
+barcode dipindai, dan serah terima tercatat sah di basis data. 
+9.4. Fase Reputasi On-Chain & Keran Kedua 
+a. 
+Siswa penerima manfaat masuk ke dalam portal evaluasi menggunakan 
+nomor NISN mereka. Siswa memberikan penilaian kuantitatif terhadap 
+kualitas makanan dari SPPG. 
+b. 
+Penyerahan form evaluasi ini secara instan akan memicu dua aksi backend: 
+pertama, memberikan instruksi ke gerbang DOKU untuk mencairkan dana 
+operasional (Keran Kedua) kepada SPPG terkait; kedua, merangkum rating 
+tersebut menjadi Soulbound Token (SBT) yang dikirimkan ke dompet digital 
+(wallet) SPPG sebagai rekam jejak reputasi permanen untuk acuan proyek 
+pengadaan bulan berikutnya. 
+10. 
+Referensi 
+[1]. Kementerian Kesehatan RI, "SSGI 2024: Prevalensi Stunting Nasional Turun 
+Menjadi 19,8%," Kementerian Kesehatan Republik Indonesia, 26 Mei 2025. 
+[Daring]. 
+Tersedia: 
+https://kemkes.go.id/id/ssgi-2024-prevalensi-stunting-
+nasional-turun-menjadi-198. [Diakses: 10 Apr 2026]. 
+[2]. R. Ayuningrum, "Rp 1 Miliar Duit MBG Mengalir ke Tiap SPPG Per Bulan," 
+detikBali, 19 Mar 2026. [Daring]. Tersedia: https://www.detik.com/bali/bisnis/d-
+8407225/rp-1-miliar-duit-mbg-mengalir-ke-tiap-sppg-per-bulan. [Diakses: 10 
+Apr 2026]. 
+[3]. A. Mabrori, "Program MBG, Bangun Ekosistem Rantai Pasok Lokal," 
+Logistiknews.id, 
+23 
+Jan 
+2025. 
+[Daring]. 
+Tersedia: 
+https://www.asosiasilogistikindonesia.or.id/news/detail/MA81. [Diakses: 10 Apr 
+2026]. 
+[4]. M. I. Amar, "BGN Terima Banyak Aduan Mark Up Anggaran MBG, KPK Mulai 
+Petakan Celah Korupsi," Kompas.com, 3 Mar 2026. [Daring]. Tersedia: 
+https://www.kompas.com/tren/read/2026/03/03/123000765/bgn-terima-banyak-
+aduan-mark-up-anggaran-mbg-kpk-mulai-petakan-celah?page=all. [Diakses: 10 
+Apr 2026]. 
+[5]. Kementerian Kesehatan RI, "Kemenkes Perketat Pengawasan dalam Program 
+Makan Bergizi Gratis," Kementerian Kesehatan Republik Indonesia, 2 Okt 2025. 
+[Daring]. 
+Tersedia: 
+https://kemkes.go.id/id/kemenkes-perketat-pengawasan-
+dalam-program-makan-bergizi-gratis. [Diakses: 10 Apr 2026]. 
+[6]. D. A. Septyan, "Apa itu Business to Government (B2G)," UKMINDONESIA.ID, 
+21 Sep 2022. [Daring]. Tersedia: https://ukmindonesia.id/baca-deskripsi-
+posts/business-to-government-. [Diakses: 10 Apr 2026]. 
+[7]. Rexy, "Mengenal Zero Trust Architecture: Pengertian, Prinsip, dan Cara 
+Penerapannya di Dunia Modern," IT Proxsis Group, 22 Okt 2024. [Daring]. 
+Tersedia: 
+https://it.proxsisgroup.com/mengenal-zero-trust-architecture-
+pengertian-prinsip-dan-cara-penerapannya-di-dunia-modern/. [Diakses: 10 Apr 
+2026]. 
+[8]. Presiden Republik Indonesia, Peraturan Presiden Republik Indonesia Nomor 115 
+Tahun 2025 tentang Tata Kelola Penyelenggaraan Program Makan Bergizi Gratis. 
+Jakarta, 2025. 
+[9]. TraceX, "Blockchain for Food Traceability: How It Improves Safety, 
+Transparency, and Trust," TraceXTech, 12 Mar 2026. [Daring]. Tersedia: 
+https://tracextech.com/blockchain-for-food-traceability/. 
+[10]. R. Aminin, "Analisis Potensi Blockchain dalam Mengurangi Risiko Korupsi 
+Berbasis Kolusi pada Proyek Infrastruktur," Jurnal Manajemen dan Inovasi, 5 Okt 
+2025. 
+[Daring]. 
+Tersedia: 
+https://ejurnal.kampusakademik.co.id/index.php/jmia/article/download/6881/599
+0. 
+[11]. Poltekbang Palembang, "Mampukah Blockchain Menjadi Solusi Melawan 
+Korupsi dan Manipulasi Data?," Poltekbangplg.ac.id, 13 Ags 2025. [Daring]. 
+Tersedia: 
+https://poltekbangplg.ac.id/mampukah-blockchain-menjadi-solusi-
+melawan-korupsi-dan-manipulasi-data/. 
+[12]. N. Peneliti, "Optimasi Transparansi Data dalam Rantai Pasokan melalui Integrasi 
+Teknologi 
+Blockchain," 
+Semantic 
+Scholar. 
+[Daring]. 
+Tersedia: 
+https://pdfs.semanticscholar.org/5ae3/d06e077a3375289e22d8b7bc8c22b42e67a
+0.pdf. 
+[13]. Kontrak Hukum, "Penggunaan Teknologi Blockchain untuk Kontrak Bisnis," 
+Kontrakhukum.com, 
+14 
+Nov 
+2025. 
+[Daring]. 
+Tersedia: 
+https://kontrakhukum.com/article/penggunaan-teknologi-blockchain-untuk-
+kontrak-bisnis/. [Diakses: 10 Apr 2026]. 
+[14]. A. N. Yasin dan M. R. Pratama, "Analisis Efektivitas Sistem E-Purchasing dan 
+Celah Maladministrasi pada Pengadaan Barang/Jasa Pemerintah," Jurnal Ilmu 
+Komputer, Ekonomi dan Manajemen (JIKEM), vol. 3, no. 2, hal. 115-128, Sep 
+2023. [Daring]. Tersedia: https://ummaspul.e-journal.id/JIKEM/article/view/120. 
+[Diakses: 11 Apr 2026]. 
+[15]. CNN Indonesia, "KPK Sebut Sistem E-Katalog Tak Jamin Pengadaan Barang 
+Bebas Korupsi," CNN Indonesia, 15 Jan 2024. [Daring]. Tersedia: 
+https://www.cnnindonesia.com/nasional/kpk-sebut-e-katalog-tak-jamin-
+pengadaan-barang-bebas-korupsi. [Diakses: 11 Apr 2026]. 
+[16]. K. Schwaber dan J. Sutherland, "Panduan Scrum: Aturan Main Scrum (The Scrum 
+Guide)," 
+Scrum.org, 
+Nov 
+2020. 
+[Daring]. 
+Tersedia: 
+https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-
+Indonesian.pdf. [Diakses: 11 Apr 2026]. 
+[17]. R. R. O. Siregar dkk., "Penerapan Algoritma Haversine Formula Pada Aplikasi 
+Pencarian Lokasi Fasilitas Kesehatan Tingkat Pertama," Jurnal Teknik 
+Informatika, vol. 14, no. 1, hal. 45-52, 2021. 
+[18]. J. Brooke, "SUS: A 'Quick and Dirty' Usability Scale," dalam Usability Evaluation 
+in Industry, P. W. Jordan, B. Thomas, B. A. Weerdmeester, dan A. L. McClelland, 
+Ed. London: Taylor & Francis, 1996, hal. 189-194. 
+[19]. V. Buterin, Y. Qiao, T. Tjhai, dkk., "ERC-4337: Account Abstraction Using Alt 
+Mempool," Ethereum Improvement Proposals, no. 4337, Sep 2021. [Daring]. 
+Tersedia: https://eips.ethereum.org/EIPS/eip-4337. [Diakses: 11 Apr 2026]. 
+[20]. H. Albreiki, L. Salah, K. Salah, R. Jayaraman, dan J. Arshad, "Trustworthy 
+Blockchain Oracles: Review, Comparison, and Open Research Challenges," IEEE 
+Access, vol. 8, hal. 85675-85685, 2020. 
+[21]. A. S. L. G. N. S. Rao dan K. V. N. Sunitha, "Secure smart contract-based Escrow 
+system using Multi-Signature architecture," Journal of King Saud University - 
+Computer and Information Sciences, vol. 34, no. 8, hal. 4851-4862, 2022. 
+[22]. R. Smith, "An Overview of the Tesseract OCR Engine," dalam Ninth International 
+Conference on Document Analysis and Recognition (ICDAR 2007), Parana, 
+Brazil, 2007, hal. 629-633. 
+[23]. K. He, X. Zhang, S. Ren, dan J. Sun, "Deep Residual Learning for Image 
+Recognition," dalam Proceedings of the IEEE Conference on Computer Vision 
+and Pattern Recognition (CVPR), 2016, hal. 770-778. 
+ 

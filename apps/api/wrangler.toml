@@ -1,0 +1,4 @@
+[[d1_databases]]
+binding = "boga_db_production"  # <--- INI HARUS SAMA DENGAN YANG LU KETIK DI TERMINAL
+database_name = "boga_db_production"
+database_id = "4ebfa937-77ca-47a0-abc2-d40a8b09078e"

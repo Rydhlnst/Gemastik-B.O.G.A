@@ -68,26 +68,7 @@ export default function LocationPickerMapLibre({
     <div className="w-full h-full relative group">
       <div ref={mapContainer} className="w-full h-full" />
       
-      <div className="absolute bottom-4 left-4 right-4 z-[1000] pointer-events-none">
-         <div className="bg-white/90 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-2xl pointer-events-auto">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Titik Koordinat Terpilih</p>
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-slate-900 tabular-nums font-mono">
-                {position[1].toFixed(6)}, {position[0].toFixed(6)}
-              </p>
-              <div className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black uppercase tracking-tighter shadow-sm border border-emerald-100">
-                Ready for on-chain hash
-              </div>
-            </div>
-         </div>
-      </div>
 
-      <div className="absolute top-4 right-4 z-10">
-        <div className="bg-white/90 backdrop-blur-md p-2 rounded-xl border border-slate-200 shadow-xl text-[10px] font-bold text-slate-500 flex items-center gap-2">
-           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-           Klik atau Seret untuk atur lokasi
-        </div>
-      </div>
     </div>
   );
 }

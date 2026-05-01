@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, ShoppingBag,
-  ArrowDownToLine, History, UserCircle, Loader2,
+  ArrowDownToLine, History, UserCircle, Loader2, Truck,
 } from "lucide-react";
 
 import { RoleAppSidebar } from "@/components/dashboard/role-app-sidebar";
@@ -16,6 +16,7 @@ export function AppSidebar({ status = "pending", loading = false }: AppSidebarPr
     { label: "Katalog Saya",   href: "/vendor/katalog",   icon: Package },
     { label: "Pesanan Masuk",  href: "/vendor/pesanan",   icon: ShoppingBag },
     { label: "Inbound Stok",   href: "/vendor/inbound",   icon: ArrowDownToLine },
+    { label: "Outbound Stok",  href: "/vendor/outbound",  icon: Truck },
     { label: "Riwayat",        href: "/vendor/riwayat",   icon: History },
     { label: "Profil Saya",    href: "/vendor/profil",    icon: UserCircle },
   ];

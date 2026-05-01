@@ -7,6 +7,7 @@ import {
   Plus, Trash2, Package, Tag, Layers, Loader2,
   ChevronRight, X, TrendingUp, AlertTriangle, ImageIcon, Search, Check,
   SlidersHorizontal, ShoppingBag, Star,
+  Wheat, Beef, Fish, Sprout, ChefHat, Apple, Factory, LayoutGrid,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,17 @@ function categoryFromPihpsId(pihps_id: string) {
 }
 
 const UNITS = ["Kg", "Liter", "Butir", "Ikat", "Karung", "Karton", "Botol", "Gram", "Pcs"];
+
+const CAT_DATA = [
+  { id: "ALL", label: "Semua", icon: LayoutGrid, color: "#1E293B" },
+  { id: "KARBO", label: "Karbohidrat", icon: Wheat, color: "#F59E0B" },
+  { id: "HEWANI", label: "Protein Hewani", icon: Beef, color: "#EF4444" },
+  { id: "IKAN", label: "Protein Ikan", icon: Fish, color: "#3B82F6" },
+  { id: "NABATI", label: "Protein Nabati", icon: Sprout, color: "#10B981" },
+  { id: "BUMBU", label: "Bumbu", icon: ChefHat, color: "#F97316" },
+  { id: "HORTI", label: "Sayur & Buah", icon: Apple, color: "#84CC16" },
+  { id: "INDUSTRI", label: "Industri", icon: Factory, color: "#64748B" },
+];
 
 /* ─── Types ─── */
 interface Commodity {
@@ -815,21 +827,21 @@ function FilterSheet({
               {/* Category Filter */}
               <div>
                 <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 block">Filter Kategori</Label>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={() => setCategoryFilter("ALL")}
-                    className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all ${
-                      categoryFilter === "ALL" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-500"
-                    }`}>
-                    Semua
-                  </button>
-                  {CATALOG.map((cat) => (
-                    <button key={cat.id} onClick={() => setCategoryFilter(cat.id)}
-                      className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all ${
-                        categoryFilter === cat.id ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-500"
-                      }`}>
-                      {cat.emoji} {cat.label}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-2">
+                  {CAT_DATA.map((cat) => {
+                    const Icon = cat.icon;
+                    const isActive = categoryFilter === cat.id;
+                    return (
+                      <button key={cat.id} onClick={() => setCategoryFilter(cat.id)}
+                        className={`flex items-center gap-2 px-3 py-2.5 rounded-2xl border text-left transition-all ${
+                          isActive ? "text-white shadow-lg border-transparent" : "border-slate-100 bg-slate-50 text-slate-500"
+                        }`}
+                        style={isActive ? { backgroundColor: cat.color, boxShadow: `0 8px 20px -6px ${cat.color}60` } : {}}>
+                        <Icon size={12} className={isActive ? "text-white" : "text-slate-400"} />
+                        <span className={`text-[11px] font-bold ${isActive ? "text-white" : "text-slate-600"}`}>{cat.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -945,6 +957,28 @@ export default function VendorKatalogPage() {
           className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm">
           <SlidersHorizontal size={16} />
         </button>
+      </div>
+
+      {/* ── Category Horizontal Tabs (Consistency with Inbound) ── */}
+      <div className="max-w-2xl mx-auto px-4 mt-3">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {CAT_DATA.map(cat => {
+            const Icon = cat.icon;
+            const isActive = categoryFilter === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setCategoryFilter(cat.id)}
+                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-bold transition-all border ${isActive ? "text-white shadow-sm border-transparent" : "bg-white border-slate-200 text-slate-500"}`}
+                style={isActive ? { backgroundColor: cat.color } : {}}
+              >
+                <Icon size={12} className={isActive ? "text-white" : "text-slate-400"} />
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ── Stats Strip ── */}

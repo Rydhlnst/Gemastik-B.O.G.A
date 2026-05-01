@@ -196,11 +196,16 @@ function DeadlineBar({ orderDate }: { orderDate: string }) {
   );
 }
 
-type Tab = "all" | "pending" | "scan" | "rejected" | "expired";
+type Tab = "all" | "pending" | "scan" | "completed" | "expired" | "rejected";
 
 function poTab(po: PO): Tab {
   if (po.vendor_status === "REJECTED") return "rejected";
   if (po.financials.escrowStatus === "EXPIRED") return "expired";
+  
+  const sigs = po.financials.signatures;
+  const isDone = sigs.qc === "SIGNED" && sigs.admin === "SIGNED" && sigs.logistik === "SIGNED";
+  if (isDone) return "completed";
+  
   if (["READY_FOR_PICKUP", "VALIDATING", "REVISION"].includes(po.financials.escrowStatus)) return "scan";
   return "pending";
 }
@@ -282,6 +287,7 @@ function PesananCard({ po, onAccept, onReject, accepting }: {
       icon: po.financials.escrowStatus === "REVISION" ? AlertTriangle : RefreshCw 
     },
     expired: { label: "Waktu Habis", color: "#B91C1C", bg: "#FEE2E2", icon: XCircle },
+    completed: { label: "Selesai", color: G, bg: G_LIGHT, icon: CheckCircle2 },
     rejected: { label: "Dibatalkan/Ditolak", color: "#DC2626", bg: "#FEE2E2", icon: XCircle },
     all: { label: "", color: "", bg: "", icon: Clock },
   }[tab];
@@ -548,7 +554,8 @@ export default function VendorPesananPage() {
   const tabs: { key: Tab; label: string; color?: string }[] = [
     { key: "all", label: "Semua" },
     { key: "pending", label: "Menunggu", color: "#D97706" },
-    { key: "scan", label: "Proses", color: G },
+    { key: "scan", label: "Proses", color: "#3B82F6" },
+    { key: "completed", label: "Selesai", color: G },
     { key: "expired", label: "Telat", color: "#B91C1C" },
     { key: "rejected", label: "Batal", color: "#DC2626" },
   ];
@@ -557,6 +564,7 @@ export default function VendorPesananPage() {
     all: pos.length,
     pending: pos.filter(p => poTab(p) === "pending").length,
     scan: pos.filter(p => poTab(p) === "scan").length,
+    completed: pos.filter(p => poTab(p) === "completed").length,
     expired: pos.filter(p => poTab(p) === "expired").length,
     rejected: pos.filter(p => poTab(p) === "rejected").length,
   };

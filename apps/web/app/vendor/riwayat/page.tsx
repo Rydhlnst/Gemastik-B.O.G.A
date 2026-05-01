@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import {
   ArrowDownToLine, ShoppingBag, Package, CheckCircle2,
   XCircle, ShieldCheck, Wallet, Tag, Filter,
@@ -36,93 +37,119 @@ interface ActivityEvent {
 }
 
 /* ─── Mock Data ─── */
+/* ─── Mock Data ─── */
 const MOCK_EVENTS: ActivityEvent[] = [
+  // --- HALAMAN 1 (10 Data Terbaru) ---
   {
-    id: "EVT-001",
-    type: "ESCROW_RELEASED",
-    title: "Dana Escrow Dicairkan",
-    subtitle: "PO-DEMO-099 · SPPG Bandung Barat",
-    detail: "Multi-Sig 3/3 lengkap. Dana tahap 1 dikirim ke rekening BCA Anda.",
-    amount: 4500000,
-    timestamp: "2026-04-28T09:00:00.000Z",
-    hash: "0x4fa3b1c9d8e2",
+    id: "EVT-001", type: "ESCROW_RELEASED", title: "Dana Escrow Dicairkan", subtitle: "PO-DEMO-099 · SPPG Bandung Barat",
+    detail: "Multi-Sig 3/3 lengkap. Dana tahap 1 dikirim ke rekening BCA Anda.", amount: 4500000,
+    timestamp: new Date().toISOString(), hash: "0x4fa3b1c9d8e2",
   },
   {
-    id: "EVT-002",
-    type: "SERAH_TERIMA",
-    title: "Serah Terima Berhasil",
-    subtitle: "PO-DEMO-099 · Logistik SPPG scan QR",
+    id: "EVT-002", type: "SERAH_TERIMA", title: "Serah Terima Berhasil", subtitle: "PO-DEMO-099 · Logistik SPPG scan QR",
     detail: "Petugas logistik SPPG telah menscan barcode. Barang dinyatakan diterima.",
-    timestamp: "2026-04-28T08:00:00.000Z",
-    hash: "0x8bc12ef34a91",
+    timestamp: new Date(Date.now() - 3600000).toISOString(), hash: "0x8bc12ef34a91",
   },
   {
-    id: "EVT-003",
-    type: "MULTISIG_PROGRESS",
-    title: "Tanda Tangan Logistik",
-    subtitle: "PO-DEMO-099 · Progress 1/3",
+    id: "EVT-003", type: "MULTISIG_PROGRESS", title: "Tanda Tangan Logistik", subtitle: "PO-DEMO-099 · Progress 1/3",
     detail: "Staf Logistik SPPG telah membubuhkan tanda tangan digital.",
-    timestamp: "2026-04-28T07:30:00.000Z",
+    timestamp: new Date(Date.now() - 7200000).toISOString(),
   },
   {
-    id: "EVT-004",
-    type: "PO_ACCEPTED",
-    title: "Pesanan Dikonfirmasi Siap",
-    subtitle: "PO-DEMO-099 · Beras Premium 250 kg",
+    id: "EVT-004", type: "PO_ACCEPTED", title: "Pesanan Dikonfirmasi Siap", subtitle: "PO-DEMO-099 · Beras Premium 250 kg",
     detail: "Anda mengkonfirmasi barang siap diambil. QR serah terima telah dibuat.",
-    timestamp: "2026-04-28T07:00:00.000Z",
+    timestamp: new Date(Date.now() - 14400000).toISOString(),
   },
   {
-    id: "EVT-005",
-    type: "PO_RECEIVED",
-    title: "Pesanan Masuk dari SPPG",
-    subtitle: "PO-DEMO-099 · SPPG Bandung Barat",
-    detail: "Pesanan baru untuk 250 kg Beras Premium. Dana sudah dikunci di escrow DOKU.",
-    amount: 4500000,
-    timestamp: "2026-04-28T06:00:00.000Z",
+    id: "EVT-005", type: "PO_RECEIVED", title: "Pesanan Masuk dari SPPG", subtitle: "PO-DEMO-099 · SPPG Bandung Barat",
+    detail: "Pesanan baru untuk 250 kg Beras Premium. Dana sudah dikunci di escrow.",
+    amount: 4500000, timestamp: new Date(Date.now() - 28800000).toISOString(),
   },
   {
-    id: "EVT-006",
-    type: "INBOUND",
-    title: "Stok Masuk Dicatat",
-    subtitle: "Telur Ayam Ras · 500 kg",
+    id: "EVT-006", type: "INBOUND", title: "Stok Masuk Dicatat", subtitle: "Telur Ayam Ras · 500 kg",
     detail: "Dari UD. Sumber Pangan, Gedebage. Hash nota dikunci ke blockchain.",
-    timestamp: "2026-04-28T04:00:00.000Z",
-    hash: "0x2de91ba77f43",
+    timestamp: new Date(Date.now() - 43200000).toISOString(), hash: "0x2de91ba77f43",
   },
   {
-    id: "EVT-007",
-    type: "KATALOG_ADDED",
-    title: "Produk Ditambahkan ke Katalog",
-    subtitle: "Telur Ayam Ras · Rp 28.800/kg",
-    detail: "Produk baru berhasil masuk ke E-Katalog B.O.G.A.",
-    timestamp: "2026-04-28T02:00:00.000Z",
+    id: "EVT-007", type: "KATALOG_ADDED", title: "Produk Ditambahkan", subtitle: "Telur Ayam Ras · Rp 28.800/kg",
+    timestamp: new Date(Date.now() - 86400000).toISOString(),
   },
   {
-    id: "EVT-008",
-    type: "PO_REJECTED",
-    title: "Pesanan Ditolak",
-    subtitle: "PO-DEMO-088 · SPPG Cimahi Selatan",
-    detail: "Anda menolak pesanan ini. Dana akan dikembalikan ke kas negara dalam 3×24 jam.",
-    amount: 1200000,
-    timestamp: "2026-04-27T08:00:00.000Z",
+    id: "EVT-008", type: "PO_REJECTED", title: "Pesanan Ditolak", subtitle: "PO-DEMO-088 · SPPG Cimahi Selatan",
+    detail: "Anda menolak pesanan ini karena kendala logistik internal.",
+    amount: 1200000, timestamp: new Date(Date.now() - 172800000).toISOString(),
   },
   {
-    id: "EVT-009",
-    type: "INBOUND",
-    title: "Stok Masuk Dicatat",
-    subtitle: "Beras Premium · 1.000 kg",
-    detail: "Dari Pasar Induk Gedebage, Bandung. Hash nota dikunci ke blockchain.",
-    timestamp: "2026-04-27T04:00:00.000Z",
-    hash: "0x9fa11cc28b07",
+    id: "EVT-009", type: "INBOUND", title: "Stok Masuk Dicatat", subtitle: "Beras Premium · 1.000 kg",
+    timestamp: new Date(Date.now() - 259200000).toISOString(), hash: "0x9fa11cc28b07",
   },
   {
-    id: "EVT-010",
-    type: "KATALOG_ADDED",
-    title: "Produk Ditambahkan ke Katalog",
-    subtitle: "Beras Premium Cap Ramos · Rp 18.000/kg",
-    detail: "Produk baru berhasil masuk ke E-Katalog B.O.G.A.",
-    timestamp: "2026-04-26T10:00:00.000Z",
+    id: "EVT-010", type: "KATALOG_ADDED", title: "Produk Ditambahkan", subtitle: "Beras Premium Cap Ramos",
+    timestamp: new Date(Date.now() - 345600000).toISOString(),
+  },
+
+  // --- HALAMAN 2 ---
+  {
+    id: "EVT-011", type: "ESCROW_RELEASED", title: "Pembayaran Selesai", subtitle: "PO-X-771 · SPPG Bekasi Utara",
+    amount: 8200000, timestamp: new Date(Date.now() - 500000000).toISOString(),
+  },
+  {
+    id: "EVT-012", type: "SERAH_TERIMA", title: "Barang Sampai Tujuan", subtitle: "PO-X-771 · SD Negeri 05 Bekasi",
+    timestamp: new Date(Date.now() - 600000000).toISOString(),
+  },
+  {
+    id: "EVT-013", type: "INBOUND", title: "Stok Masuk: Daging Sapi", subtitle: "450 kg · Halal Meat Store",
+    timestamp: new Date(Date.now() - 700000000).toISOString(), hash: "0xBeefHash772",
+  },
+  {
+    id: "EVT-014", type: "PO_ACCEPTED", title: "PO-X-771 Diterima", subtitle: "Daging Sapi 450 kg",
+    timestamp: new Date(Date.now() - 800000000).toISOString(),
+  },
+  {
+    id: "EVT-015", type: "PO_RECEIVED", title: "Pesanan Baru", subtitle: "PO-X-771 · SPPG Bekasi",
+    amount: 8200000, timestamp: new Date(Date.now() - 900000000).toISOString(),
+  },
+  {
+    id: "EVT-016", type: "INBOUND", title: "Stok Masuk: Sayur", subtitle: "1.200 ikat · Kelompok Tani",
+    timestamp: new Date(Date.now() - 1000000000).toISOString(),
+  },
+  {
+    id: "EVT-017", type: "KATALOG_ADDED", title: "Item Baru: Bayam", subtitle: "Rp 3.500/ikat",
+    timestamp: new Date(Date.now() - 1100000000).toISOString(),
+  },
+  {
+    id: "EVT-018", type: "ESCROW_RELEASED", title: "Dana Cair: PO-A-22", subtitle: "Tahap Final · 100%",
+    amount: 15000000, timestamp: new Date(Date.now() - 1200000000).toISOString(),
+  },
+  {
+    id: "EVT-019", type: "SERAH_TERIMA", title: "Distribusi Selesai", subtitle: "PO-A-22 · Wilayah Bogor",
+    timestamp: new Date(Date.now() - 1300000000).toISOString(),
+  },
+  {
+    id: "EVT-020", type: "INBOUND", title: "Stok Masuk: Ikan", subtitle: "300 kg · Muara Angke",
+    timestamp: new Date(Date.now() - 1400000000).toISOString(),
+  },
+
+  // --- HALAMAN 3 ---
+  {
+    id: "EVT-021", type: "KATALOG_ADDED", title: "Update Harga", subtitle: "Minyak Goreng · Rp 14.500",
+    timestamp: new Date(Date.now() - 2000000000).toISOString(),
+  },
+  {
+    id: "EVT-022", type: "INBOUND", title: "Stok Masuk: Minyak", subtitle: "2.000 liter · Distributor",
+    timestamp: new Date(Date.now() - 2500000000).toISOString(),
+  },
+  {
+    id: "EVT-023", type: "PO_RECEIVED", title: "Pesanan Lama", subtitle: "PO-OLD-001",
+    timestamp: new Date(Date.now() - 3000000000).toISOString(),
+  },
+  {
+    id: "EVT-024", type: "KATALOG_REMOVED", title: "Produk Dihapus", subtitle: "Susu Basi · Expired",
+    timestamp: new Date(Date.now() - 4000000000).toISOString(),
+  },
+  {
+    id: "EVT-025", type: "INBOUND", title: "Aktivitas Awal", subtitle: "Beras · 5.000 kg",
+    timestamp: new Date(Date.now() - 5000000000).toISOString(),
   },
 ];
 
@@ -265,12 +292,59 @@ function ActivityItem({ ev, isLast }: { ev: ActivityEvent; isLast: boolean }) {
 /* ─── Main Page ─── */
 export default function VendorRiwayatPage() {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const filtered = activeFilter === "all"
-    ? MOCK_EVENTS
-    : MOCK_EVENTS.filter(ev => FILTER_MAP[activeFilter].includes(ev.type));
+  // Date Filter State (Default: Last 3 months)
+  const today = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
 
-  const grouped = groupByDate(filtered);
+  const [startDate, setStartDate] = useState(threeMonthsAgo.toISOString().split("T")[0]);
+  const [endDate, setEndDate] = useState(today.toISOString().split("T")[0]);
+
+  // Handle Date Change with 3-month limit validation
+  const handleDateChange = (type: "start" | "end", value: string) => {
+    const s = new Date(type === "start" ? value : startDate);
+    const e = new Date(type === "end" ? value : endDate);
+    const diffTime = Math.abs(e.getTime() - s.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 90) {
+      toast.warning("Rentang maksimal adalah 3 bulan. Tanggal disesuaikan otomatis.");
+      if (type === "start") {
+        const newEnd = new Date(s);
+        newEnd.setMonth(s.getMonth() + 3);
+        setEndDate(newEnd.toISOString().split("T")[0]);
+        setStartDate(value);
+      } else {
+        const newStart = new Date(e);
+        newStart.setMonth(e.getMonth() - 3);
+        setStartDate(newStart.toISOString().split("T")[0]);
+        setEndDate(value);
+      }
+    } else {
+      if (type === "start") setStartDate(value);
+      else setEndDate(value);
+    }
+    setCurrentPage(1); // Reset to page 1 on filter change
+  };
+
+  // 1. Filter by Category & Date Range
+  const filtered = MOCK_EVENTS.filter(ev => {
+    const matchCat = activeFilter === "all" || FILTER_MAP[activeFilter].includes(ev.type);
+    const evDate = new Date(ev.timestamp);
+    const sDate = new Date(startDate);
+    const eDate = new Date(endDate);
+    eDate.setHours(23, 59, 59); // End of day
+    const matchDate = evDate >= sDate && evDate <= eDate;
+    return matchCat && matchDate;
+  });
+
+  // 2. Pagination Logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedData = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const grouped = groupByDate(paginatedData);
 
   const filters: { key: FilterKey; label: string; color?: string }[] = [
     { key: "all",      label: "Semua" },
@@ -280,7 +354,6 @@ export default function VendorRiwayatPage() {
     { key: "katalog",  label: "Katalog",  color: "#0891B2" },
   ];
 
-  /* Stats */
   const todayCount = MOCK_EVENTS.filter(ev => new Date(ev.timestamp).toDateString() === new Date().toDateString()).length;
   const pendingPO  = MOCK_EVENTS.filter(ev => ev.type === "PO_RECEIVED").length;
   const released   = MOCK_EVENTS.filter(ev => ev.type === "ESCROW_RELEASED").reduce((s, e) => s + (e.amount ?? 0), 0);
@@ -290,22 +363,36 @@ export default function VendorRiwayatPage() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-100">
         <div className="max-w-2xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-base font-extrabold text-slate-800 leading-none">Riwayat Aktivitas</h1>
-              <p className="text-[11px] text-slate-400 mt-0.5">{todayCount} aktivitas hari ini</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{filtered.length} riwayat ditemukan</p>
             </div>
-            <div className="w-9 h-9 rounded-2xl bg-slate-100 flex items-center justify-center">
-              <Filter size={14} className="text-slate-500" />
+            <div className="w-9 h-9 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+              <Clock size={16} />
+            </div>
+          </div>
+
+          {/* Date Range Picker */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 ml-1">Dari</p>
+              <input type="date" value={startDate} onChange={e => handleDateChange("start", e.target.value)}
+                className="w-full h-9 px-3 rounded-xl border border-slate-100 bg-slate-50 text-[11px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 ml-1">Sampai</p>
+              <input type="date" value={endDate} onChange={e => handleDateChange("end", e.target.value)}
+                className="w-full h-9 px-3 rounded-xl border border-slate-100 bg-slate-50 text-[11px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
             </div>
           </div>
 
           {/* Filter tabs */}
-          <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar pb-0.5">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
             {filters.map(f => {
               const active = activeFilter === f.key;
               return (
-                <button key={f.key} onClick={() => setActiveFilter(f.key)}
+                <button key={f.key} onClick={() => { setActiveFilter(f.key); setCurrentPage(1); }}
                   className={`shrink-0 h-7 px-3 rounded-full text-xs font-bold transition-all border ${active ? "text-white border-transparent shadow" : "bg-white border-slate-200 text-slate-500"}`}
                   style={active ? { background: f.color ?? "#1E293B" } : {}}>
                   {f.label}
@@ -338,22 +425,18 @@ export default function VendorRiwayatPage() {
               <AlertTriangle size={22} style={{ color: G }} />
             </div>
             <p className="text-sm font-bold text-slate-600">Tidak Ada Aktivitas</p>
-            <p className="text-xs text-slate-400 mt-1">Belum ada riwayat di kategori ini.</p>
+            <p className="text-xs text-slate-400 mt-1">Ganti rentang tanggal atau kategori filter.</p>
           </div>
         ) : (
           <AnimatePresence mode="wait">
-            <motion.div key={activeFilter} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            <motion.div key={activeFilter + startDate + endDate + currentPage} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="space-y-5">
               {grouped.map(group => (
                 <div key={group.label}>
-                  {/* Date label */}
                   <div className="flex items-center gap-2 mb-3">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{group.label}</p>
                     <div className="flex-1 h-px bg-slate-200" />
-                    <span className="text-[9px] font-bold text-slate-300">{group.events.length} event</span>
                   </div>
-
-                  {/* Events */}
                   <div>
                     {group.events.map((ev, idx) => (
                       <ActivityItem key={ev.id} ev={ev} isLast={idx === group.events.length - 1} />
@@ -363,6 +446,28 @@ export default function VendorRiwayatPage() {
               ))}
             </motion.div>
           </AnimatePresence>
+        )}
+
+        {/* Pagination Buttons */}
+        {totalPages > 1 && (
+          <div className="flex flex-wrap justify-center items-center gap-1.5 pt-4 pb-8">
+            {Array.from({ length: totalPages }).map((_, i) => {
+              const p = i + 1;
+              const active = currentPage === p;
+              return (
+                <button
+                  key={p}
+                  onClick={() => {
+                    setCurrentPage(p);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${active ? "bg-[#1E293B] text-white shadow-lg" : "bg-white text-slate-400 border border-slate-200 hover:border-slate-300"}`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

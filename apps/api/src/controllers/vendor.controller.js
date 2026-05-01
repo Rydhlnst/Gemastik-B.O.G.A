@@ -239,9 +239,44 @@ const getVendorCommodities = async (req, res) => {
     }
 };
 
+/**
+ * Mengambil Detail Profil Vendor Berdasarkan ID
+ */
+const getVendorById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const db = req.db;
+
+        const vendor = await db.prepare(`
+            SELECT 
+                v.*, 
+                a.name as owner_name, 
+                a.email as owner_email, 
+                a.phone_number as owner_phone
+            FROM Vendors v
+            JOIN Accounts a ON v.id = a.id
+            WHERE v.id = ?
+        `).bind(id).first();
+
+        if (!vendor) {
+            return res.status(404).json({ status: 'error', message: 'Vendor tidak ditemukan.' });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: vendor
+        });
+
+    } catch (error) {
+        console.error('[Get Vendor Error]:', error);
+        res.status(500).json({ status: 'error', message: 'Gagal mengambil data vendor.' });
+    }
+};
+
 module.exports = {
     registerVendor,
     addCommodity,
     addVendorStockInbound,
-    getVendorCommodities
+    getVendorCommodities,
+    getVendorById
 };

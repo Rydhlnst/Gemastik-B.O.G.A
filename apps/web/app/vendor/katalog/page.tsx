@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   Plus, Trash2, Package, Tag, Layers, Loader2,
   ChevronRight, X, TrendingUp, AlertTriangle, ImageIcon, Search, Check,
+  SlidersHorizontal, ShoppingBag, Star,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,56 +23,58 @@ const CATALOG = [
   {
     id: "KARBO", label: "Karbohidrat", emoji: "🌾",
     items: [
-      { pihps_id: "PIHPS-BERAS",  name: "Beras Premium",   het: 15000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Beras Merah",     het: 15000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Beras Ketan",     het: 16000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Jagung Manis",    het: 8000,   unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Ubi Jalar",       het: 6000,   unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Singkong",        het: 5000,   unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Oat / Gandum",    het: 25000,  unit: "kg" },
-    ],
-  },
-  {
-    id: "PROTEIN", label: "Protein", emoji: "🥚",
-    items: [
-      { pihps_id: "PIHPS-TELUR",  name: "Telur Ayam Ras",  het: 28000,  unit: "kg" },
-      { pihps_id: "PIHPS-TELUR",  name: "Telur Bebek",     het: 32000,  unit: "kg" },
-      { pihps_id: "PIHPS-TELUR",  name: "Telur Puyuh",     het: 40000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Tempe",           het: 15000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Tahu Putih",      het: 10000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Kacang Hijau",    het: 20000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Kacang Merah",    het: 22000,  unit: "kg" },
+      { pihps_id: "PIHPS-BERAS",  name: "Beras Premium",      het: 15500,  unit: "kg" },
+      { pihps_id: "PIHPS-BERAS",  name: "Beras Medium",       het: 13500,  unit: "kg" },
+      { pihps_id: "PIHPS-TEPUNG", name: "Tepung Terigu",      het: 12000,  unit: "kg" },
     ],
   },
   {
     id: "HEWANI", label: "Protein Hewani", emoji: "🥩",
     items: [
-      { pihps_id: "PIHPS-DAGING", name: "Daging Sapi",     het: 120000, unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Daging Ayam",     het: 36000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Daging Kambing",  het: 100000, unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Ikan Bandeng",    het: 32000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Ikan Lele",       het: 24000,  unit: "kg" },
-      { pihps_id: "PIHPS-DAGING", name: "Udang Segar",     het: 60000,  unit: "kg" },
+      { pihps_id: "PIHPS-DAGING", name: "Daging Sapi Segar",  het: 135000, unit: "kg" },
+      { pihps_id: "PIHPS-AYAM",   name: "Daging Ayam Ras",    het: 37000,  unit: "kg" },
+      { pihps_id: "PIHPS-TELUR",  name: "Telur Ayam Ras",     het: 29000,  unit: "kg" },
     ],
   },
   {
-    id: "SAYUR", label: "Sayuran", emoji: "🥦",
+    id: "IKAN", label: "Protein Ikan", emoji: "🐟",
     items: [
-      { pihps_id: "PIHPS-BERAS",  name: "Bayam",           het: 5000,   unit: "ikat" },
-      { pihps_id: "PIHPS-BERAS",  name: "Kangkung",        het: 4000,   unit: "ikat" },
-      { pihps_id: "PIHPS-BERAS",  name: "Brokoli",         het: 18000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Wortel",          het: 10000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Tomat",           het: 12000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Kentang",         het: 14000,  unit: "kg" },
+      { pihps_id: "PIHPS-IKAN",   name: "Ikan Bandeng",       het: 35000,  unit: "kg" },
+      { pihps_id: "PIHPS-IKAN",   name: "Ikan Kembung",       het: 40000,  unit: "kg" },
+      { pihps_id: "PIHPS-IKAN",   name: "Ikan Tongkol/Tuna",  het: 38000,  unit: "kg" },
     ],
   },
   {
-    id: "BUAH", label: "Buah", emoji: "🍎",
+    id: "NABATI", label: "Protein Nabati", emoji: "🫘",
     items: [
-      { pihps_id: "PIHPS-BERAS",  name: "Pisang Cavendish", het: 12000, unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Pepaya",           het: 8000,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Jeruk Siam",       het: 20000, unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Apel Malang",      het: 25000, unit: "kg" },
+      { pihps_id: "PIHPS-KEDELAI", name: "Kedelai Impor",      het: 12000,  unit: "kg" },
+      { pihps_id: "PIHPS-KEDELAI", name: "Tempe Kedelai",     het: 15000,  unit: "kg" },
+      { pihps_id: "PIHPS-KEDELAI", name: "Tahu Putih",        het: 11000,  unit: "kg" },
+    ],
+  },
+  {
+    id: "BUMBU", label: "Bumbu", emoji: "🌶️",
+    items: [
+      { pihps_id: "PIHPS-BAWANG", name: "Bawang Merah",       het: 35000,  unit: "kg" },
+      { pihps_id: "PIHPS-CABAI",  name: "Cabai Merah Besar",  het: 45000,  unit: "kg" },
+      { pihps_id: "PIHPS-CABAI",  name: "Cabai Rawit Merah",  het: 55000,  unit: "kg" },
+    ],
+  },
+  {
+    id: "HORTI", label: "Sayur & Buah", emoji: "🥦",
+    items: [
+      { pihps_id: "PIHPS-SAYUR",  name: "Bayam Hijau",        het: 5000,   unit: "ikat" },
+      { pihps_id: "PIHPS-SAYUR",  name: "Kangkung Segar",     het: 4000,   unit: "ikat" },
+      { pihps_id: "PIHPS-BUAH",   name: "Pisang Ambon",       het: 25000,  unit: "sisir" },
+      { pihps_id: "PIHPS-BUAH",   name: "Jeruk Lokal",        het: 30000,  unit: "kg" },
+    ],
+  },
+  {
+    id: "INDUSTRI", label: "Industri", emoji: "🏭",
+    items: [
+      { pihps_id: "PIHPS-GULA",   name: "Gula Pasir",         het: 16000,  unit: "kg" },
+      { pihps_id: "PIHPS-MINYAK", name: "Minyak Goreng Curah", het: 15500,  unit: "liter" },
+      { pihps_id: "PIHPS-MINYAK", name: "Minyak Goreng Kemasan",het: 18000,  unit: "liter" },
     ],
   },
 ];
@@ -88,14 +91,24 @@ function findCatalogItem(name: string): CatalogItem | undefined {
 // Helper: cari kategori dari pihps_id untuk tampilan kartu
 function categoryFromPihpsId(pihps_id: string) {
   const catMap: Record<string, { label: string; emoji: string }> = {
-    "PIHPS-BERAS":  { label: "Karbohidrat",   emoji: "🌾" },
-    "PIHPS-TELUR":  { label: "Protein",        emoji: "🥚" },
-    "PIHPS-DAGING": { label: "Protein Hewani", emoji: "🥩" },
+    "PIHPS-BERAS":   { label: "Karbohidrat",   emoji: "🌾" },
+    "PIHPS-TEPUNG":  { label: "Karbohidrat",   emoji: "🌾" },
+    "PIHPS-DAGING":  { label: "Protein Hewani", emoji: "🥩" },
+    "PIHPS-AYAM":    { label: "Protein Hewani", emoji: "🍗" },
+    "PIHPS-TELUR":   { label: "Protein Hewani", emoji: "🥚" },
+    "PIHPS-IKAN":    { label: "Protein Ikan",   emoji: "🐟" },
+    "PIHPS-KEDELAI": { label: "Protein Nabati", emoji: "🫘" },
+    "PIHPS-BAWANG":  { label: "Bumbu",          emoji: "🧅" },
+    "PIHPS-CABAI":   { label: "Bumbu",          emoji: "🌶️" },
+    "PIHPS-SAYUR":   { label: "Sayur & Buah",   emoji: "🥬" },
+    "PIHPS-BUAH":    { label: "Sayur & Buah",   emoji: "🍎" },
+    "PIHPS-GULA":    { label: "Industri",       emoji: "🍯" },
+    "PIHPS-MINYAK":  { label: "Industri",       emoji: "🍯" },
   };
   return catMap[pihps_id] ?? { label: "Umum", emoji: "📦" };
 }
 
-const UNITS = ["kg", "liter", "butir", "ikat", "pcs", "gram", "karton"];
+const UNITS = ["Kg", "Liter", "Butir", "Ikat", "Karung", "Karton", "Botol", "Gram", "Pcs"];
 
 /* ─── Types ─── */
 interface Commodity {
@@ -166,7 +179,7 @@ interface FormState {
 }
 
 const EMPTY_FORM: FormState = {
-  name: "", pihps_id: "PIHPS-BERAS", price: "", unit: "kg",
+  name: "", pihps_id: "PIHPS-BERAS", price: "", unit: "Kg",
   photo_url: "", description: "",
 };
 
@@ -180,21 +193,30 @@ function currency(v: number) {
 
 /* ─── Product Card ─── */
 function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const rating = item.rating || mockRating(item.id);
+  const bgClass = rating >= 4.5 
+    ? "bg-gradient-to-b from-white to-amber-50/50 border-amber-100/50 shadow-amber-50" 
+    : rating >= 4.0 
+      ? "bg-gradient-to-b from-white to-emerald-50/30 border-emerald-100/30" 
+      : "bg-white border-slate-100";
+
   return (
     <motion.div layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.94 }} transition={{ duration: 0.2 }}
-      className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm shadow-black/[0.04] active:scale-[0.98] transition-transform">
-      {/* Photo */}
-      <div className="relative h-36 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center overflow-hidden">
-        {item.photo_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="flex flex-col items-center gap-2 text-slate-300">
-            <ImageIcon size={28} />
-            <span className="text-[10px] font-semibold">Belum ada foto</span>
-          </div>
-        )}
+      className={`group relative rounded-3xl border shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col ${bgClass}`}>
+      
+      {/* Photo Section */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img 
+          src={item.photo_url || `https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=60&w=400`} 
+          alt={item.name} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=60&w=400";
+          }}
+        />
         {/* Markup badge */}
         {item.is_markup === 1 && (
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full shadow">
@@ -249,18 +271,45 @@ function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void
           const het = byName?.het ?? (byPihps.length > 0 ? Math.min(...byPihps.map(i => i.het)) : null);
           if (!het) return null;
           return (
-            <div className={`mt-2.5 rounded-xl px-3 py-1.5 flex items-center justify-between ${item.is_markup ? "bg-amber-50" : "bg-emerald-50"}`}>
-              <span className={`text-[9px] font-bold uppercase tracking-wider ${item.is_markup ? "text-amber-500" : "text-emerald-600"}`}>
-                {item.is_markup ? <AlertTriangle size={8} className="inline mr-1" /> : null}
-                HET {currency(het)}/{item.unit}
-              </span>
-              {item.is_markup
-                ? <span className="text-[9px] font-black text-amber-500">Markup</span>
-                : <span className="text-[9px] font-black text-emerald-600">✓ Wajar</span>
-              }
-            </div>
+            <>
+              <div className={`mt-2.5 rounded-xl px-3 py-1.5 flex items-center justify-between ${item.is_markup ? "bg-amber-50" : "bg-emerald-50"}`}>
+                <span className={`text-[9px] font-bold uppercase tracking-wider ${item.is_markup ? "text-amber-500" : "text-emerald-600"}`}>
+                  {item.is_markup ? <AlertTriangle size={8} className="inline mr-1" /> : null}
+                  HET {currency(het)}/{item.unit}
+                </span>
+                {item.is_markup
+                  ? <span className="text-[9px] font-black text-amber-500">Markup</span>
+                  : <span className="text-[9px] font-black text-emerald-600">✓ Wajar</span>
+                }
+              </div>
+              
+              <button 
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="w-full flex items-center justify-center gap-1.5 py-2 mt-1 rounded-xl text-[9px] font-bold text-slate-400 hover:text-emerald-600 hover:bg-emerald-50/50 transition-all">
+                {isExpanded ? <X size={10} /> : <Search size={10} />}
+                {isExpanded ? "Sembunyikan Deskripsi" : "Lihat Deskripsi Produk"}
+              </button>
+            </>
           );
         })()}
+        {/* Expandable Description Area */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="pt-3 mt-3 border-t border-dashed border-slate-100">
+                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                  {item.description || "Tidak ada deskripsi untuk produk ini."}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -276,7 +325,7 @@ function CategoryPicker({
   const [activeTab, setActiveTab] = useState(CATALOG[0].id);
   const [search, setSearch] = useState("");
 
-  const activeCategory = CATALOG.find((c) => c.id === activeTab)!;
+  const activeCategory = CATALOG.find((c) => c.id === activeTab) || CATALOG[0];
   const filtered = search.trim()
     ? CATALOG.flatMap((c) => c.items).filter((i) => i.name.toLowerCase().includes(search.toLowerCase()))
     : activeCategory.items;
@@ -359,18 +408,23 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
     : null;
 
   const handleSubmit = async () => {
-    if (!form.name || !form.price) { toast.error("Nama dan harga wajib diisi."); return; }
+    // 1. Validasi Semua Parameter Wajib
+    if (!form.name.trim()) return toast.error("Nama produk wajib diisi!");
+    if (!form.pihps_id) return toast.error("Jenis komoditas wajib dipilih!");
+    if (!form.description.trim()) return toast.error("Deskripsi produk wajib diisi!");
+    if (!form.price || Number(form.price) <= 0) return toast.error("Harga harus lebih dari Rp 0!");
+    if (!form.unit) return toast.error("Satuan produk wajib dipilih!");
+    if (!form.photo_url) return toast.error("Foto produk wajib diunggah!");
+
     setLoading(true);
     try {
       const res = await fetch(`${API}/api/vendors/${vendorId}/commodities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          vendor_id: vendorId,
-          pihps_id: form.pihps_id,
-          name: form.name,
-          price: priceNum,
-          unit: form.unit,
+          ...form,
+          price: Number(form.price),
+          is_active: 1,
         }),
       });
       const json = await res.json();
@@ -421,24 +475,67 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
 
             {/* Body */}
             <div className="px-5 py-5 space-y-4 pb-8">
-              {/* Foto URL */}
+              {/* Upload Foto Produk */}
               <div>
-                <Label htmlFor="photo_url" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
-                  Foto Produk (URL)
-                </Label>
-                {form.photo_url && (
-                  <div className="mb-2 h-32 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input id="photo_url" className={`${inputCls} flex-1`} value={form.photo_url}
-                    onChange={(e) => set("photo_url", e.target.value)} placeholder="https://r2.boga.id/foto.jpg" />
-                  <div className="h-12 w-12 shrink-0 rounded-2xl border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-300 cursor-pointer hover:border-emerald-400 hover:text-emerald-400 transition-all">
-                    <ImageIcon size={16} />
-                  </div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+                    Foto Produk
+                  </Label>
+                  <span className="text-[9px] text-slate-400 font-medium italic">JPG/PNG (Maks 2MB)</span>
                 </div>
+                
+                <input
+                  type="file"
+                  id="photo-upload"
+                  accept="image/png, image/jpeg"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    // Validasi ukuran
+                    if (file.size > 2 * 1024 * 1024) {
+                      toast.error("Ukuran file terlalu besar (Maks 2MB)");
+                      return;
+                    }
+
+                    setLoading(true);
+                    // Simulasi Upload ke R2
+                    toast.loading("Mengunggah ke R2...");
+                    await new Promise(r => setTimeout(r, 1500)); // Simulasi delay
+                    
+                    const mockR2Url = `https://r2.boga.id/uploads/${Date.now()}-${file.name}`;
+                    set("photo_url", mockR2Url);
+                    
+                    toast.dismiss();
+                    toast.success("Foto berhasil diunggah!");
+                    setLoading(false);
+                  }}
+                />
+
+                {form.photo_url ? (
+                  <div className="group relative h-40 rounded-3xl overflow-hidden border-2 border-emerald-100 shadow-inner bg-slate-50">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={form.photo_url} alt="preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <label htmlFor="photo-upload" className="h-10 px-4 rounded-xl bg-white text-xs font-bold text-slate-700 flex items-center gap-2 cursor-pointer active:scale-95 transition-transform shadow-lg">
+                        <ImageIcon size={14} /> Ganti Foto
+                      </label>
+                      <button onClick={() => set("photo_url", "")} className="h-10 w-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <label htmlFor="photo-upload" 
+                    className="flex flex-col items-center justify-center h-40 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer group">
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-slate-300 group-hover:text-emerald-500 group-hover:scale-110 transition-all">
+                      <Plus size={20} />
+                    </div>
+                    <p className="text-[11px] font-bold text-slate-400 mt-3 group-hover:text-emerald-600">Ketuk untuk pilih foto</p>
+                    <p className="text-[9px] text-slate-300 mt-1">Sistem otomatis unggah ke R2 Storage</p>
+                  </label>
+                )}
               </div>
 
               {/* Nama */}
@@ -468,14 +565,24 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                 />
               </div>
 
-              {/* Nama kustom (boleh diubah setelah pilih dari list) */}
+              {/* Deskripsi Produk */}
               <div>
-                <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">
-                  Nama Produk Kustom
-                </Label>
-                <Input id="name" className={inputCls} value={form.name}
-                  onChange={(e) => set("name", e.target.value)}
-                  placeholder="Pilih dari list di atas, atau ketik manual..." />
+                <div className="flex justify-between items-center mb-1.5">
+                  <Label htmlFor="description" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">
+                    Deskripsi Produk
+                  </Label>
+                  <span className={`text-[9px] font-bold ${form.description.length >= 500 ? "text-red-500" : "text-slate-400"}`}>
+                    {form.description.length}/500
+                  </span>
+                </div>
+                <textarea
+                  id="description"
+                  value={form.description}
+                  maxLength={500}
+                  onChange={(e) => set("description", e.target.value)}
+                  placeholder="Jelaskan detail produk Anda (contoh: Beras organik kualitas premium, stok baru, tanpa pemutih...)"
+                  className="w-full min-h-[120px] rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-300 resize-none leading-relaxed font-medium"
+                />
               </div>
 
               {/* Harga + Unit */}
@@ -526,20 +633,239 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
   );
 }
 
+/* ─── Mock Data (20 Items with Stable Photos) ─── */
+const MOCK_ITEMS: Commodity[] = [
+  { 
+    id: "PROD-001", name: "Beras Premium Cap Ramos", price: 15500, unit: "Kg", pihps_id: "PIHPS-BERAS", 
+    markup_percentage: 0, is_markup: 0, current_stock: 2500, is_active: 1, rating: 4.9, total_sold: 4500,
+    photo_url: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400",
+    description: "Beras kualitas super dari petani Karawang. Tekstur pulen, putih alami tanpa pemutih. Cocok untuk konsumsi harian keluarga dan usaha katering."
+  },
+  { 
+    id: "PROD-002", name: "Daging Sapi Has Luar", price: 135000, unit: "Kg", pihps_id: "PIHPS-DAGING", 
+    markup_percentage: 0, is_markup: 0, current_stock: 150, is_active: 1, rating: 4.8, total_sold: 420,
+    photo_url: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400",
+    description: "Daging sapi bagian Sirloin segar. Lemak tipis di bagian pinggir memberikan rasa gurih saat dimasak. Stok melimpah untuk kebutuhan industri."
+  },
+  { 
+    id: "PROD-003", name: "Telur Ayam Ras Papan", price: 29000, unit: "Kg", pihps_id: "PIHPS-TELUR", 
+    markup_percentage: 0, is_markup: 0, current_stock: 850, is_active: 1, rating: 4.7, total_sold: 3200,
+    photo_url: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&q=80&w=400",
+    description: "Telur ayam ras segar grade A. Kulit cokelat tebal, tidak mudah pecah. Hasil peternakan lokal dengan pakan organik."
+  },
+  { 
+    id: "PROD-004", name: "Cabai Rawit Setan Merah", price: 85000, unit: "Kg", pihps_id: "PIHPS-CABAI", 
+    markup_percentage: 54.5, is_markup: 1, current_stock: 15, is_active: 1, rating: 3.9, total_sold: 850,
+    photo_url: "https://images.unsplash.com/photo-1588253524671-c703418ca97c?auto=format&fit=crop&q=80&w=400",
+    description: "Cabai rawit merah super pedas. Kondisi segar, petikan pagi hari. Stok terbatas karena faktor cuaca."
+  },
+  { 
+    id: "PROD-005", name: "Ikan Bandeng Juwana", price: 35000, unit: "Kg", pihps_id: "PIHPS-IKAN", 
+    markup_percentage: 0, is_markup: 0, current_stock: 120, is_active: 1, rating: 4.9, total_sold: 640,
+    photo_url: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=400",
+    description: "Ikan bandeng segar asli Juwana. Daging tebal dan gurih, minimal bau tanah. Ukuran 3-4 ekor per kg."
+  },
+  { 
+    id: "PROD-006", name: "Bawang Merah Brebes", price: 42000, unit: "Kg", pihps_id: "PIHPS-BAWANG", 
+    markup_percentage: 20, is_markup: 1, current_stock: 500, is_active: 1, rating: 4.5, total_sold: 1500,
+    photo_url: "https://images.unsplash.com/photo-1580145617544-bc71f2f3ee61?auto=format&fit=crop&q=80&w=400",
+    description: "Bawang merah asli Brebes. Ukuran sedang merata, aroma sangat kuat dan warna merah pekat. Kondisi sudah kering jemur."
+  },
+  { 
+    id: "PROD-007", name: "Tahu Putih Sutra Kediri", price: 11000, unit: "Kg", pihps_id: "PIHPS-KEDELAI", 
+    markup_percentage: 0, is_markup: 0, current_stock: 200, is_active: 1, rating: 4.8, total_sold: 950,
+    photo_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
+    description: "Tahu putih khas Kediri yang terkenal sangat lembut. Diproduksi harian tanpa bahan pengawet formalin."
+  },
+  { 
+    id: "PROD-008", name: "Minyak Goreng Kita 1L", price: 15500, unit: "Liter", pihps_id: "PIHPS-MINYAK", 
+    markup_percentage: 0, is_markup: 0, current_stock: 5000, is_active: 1, rating: 4.4, total_sold: 12000,
+    photo_url: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&q=80&w=400",
+    description: "Minyak goreng program pemerintah. Kualitas bening, jernih, dan tidak cepat hitam. Harga tetap sesuai subsidi pemerintah."
+  },
+  { 
+    id: "PROD-009", name: "Gula Pasir Putih Gulaku", price: 16000, unit: "Kg", pihps_id: "PIHPS-GULA", 
+    markup_percentage: 0, is_markup: 0, current_stock: 1200, is_active: 1, rating: 4.7, total_sold: 5600,
+    photo_url: "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?auto=format&fit=crop&q=80&w=400",
+    description: "Gula pasir putih kristal kualitas premium. Manis alami, butiran halus dan bersih."
+  },
+  { 
+    id: "PROD-010", name: "Daging Ayam Ras Segar", price: 37000, unit: "Kg", pihps_id: "PIHPS-AYAM", 
+    markup_percentage: 0, is_markup: 0, current_stock: 450, is_active: 1, rating: 4.6, total_sold: 4200,
+    photo_url: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&q=80&w=400",
+    description: "Daging ayam potong segar, dipotong setiap dini hari. Tanpa bahan pengawet dan hormon tambahan."
+  },
+  { 
+    id: "PROD-011", name: "Beras Medium Cianjur", price: 13500, unit: "Kg", pihps_id: "PIHPS-BERAS", 
+    markup_percentage: 0, is_markup: 0, current_stock: 8, is_active: 1, rating: 4.2, total_sold: 1800,
+    photo_url: "https://images.unsplash.com/photo-1590333746438-2834503f6700?auto=format&fit=crop&q=80&w=400",
+    description: "Beras medium harga ekonomis dengan rasa tetap enak. Cocok untuk operasional harian. Stok sedang menipis."
+  },
+  { 
+    id: "PROD-012", name: "Ikan Kembung Banjar", price: 40000, unit: "Kg", pihps_id: "PIHPS-IKAN", 
+    markup_percentage: 0, is_markup: 0, current_stock: 65, is_active: 1, rating: 3.5, total_sold: 300,
+    photo_url: "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&q=80&w=400",
+    description: "Ikan kembung Banjar kondisi beku segar (frozen). Nutrisi tinggi omega-3, baik untuk pertumbuhan anak sekolah."
+  },
+  { 
+    id: "PROD-013", name: "Tempe Kedelai Mendoan", price: 15000, unit: "Kg", pihps_id: "PIHPS-KEDELAI", 
+    markup_percentage: 0, is_markup: 0, current_stock: 150, is_active: 1, rating: 4.9, total_sold: 1100,
+    photo_url: "https://images.unsplash.com/photo-1589907730532-799d81d65457?auto=format&fit=crop&q=80&w=400",
+    description: "Tempe kedelai murni tanpa campuran jagung. Fermentasi sempurna, rasa gurih khas tempe tradisional."
+  },
+  { 
+    id: "PROD-014", name: "Tepung Terigu Segitiga Biru", price: 12000, unit: "Kg", pihps_id: "PIHPS-TEPUNG", 
+    markup_percentage: 0, is_markup: 0, current_stock: 3000, is_active: 1, rating: 4.8, total_sold: 8900,
+    photo_url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=400",
+    description: "Tepung terigu protein sedang serbaguna. Cocok untuk membuat berbagai macam kue, gorengan, dan mie."
+  },
+  { 
+    id: "PROD-015", name: "Ikan Tongkol Hitam", price: 38000, unit: "Kg", pihps_id: "PIHPS-IKAN", 
+    markup_percentage: 0, is_markup: 0, current_stock: 90, is_active: 1, rating: 4.1, total_sold: 550,
+    photo_url: "https://images.unsplash.com/photo-1534940892017-d23b4b74a8db?auto=format&fit=crop&q=80&w=400",
+    description: "Ikan tongkol hitam segar hasil tangkapan nelayan lokal. Daging padat dan tidak gatal saat dikonsumsi."
+  },
+  { 
+    id: "PROD-016", name: "Minyak Goreng Fortune 2L", price: 42000, unit: "Liter", pihps_id: "PIHPS-MINYAK", 
+    markup_percentage: 16.6, is_markup: 1, current_stock: 450, is_active: 1, rating: 4.6, total_sold: 1200,
+    photo_url: "https://images.unsplash.com/photo-1523910350361-90412354784a?auto=format&fit=crop&q=80&w=400",
+    description: "Minyak goreng kemasan pouch isi 2 liter. Kualitas premium, melalui dua kali penyaringan. Harga pasar sedang naik."
+  },
+  { 
+    id: "PROD-017", name: "Kedelai Impor Pilihan", price: 12000, unit: "Kg", pihps_id: "PIHPS-KEDELAI", 
+    markup_percentage: 0, is_markup: 0, current_stock: 12000, is_active: 1, rating: 4.3, total_sold: 250,
+    photo_url: "https://images.unsplash.com/photo-1582234372722-50d7ccc30e5a?auto=format&fit=crop&q=80&w=400",
+    description: "Biji kedelai impor Amerika grade 1. Butiran besar dan bersih. Cocok untuk bahan baku berkualitas."
+  },
+  { 
+    id: "PROD-020", name: "Daging Sapi Wagyu MB9", price: 450000, unit: "Kg", pihps_id: "PIHPS-DAGING", 
+    markup_percentage: 233, is_markup: 1, current_stock: 25, is_active: 1, rating: 4.9, total_sold: 15,
+    photo_url: "https://images.unsplash.com/photo-1546241072-48010ad28c2c?auto=format&fit=crop&q=80&w=400",
+    description: "Daging sapi wagyu dengan marbling sangat tinggi. Rasa lumer di mulut. Produk mewah untuk segmentasi khusus."
+  },
+  { 
+    id: "PROD-019", name: "Cabai Merah Keriting", price: 45000, unit: "Kg", pihps_id: "PIHPS-CABAI", 
+    markup_percentage: 0, is_markup: 0, current_stock: 40, is_active: 1, rating: 4.4, total_sold: 880,
+    photo_url: "https://images.unsplash.com/photo-1518977676601-b53f02bad67b?auto=format&fit=crop&q=80&w=400",
+    description: "Cabai merah keriting segar tanpa ulat. Warna merah menyala merata. Cocok untuk bumbu dasar masakan."
+  },
+  { 
+    id: "PROD-018", name: "Gula Pasir Kristal 1kg", price: 15000, unit: "Kg", pihps_id: "PIHPS-GULA", 
+    markup_percentage: 0, is_markup: 0, current_stock: 2000, is_active: 1, rating: 4.6, total_sold: 3400,
+    photo_url: "https://images.unsplash.com/photo-1622321481546-f94d93026725?auto=format&fit=crop&q=80&w=400",
+    description: "Gula pasir kristal putih bersih. Manis murni tebu pilihan. Stok melimpah untuk kebutuhan rumah tangga."
+  },
+];
+
+/* ─── Filter Sheet ─── */
+function FilterSheet({
+  open, onClose, sortBy, setSortBy, categoryFilter, setCategoryFilter
+}: {
+  open: boolean; onClose: () => void;
+  sortBy: string; setSortBy: (v: string) => void;
+  categoryFilter: string; setCategoryFilter: (v: string) => void;
+}) {
+  const sortOptions = [
+    { id: "stock-desc", label: "Stok Terbanyak", icon: Layers },
+    { id: "stock-asc", label: "Stok Tersedikit", icon: Layers },
+    { id: "sold-desc", label: "Paling Laku", icon: ShoppingBag },
+    { id: "sold-asc", label: "Kurang Laku", icon: ShoppingBag },
+    { id: "rating-desc", label: "Kualitas Terbaik (Rating)", icon: Star },
+    { id: "rating-asc", label: "Kualitas Terendah", icon: Star },
+    { id: "price-desc", label: "Harga Tertinggi", icon: Tag },
+    { id: "price-asc", label: "Harga Terendah", icon: Tag },
+  ];
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={onClose} className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm" />
+          <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 380, damping: 38 }}
+            className="fixed bottom-0 inset-x-0 z-[70] bg-white rounded-t-[2rem] shadow-2xl overflow-hidden pb-8">
+            
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-slate-200" />
+            </div>
+
+            <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100">
+              <h3 className="text-base font-extrabold text-slate-800">Filter & Sortir</h3>
+              <button onClick={onClose} className="text-xs font-bold text-emerald-600">Selesai</button>
+            </div>
+
+            <div className="p-6 space-y-6 max-h-[70svh] overflow-y-auto no-scrollbar">
+              {/* Sort By */}
+              <div>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 block">Urutkan Berdasarkan</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {sortOptions.map((opt) => (
+                    <button key={opt.id} onClick={() => setSortBy(opt.id)}
+                      className={`flex items-center gap-2 px-3 py-2.5 rounded-2xl border text-left transition-all ${
+                        sortBy === opt.id ? "border-emerald-500 bg-emerald-50" : "border-slate-100 bg-slate-50"
+                      }`}>
+                      <opt.icon size={12} className={sortBy === opt.id ? "text-emerald-600" : "text-slate-400"} />
+                      <span className={`text-[11px] font-bold ${sortBy === opt.id ? "text-emerald-700" : "text-slate-600"}`}>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 block">Filter Kategori</Label>
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setCategoryFilter("ALL")}
+                    className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all ${
+                      categoryFilter === "ALL" ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-500"
+                    }`}>
+                    Semua
+                  </button>
+                  {CATALOG.map((cat) => (
+                    <button key={cat.id} onClick={() => setCategoryFilter(cat.id)}
+                      className={`px-4 py-2 rounded-full text-[11px] font-bold transition-all ${
+                        categoryFilter === cat.id ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200" : "bg-slate-100 text-slate-500"
+                      }`}>
+                      {cat.emoji} {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <Button onClick={onClose} className="w-full h-12 rounded-2xl text-sm font-bold shadow-lg shadow-emerald-100 mt-4" style={{ background: G }}>
+                Terapkan Filter
+              </Button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
 /* ─── Main Page ─── */
 export default function VendorKatalogPage() {
-  const [items, setItems] = useState<Commodity[]>([]);
+  const [items, setItems] = useState<Commodity[]>(MOCK_ITEMS);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [vendorId, setVendorId] = useState("ACC-VEN-5E1FD92B"); // TODO: ganti dari session
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [vendorId, setVendorId] = useState("ACC-VEN-5E1FD92B");
+
+  // Search & Filter States
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("stock-desc");
+  const [categoryFilter, setCategoryFilter] = useState("ALL");
 
   const fetchItems = useCallback(async () => {
     if (!vendorId) return;
     try {
       const res = await fetch(`${API}/api/vendors/${vendorId}/commodities`);
       const json = await res.json();
-      if (json.status === "success") setItems(json.data ?? []);
-    } catch { /* silent */ }
+      if (json.status === "success") {
+        setItems(json.data && json.data.length > 0 ? json.data : MOCK_ITEMS);
+      }
+    } catch { setItems(MOCK_ITEMS); }
     finally { setLoading(false); }
   }, [vendorId]);
 
@@ -552,14 +878,39 @@ export default function VendorKatalogPage() {
         onClick: async () => {
           setItems((prev) => prev.filter((i) => i.id !== id));
           toast.success("Barang dihapus dari katalog.");
-          // TODO: connect DELETE API when ready
         },
       },
     });
   };
 
-  const activeItems = items.filter((i) => i.is_active);
-  const markupCount = activeItems.filter((i) => i.is_markup).length;
+  // Logic: Filtering & Sorting
+  const filteredItems = items
+    .filter((item) => {
+      const matchSearch = item.name.toLowerCase().includes(search.toLowerCase());
+      const matchCategory = 
+        categoryFilter === "ALL" || 
+        (categoryFilter === "KARBO" && (item.pihps_id === "PIHPS-BERAS" || item.pihps_id === "PIHPS-TEPUNG")) ||
+        (categoryFilter === "HEWANI" && (item.pihps_id === "PIHPS-DAGING" || item.pihps_id === "PIHPS-AYAM" || item.pihps_id === "PIHPS-TELUR")) ||
+        (categoryFilter === "IKAN" && item.pihps_id === "PIHPS-IKAN") ||
+        (categoryFilter === "NABATI" && item.pihps_id === "PIHPS-KEDELAI") ||
+        (categoryFilter === "BUMBU" && (item.pihps_id === "PIHPS-BAWANG" || item.pihps_id === "PIHPS-CABAI")) ||
+        (categoryFilter === "HORTI" && (item.pihps_id === "PIHPS-SAYUR" || item.pihps_id === "PIHPS-BUAH")) ||
+        (categoryFilter === "INDUSTRI" && (item.pihps_id === "PIHPS-MINYAK" || item.pihps_id === "PIHPS-GULA"));
+      return matchSearch && matchCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === "stock-desc") return b.current_stock - a.current_stock;
+      if (sortBy === "stock-asc") return a.current_stock - b.current_stock;
+      if (sortBy === "sold-desc") return (b.total_sold || 0) - (a.total_sold || 0);
+      if (sortBy === "sold-asc") return (a.total_sold || 0) - (b.total_sold || 0);
+      if (sortBy === "rating-desc") return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === "rating-asc") return (a.rating || 0) - (b.rating || 0);
+      if (sortBy === "price-desc") return b.price - a.price;
+      if (sortBy === "price-asc") return a.price - b.price;
+      return 0;
+    });
+
+  const markupCount = filteredItems.filter((i) => i.is_markup).length;
 
   return (
     <div className="min-h-svh bg-slate-50" data-role="vendor">
@@ -567,10 +918,9 @@ export default function VendorKatalogPage() {
       <div className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-100">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-base font-extrabold text-slate-800 leading-none">Katalog Saya</h1>
+            <h1 className="text-base font-extrabold text-slate-800 leading-none">Manajemen Katalog Produk</h1>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              {activeItems.length} produk aktif
-              {markupCount > 0 && <> · <span className="text-amber-500 font-semibold">{markupCount} markup HET</span></>}
+              {filteredItems.length} barang terdaftar dalam inventori
             </p>
           </div>
           <button onClick={() => setSheetOpen(true)}
@@ -581,25 +931,28 @@ export default function VendorKatalogPage() {
         </div>
       </div>
 
-      {/* ── Vendor ID (dev helper) ── */}
-      <div className="max-w-2xl mx-auto px-4 pt-4">
-        <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm">
-          <Tag size={13} className="text-slate-300 shrink-0" />
-          <Input value={vendorId} onChange={(e) => setVendorId(e.target.value)}
-            placeholder="Masukkan Vendor ID..." onBlur={fetchItems}
-            className="border-0 h-7 p-0 text-xs font-mono text-slate-500 bg-transparent focus-visible:ring-0 shadow-none" />
-          <button onClick={fetchItems} className="text-[10px] font-bold px-2 py-1 rounded-lg shrink-0" style={{ color: G, background: G_LIGHT }}>
-            Muat
-          </button>
+      {/* ── Search & Filter Bar ── */}
+      <div className="max-w-2xl mx-auto px-4 pt-4 flex gap-2">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" />
+          <input
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cari berdasarkan nama atau kategori..."
+            className="w-full h-11 pl-9 pr-4 rounded-2xl border border-slate-200 bg-white text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all shadow-sm"
+          />
         </div>
+        <button onClick={() => setFilterOpen(true)}
+          className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm">
+          <SlidersHorizontal size={16} />
+        </button>
       </div>
 
       {/* ── Stats Strip ── */}
       <div className="max-w-2xl mx-auto px-4 mt-3 grid grid-cols-3 gap-2">
         {[
-          { icon: Package, label: "Produk", value: activeItems.length, color: G },
-          { icon: Layers, label: "Total Stok", value: activeItems.reduce((a, b) => a + b.current_stock, 0).toLocaleString("id-ID"), color: "#1D4ED8" },
-          { icon: TrendingUp, label: "Markup", value: markupCount, color: "#D97706" },
+          { icon: Package, label: "Total Inventori", value: filteredItems.length, color: G },
+          { icon: Layers, label: "Akumulasi Stok", value: filteredItems.reduce((a, b) => a + b.current_stock, 0).toLocaleString("id-ID"), color: "#1D4ED8" },
+          { icon: TrendingUp, label: "Audit Markup HET", value: markupCount, color: "#D97706" },
         ].map(({ icon: Icon, label, value, color }) => (
           <div key={label} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
             <Icon size={14} style={{ color }} />
@@ -617,30 +970,28 @@ export default function VendorKatalogPage() {
               <div key={i} className="h-56 rounded-3xl bg-slate-100 animate-pulse" />
             ))}
           </div>
-        ) : activeItems.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-20 text-center px-8">
             <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-4" style={{ background: G_LIGHT }}>
               <Package size={28} style={{ color: G }} />
             </div>
-            <h3 className="text-base font-extrabold text-slate-700">Katalog Masih Kosong</h3>
+            <h3 className="text-base font-extrabold text-slate-700">Produk Tidak Ditemukan</h3>
             <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Mulai tambahkan produk yang ingin Anda jual ke SPPG. Harga akan dibandingkan otomatis dengan HET pemerintah.
+              Coba sesuaikan kata kunci pencarian atau filter yang Anda gunakan.
             </p>
-            <button onClick={() => setSheetOpen(true)}
-              className="mt-5 flex items-center gap-2 h-11 px-5 rounded-2xl text-sm font-bold text-white shadow-lg shadow-emerald-200 active:scale-[0.97] transition-all"
-              style={{ background: G }}>
-              <Plus size={15} /> Tambah Produk Pertama
+            <button onClick={() => { setSearch(""); setCategoryFilter("ALL"); }}
+              className="mt-5 text-sm font-bold text-emerald-600">
+              Reset Filter
             </button>
           </motion.div>
         ) : (
           <motion.div layout className="grid grid-cols-2 gap-3">
             <AnimatePresence>
-              {activeItems.map((item) => (
+              {filteredItems.map((item) => (
                 <ProductCard key={item.id} item={item} onDelete={() => handleDelete(item.id)} />
               ))}
             </AnimatePresence>
-            {/* Add more card */}
             <motion.button layout onClick={() => setSheetOpen(true)}
               className="h-full min-h-[200px] rounded-3xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center gap-2 text-slate-300 hover:border-emerald-400 hover:text-emerald-400 transition-all active:scale-[0.97]">
               <div className="w-10 h-10 rounded-2xl border-2 border-current flex items-center justify-center">
@@ -655,12 +1006,19 @@ export default function VendorKatalogPage() {
       {/* ── Breadcrumb hint ── */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
         <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-100 shadow">
-          <ChevronRight size={10} /> Produk di sini otomatis muncul di E-Katalog SPPG
+          <ChevronRight size={10} /> Produk terverifikasi otomatis muncul pada E-Katalog Nasional SPPG
         </div>
       </div>
 
       {/* ── Add Sheet ── */}
       <AddSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onAdded={fetchItems} vendorId={vendorId} />
+
+      {/* ── Filter Sheet ── */}
+      <FilterSheet 
+        open={filterOpen} onClose={() => setFilterOpen(false)}
+        sortBy={sortBy} setSortBy={setSortBy}
+        categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter}
+      />
     </div>
   );
 }

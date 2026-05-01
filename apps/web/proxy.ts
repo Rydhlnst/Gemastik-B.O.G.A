@@ -4,10 +4,8 @@ import { auth, type AppRole } from "@/lib/auth";
 
 const ROLE_PREFIXES: Array<{ prefix: string; role: AppRole }> = [
   { prefix: "/goverment", role: "admin" },
-  { prefix: "/vendor", role: "vendor" },
   { prefix: "/supplier", role: "sppg" },
   { prefix: "/logistik", role: "logistik" },
-  { prefix: "/sekolah", role: "sekolah" },
 ];
 
 function roleForPath(pathname: string): AppRole | null {
@@ -19,7 +17,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public pages — no auth required
-  const PUBLIC_PATHS = ["/auth", "/vendor/register", "/vendor/katalog", "/vendor/inbound", "/vendor/po"];
+  const PUBLIC_PATHS = ["/auth", "/vendor/register"];
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }

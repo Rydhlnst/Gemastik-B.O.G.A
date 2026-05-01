@@ -231,7 +231,7 @@ function SplitChoiceStep({
               Silakan pilih kategori peran terlebih dahulu
             </AlertDescription>
             <button onClick={() => toast.dismiss(t)} className="absolute top-4 right-4 text-red-400 hover:text-red-700 transition-colors">
-              <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
             </button>
           </Alert>
         </div>
@@ -244,7 +244,7 @@ function SplitChoiceStep({
   return (
     <div className="flex flex-col md:flex-row gap-6 p-6 md:p-7 animate-in fade-in duration-400">
       {/* ─── KIRI: Pilih Role ─── */}
-      <motion.div 
+      <motion.div
         className="flex-1"
         initial={{ x: 40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -267,8 +267,8 @@ function SplitChoiceStep({
 
         <RadioGroup value={selectedRoleId} onValueChange={setSelectedRoleId} className="gap-3">
           {ROLES.map((role) => (
-            <FieldLabel 
-              htmlFor={`role-${role.id}`} 
+            <FieldLabel
+              htmlFor={`role-${role.id}`}
               key={role.id}
               onClick={() => setSelectedRoleId(role.id)}
             >
@@ -303,7 +303,7 @@ function SplitChoiceStep({
       </motion.div>
 
       {/* ─── KANAN: Pilih Aksi ─── */}
-      <motion.div 
+      <motion.div
         className="flex-1 border-t md:border-t-0 md:border-l border-gray-100 pt-6 md:pt-0 md:pl-6 flex flex-col justify-center"
         initial={{ x: -40, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
@@ -453,7 +453,7 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-[850px]">
         {step === "choice" && (
           <div className="animate-in fade-in duration-300">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.985 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}

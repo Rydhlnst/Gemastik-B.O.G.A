@@ -28,8 +28,10 @@ router.post('/commodities', vendorController.addCommodity);
 // Mencatat Inbound stok dari petani/tengkulak beserta Hash Nota Zero-Trust
 router.post('/commodities/:commodity_id/stock-in', vendorController.addVendorStockInbound);
 
+// GET /api/vendors/:id
+// Mengambil profil detail vendor
+router.get('/:id', vendorController.getVendorById);
+
 // GET /api/vendors/:vendor_id/commodities
-// Menampilkan semua daftar komoditas aktif milik vendor (termasuk sisa current_stock)
-router.get('/:vendor_id/commodities', vendorController.getVendorCommodities);
 
 module.exports = router;

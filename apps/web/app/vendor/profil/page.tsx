@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import {
   User, Building2, Phone, CreditCard, FileText,
   ShieldCheck, Camera, CheckCircle2, AlertTriangle,
-  Loader2, Hash, Edit3, Save, Info, ArrowRight, RefreshCcw
+  Loader2, Hash, Edit3, Save, Info, ArrowRight, RefreshCcw, ExternalLink
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -16,39 +16,61 @@ const G_LIGHT = "#D1FAE5";
 
 /* ─── Types ─── */
 interface VendorProfile {
-  namaToko: string;
-  namaLengkap: string;
-  email: string;
-  phone: string;
-  alamat: string;
-  kota: string;
-  provinsi: string;
-  nib: string;
-  namaBank: string;
-  noRekening: string;
-  atasNama: string;
-  sbtTokenId: string;
-  verifiedAt: string;
-  reputasiScore: number;
+  id: string;
+  business_name: string;
+  business_email: string;
+  business_phone: string;
+  business_address: string;
+  latitude: string;
+  longitude: string;
+  npwp_number: string;
+  nib_number: string;
+  logo_url: string;
+  
+  // Documents
+  akta_document_url: string;
+  akta_document_hash: string;
+  sk_kemenkumham_url: string;
+  sk_kemenkumham_hash: string;
+  npwp_document_url: string;
+  npwp_document_hash: string;
+  nib_document_url: string;
+  nib_document_hash: string;
+  sppg_readiness_document_url: string;
+  sppg_readiness_document_hash: string;
+
+  // Banking
+  bank_name: string;
+  bank_account_number: string;
+  bank_account_name: string;
+
+  // Metadata
   status: "pending" | "approved" | "rejected";
+  sbt_token_id?: string;
+  reputasi_score: number;
 }
 
 const INITIAL_PROFILE: VendorProfile = {
-  namaToko: "UD. Sumber Pangan Sejahtera",
-  namaLengkap: "Budi Santoso",
-  email: "budi.sps@gmail.com",
-  phone: "0812-3456-7890",
-  alamat: "Jl. Pasar Induk Gedebage No. 12",
-  kota: "Bandung",
-  provinsi: "Jawa Barat",
-  nib: "1234567890123456",
-  namaBank: "BCA",
-  noRekening: "1234567890",
-  atasNama: "Budi Santoso",
-  sbtTokenId: "SBT-VDR-5E1FD92B",
-  verifiedAt: "2026-03-15",
-  reputasiScore: 94,
-  status: "approved"
+  id: "",
+  business_name: "Memuat...",
+  business_email: "",
+  business_phone: "",
+  business_address: "",
+  latitude: "0",
+  longitude: "0",
+  npwp_number: "",
+  nib_number: "",
+  logo_url: "",
+  akta_document_url: "", akta_document_hash: "",
+  sk_kemenkumham_url: "", sk_kemenkumham_hash: "",
+  npwp_document_url: "", npwp_document_hash: "",
+  nib_document_url: "", nib_document_hash: "",
+  sppg_readiness_document_url: "", sppg_readiness_document_hash: "",
+  bank_name: "BCA",
+  bank_account_number: "",
+  bank_account_name: "",
+  status: "pending",
+  reputasi_score: 0
 };
 
 const BANK_OPTIONS = ["BCA", "BRI", "BNI", "Mandiri", "BSI", "CIMB Niaga", "Permata"];
@@ -83,7 +105,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 function ReadOnlyField({ value, mono }: { value: string; mono?: boolean }) {
   return (
     <div className="h-9 px-3 flex items-center rounded-xl bg-slate-50 border border-slate-100">
-      <p className={`text-xs text-slate-600 ${mono ? "font-mono" : "font-medium"}`}>{value}</p>
+      <p className={`text-xs text-slate-600 truncate ${mono ? "font-mono" : "font-medium"}`}>{value || "-"}</p>
     </div>
   );
 }
@@ -110,33 +132,44 @@ export default function VendorProfilPage() {
 
         if (json.status === "success") {
           const d = json.data;
-          // Map backend status to frontend status
           let mappedStatus: "pending" | "approved" | "rejected" = "pending";
           if (d.status === "APPROVED") mappedStatus = "approved";
           else if (d.status === "REJECTED") mappedStatus = "rejected";
 
           const loadedProfile: VendorProfile = {
-            namaToko: d.business_name || "-",
-            namaLengkap: d.owner_name || "-",
-            email: d.business_email || d.owner_email || "-",
-            phone: d.business_phone || d.owner_phone || "-",
-            alamat: d.business_address || "-",
-            kota: d.kota || "Kota Bandung", 
-            provinsi: d.provinsi || "Jawa Barat",
-            nib: d.nib_number || "-",
-            namaBank: d.bank_name || "-",
-            noRekening: d.bank_account_number || "-",
-            atasNama: d.bank_account_name || "-",
-            sbtTokenId: d.sbt_token_id || "SBT-VDR-" + d.id.split("-")[2],
-            verifiedAt: d.created_at?.split("T")[0] || "-",
-            reputasiScore: 92,
+            id: d.id,
+            business_name: d.business_name || "-",
+            business_email: d.business_email || "-",
+            business_phone: d.business_phone || "-",
+            business_address: d.business_address || "-",
+            latitude: d.latitude || "0",
+            longitude: d.longitude || "0",
+            npwp_number: d.npwp_number || "-",
+            nib_number: d.nib_number || "-",
+            logo_url: d.logo_url || "",
+            
+            akta_document_url: d.akta_document_url || "",
+            akta_document_hash: d.akta_document_hash || "",
+            sk_kemenkumham_url: d.sk_kemenkumham_url || "",
+            sk_kemenkumham_hash: d.sk_kemenkumham_hash || "",
+            npwp_document_url: d.npwp_document_url || "",
+            npwp_document_hash: d.npwp_document_hash || "",
+            nib_document_url: d.nib_document_url || "",
+            nib_document_hash: d.nib_document_hash || "",
+            sppg_readiness_document_url: d.sppg_readiness_document_url || "",
+            sppg_readiness_document_hash: d.sppg_readiness_document_hash || "",
+
+            bank_name: d.bank_name || "-",
+            bank_account_number: d.bank_account_number || "-",
+            bank_account_name: d.bank_account_name || "-",
+            
+            sbt_token_id: d.sbt_token_id,
+            reputasi_score: d.reputasi_score || 92,
             status: mappedStatus
           };
 
           setProfile(loadedProfile);
           setDraft(loadedProfile);
-          
-          // Update status cookie to keep sidebar in sync
           document.cookie = `boga_vendor_status=${mappedStatus}; path=/`;
         }
       } catch (err) {
@@ -153,11 +186,49 @@ export default function VendorProfilPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 1200)); // mock save for now
-    setProfile({ ...draft });
-    setEditing(false);
-    setSaving(false);
-    toast.success("Profil berhasil disimpan!");
+    try {
+      const res = await fetch(`http://localhost:3001/api/vendors/${draft.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          business_name: draft.business_name,
+          business_email: draft.business_email,
+          business_phone: draft.business_phone,
+          business_address: draft.business_address,
+          latitude: draft.latitude,
+          longitude: draft.longitude,
+          npwp_number: draft.npwp_number,
+          nib_number: draft.nib_number,
+          logo_url: draft.logo_url,
+          akta_document_url: draft.akta_document_url,
+          akta_document_hash: draft.akta_document_hash,
+          sk_kemenkumham_url: draft.sk_kemenkumham_url,
+          sk_kemenkumham_hash: draft.sk_kemenkumham_hash,
+          npwp_document_url: draft.npwp_document_url,
+          npwp_document_hash: draft.npwp_document_hash,
+          nib_document_url: draft.nib_document_url,
+          nib_document_hash: draft.nib_document_hash,
+          sppg_readiness_document_url: draft.sppg_readiness_document_url,
+          sppg_readiness_document_hash: draft.sppg_readiness_document_hash,
+          bank_name: draft.bank_name,
+          bank_account_number: draft.bank_account_number,
+          bank_account_name: draft.bank_account_name
+        })
+      });
+
+      const json = await res.json();
+      if (json.status === "success") {
+        setProfile({ ...draft });
+        setEditing(false);
+        toast.success("Profil berhasil diperbarui secara On-Chain!");
+      } else {
+        toast.error(json.message || "Gagal memperbarui profil.");
+      }
+    } catch (err) {
+      toast.error("Terjadi kesalahan pada server.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const p = editing ? draft : profile;
@@ -242,7 +313,7 @@ export default function VendorProfilPage() {
           <div className="relative shrink-0">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow"
               style={{ background: isPending ? "#94A3B8" : G }}>
-              {profile.namaToko.slice(0, 1)}
+              {(profile?.business_name || "?").slice(0, 1)}
             </div>
             <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white border-2 border-white shadow flex items-center justify-center"
               style={{ background: isPending ? "#64748B" : G }}>
@@ -251,8 +322,8 @@ export default function VendorProfilPage() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-extrabold text-slate-800 truncate">{profile.namaToko}</p>
-            <p className="text-xs text-slate-400 truncate">{profile.email}</p>
+            <p className="text-sm font-extrabold text-slate-800 truncate">{profile?.business_name}</p>
+            <p className="text-xs text-slate-400 truncate">{profile?.business_email}</p>
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               <div className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black ${isPending ? "bg-slate-100 text-slate-500" : "bg-emerald-100 text-emerald-700"}`}>
                 {isPending ? <Loader2 size={9} className="animate-spin" /> : <ShieldCheck size={9} />}
@@ -260,7 +331,7 @@ export default function VendorProfilPage() {
               </div>
               {!isPending && (
                 <div className="text-[9px] font-bold text-slate-400 bg-slate-100 rounded-full px-2 py-0.5">
-                  Reputasi {profile.reputasiScore}/100
+                  Reputasi {profile?.reputasi_score}/100
                 </div>
               )}
             </div>
@@ -272,108 +343,111 @@ export default function VendorProfilPage() {
           <Hash size={14} className="shrink-0" style={{ color: isPending ? "#64748B" : G }} />
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-bold" style={{ color: isPending ? "#475569" : G }}>Soulbound Token (SBT) On-Chain</p>
-            <p className="text-[9px] font-mono text-slate-500 truncate">{isPending ? "GENERATING_TOKEN_ON_CHAIN..." : profile.sbtTokenId}</p>
+            <p className="text-[9px] font-mono text-slate-500 truncate">{isPending ? "GENERATING_TOKEN_ON_CHAIN..." : (profile?.sbt_token_id || "NOT_MINTED")}</p>
           </div>
           {isPending ? <Loader2 size={16} className="animate-spin text-slate-400" /> : <CheckCircle2 size={16} style={{ color: G }} className="shrink-0" />}
         </div>
 
         {/* ── Data Toko ── */}
-        <Section title="Informasi Toko" icon={Building2}>
+        <Section title="Informasi Toko & Lokasi" icon={Building2}>
           <FieldRow label="Nama Toko / Usaha">
             {editing
-              ? <Input value={p.namaToko} onChange={set("namaToko")} className="h-9 text-xs rounded-xl" />
-              : <ReadOnlyField value={p.namaToko} />}
+              ? <Input value={p.business_name} onChange={set("business_name")} className="h-9 text-xs rounded-xl" />
+              : <ReadOnlyField value={p.business_name} />}
           </FieldRow>
-          <FieldRow label="Nama Pemilik">
-            {editing
-              ? <Input value={p.namaLengkap} onChange={set("namaLengkap")} className="h-9 text-xs rounded-xl" />
-              : <ReadOnlyField value={p.namaLengkap} />}
-          </FieldRow>
-          <div className="grid grid-cols-2 gap-3">
-            <FieldRow label="Kota">
-              {editing
-                ? <Input value={p.kota} onChange={set("kota")} className="h-9 text-xs rounded-xl" />
-                : <ReadOnlyField value={p.kota} />}
-            </FieldRow>
-            <FieldRow label="Provinsi">
-              {editing
-                ? <Input value={p.provinsi} onChange={set("provinsi")} className="h-9 text-xs rounded-xl" />
-                : <ReadOnlyField value={p.provinsi} />}
-            </FieldRow>
-          </div>
           <FieldRow label="Alamat Lengkap">
             {editing
-              ? <Input value={p.alamat} onChange={set("alamat")} className="h-9 text-xs rounded-xl" />
-              : <ReadOnlyField value={p.alamat} />}
+              ? <Input value={p.business_address} onChange={set("business_address")} className="h-9 text-xs rounded-xl" />
+              : <ReadOnlyField value={p.business_address} />}
           </FieldRow>
+          <div className="grid grid-cols-2 gap-3">
+            <FieldRow label="Latitude">
+              {editing
+                ? <Input value={p.latitude} onChange={set("latitude")} className="h-9 text-xs rounded-xl font-mono" />
+                : <ReadOnlyField value={p.latitude} mono />}
+            </FieldRow>
+            <FieldRow label="Longitude">
+              {editing
+                ? <Input value={p.longitude} onChange={set("longitude")} className="h-9 text-xs rounded-xl font-mono" />
+                : <ReadOnlyField value={p.longitude} mono />}
+            </FieldRow>
+          </div>
         </Section>
 
         {/* ── Kontak ── */}
         <Section title="Informasi Kontak" icon={Phone}>
-          <FieldRow label="Email">
-            <ReadOnlyField value={p.email} />
-            <p className="text-[9px] text-slate-400 mt-1">Email terdaftar tidak dapat diubah</p>
+          <FieldRow label="Email Terdaftar">
+            <ReadOnlyField value={p.business_email} />
           </FieldRow>
-          <FieldRow label="Nomor HP / WhatsApp">
+          <FieldRow label="Nomor WhatsApp Usaha">
             {editing
-              ? <Input value={p.phone} onChange={set("phone")} className="h-9 text-xs rounded-xl" type="tel" />
-              : <ReadOnlyField value={p.phone} />}
+              ? <Input value={p.business_phone} onChange={set("business_phone")} className="h-9 text-xs rounded-xl" type="tel" />
+              : <ReadOnlyField value={p.business_phone} />}
           </FieldRow>
         </Section>
 
         {/* ── Rekening Bank ── */}
-        <Section title="Rekening Pencairan Dana Escrow" icon={CreditCard}>
-          <div className="rounded-2xl bg-amber-50 border border-amber-100 px-3 py-2.5 flex items-start gap-2">
-            <AlertTriangle size={11} className="text-amber-500 mt-0.5 shrink-0" />
-            <p className="text-[10px] text-amber-700 leading-relaxed">
-              Dana escrow DOKU akan langsung dicairkan ke rekening ini setelah Multi-Sig 3/3 selesai. Pastikan data benar.
-            </p>
-          </div>
+        <Section title="Rekening Pencairan" icon={CreditCard}>
           <FieldRow label="Bank">
             {editing ? (
-              <select value={p.namaBank}
-                onChange={e => setDraft(prev => ({ ...prev, namaBank: e.target.value }))}
-                className="w-full h-9 px-3 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <select value={p.bank_name}
+                onChange={e => setDraft(prev => ({ ...prev, bank_name: e.target.value }))}
+                className="w-full h-9 px-3 text-xs font-medium rounded-xl border border-slate-200 bg-white text-slate-700">
                 {BANK_OPTIONS.map(b => <option key={b}>{b}</option>)}
               </select>
-            ) : <ReadOnlyField value={p.namaBank} />}
+            ) : <ReadOnlyField value={p.bank_name} />}
           </FieldRow>
           <FieldRow label="Nomor Rekening">
             {editing
-              ? <Input value={p.noRekening} onChange={set("noRekening")} className="h-9 text-xs rounded-xl font-mono" />
-              : <ReadOnlyField value={p.noRekening} mono />}
+              ? <Input value={p.bank_account_number} onChange={set("bank_account_number")} className="h-9 text-xs rounded-xl font-mono" />
+              : <ReadOnlyField value={p.bank_account_number} mono />}
           </FieldRow>
           <FieldRow label="Atas Nama">
             {editing
-              ? <Input value={p.atasNama} onChange={set("atasNama")} className="h-9 text-xs rounded-xl" />
-              : <ReadOnlyField value={p.atasNama} />}
+              ? <Input value={p.bank_account_name} onChange={set("bank_account_name")} className="h-9 text-xs rounded-xl" />
+              : <ReadOnlyField value={p.bank_account_name} />}
           </FieldRow>
         </Section>
 
-        {/* ── Legalitas ── */}
-        <Section title="Dokumen Legalitas" icon={FileText}>
-          <FieldRow label="Nomor Induk Berusaha (NIB)">
-            <ReadOnlyField value={p.nib} mono />
-            <p className="text-[9px] text-slate-400 mt-1">Untuk mengubah NIB, hubungi administrator B.O.G.A</p>
-          </FieldRow>
-          <div className="grid grid-cols-2 gap-2 mt-1">
-            {[
-              { label: "NIB", status: isPending ? "Sedang Direview" : "Terverifikasi" },
-              { label: "SIUP", status: isPending ? "Sedang Direview" : "Terverifikasi" },
-              { label: "Sertifikat Halal", status: "Tidak Ditemukan" },
-              { label: "PIRT", status: isPending ? "Menunggu Antrean" : "Proses Review" },
-            ].map(d => {
-              const ok = d.status === "Terverifikasi";
-              const process = d.status === "Proses Review" || d.status === "Sedang Direview" || d.status === "Menunggu Antrean";
-              return (
-                <div key={d.label} className={`flex items-center gap-2 rounded-2xl px-3 py-2 border text-[10px] font-semibold
-                  ${ok ? "bg-emerald-50 border-emerald-100 text-emerald-700" : process ? "bg-amber-50 border-amber-100 text-amber-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}>
-                  {ok ? <CheckCircle2 size={11} /> : process ? <Loader2 size={11} className="animate-spin" /> : <AlertTriangle size={11} />}
-                  <span className="flex-1">{d.label}</span>
-                  <span className="text-[8px] font-bold opacity-70">{d.status}</span>
+        {/* ── Zero-Trust Legalitas ── */}
+        <Section title="Zero-Trust Documents" icon={ShieldCheck}>
+          <div className="grid grid-cols-1 gap-3">
+            <FieldRow label="NPWP Number">
+              {editing
+                ? <Input value={p.npwp_number} onChange={set("npwp_number")} className="h-9 text-xs rounded-xl font-mono" />
+                : <ReadOnlyField value={p.npwp_number} mono />}
+            </FieldRow>
+            <FieldRow label="NIB Number">
+              {editing
+                ? <Input value={p.nib_number} onChange={set("nib_number")} className="h-9 text-xs rounded-xl font-mono" />
+                : <ReadOnlyField value={p.nib_number} mono />}
+            </FieldRow>
+            
+            {/* Document List with Links & Hashes */}
+            <div className="space-y-2.5 mt-2">
+              {[
+                { label: "Akta Pendirian", url: p.akta_document_url, hash: p.akta_document_hash },
+                { label: "SK Kemenkumham", url: p.sk_kemenkumham_url, hash: p.sk_kemenkumham_hash },
+                { label: "NPWP Toko", url: p.npwp_document_url, hash: p.npwp_document_hash },
+                { label: "NIB Toko", url: p.nib_document_url, hash: p.nib_document_hash },
+                { label: "SPPG Readiness", url: p.sppg_readiness_document_url, hash: p.sppg_readiness_document_hash },
+              ].map(d => (
+                <div key={d.label} className="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] font-black text-slate-700 uppercase tracking-tight">{d.label}</p>
+                    {d.url && d.url !== "" && (
+                      <a href={d.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[9px] font-bold text-blue-600 hover:underline">
+                        <ExternalLink size={10} /> Lihat Dokumen
+                      </a>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-white rounded-lg px-2 py-1 border border-slate-100">
+                    <Hash size={9} className="text-slate-300" />
+                    <p className="text-[8px] font-mono text-slate-400 truncate">{d.hash || "BELUM_ADA_HASH"}</p>
+                  </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </Section>
 

@@ -291,9 +291,44 @@ function ActivityItem({ ev, isLast }: { ev: ActivityEvent; isLast: boolean }) {
 
 /* ─── Main Page ─── */
 export default function VendorRiwayatPage() {
+  const [vendorId, setVendorId] = useState<string>("");
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const API = "http://localhost:3001";
+
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) {
+      setVendorId(id);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchHistory = useCallback(async () => {
+    if (!vendorId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/inventory/vendors/${vendorId}/history`);
+      const json = await res.json();
+      if (json.status === "success") {
+        setEvents(json.data || []);
+      }
+    } catch (error) {
+      logger.error('VendorRiwayat', 'Gagal memuat riwayat', error);
+      toast.error("Gagal sinkronisasi data riwayat.");
+    } finally {
+      setLoading(false);
+    }
+  }, [vendorId]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
   // Date Filter State (Default: Last 3 months)
   const today = new Date();
@@ -331,7 +366,7 @@ export default function VendorRiwayatPage() {
   };
 
   // 1. Filter by Category & Date Range
-  const filtered = MOCK_EVENTS.filter(ev => {
+  const filtered = events.filter(ev => {
     const matchCat = activeFilter === "all" || FILTER_MAP[activeFilter].includes(ev.type);
     const evDate = new Date(ev.timestamp);
     const sDate = new Date(startDate);
@@ -339,7 +374,7 @@ export default function VendorRiwayatPage() {
     eDate.setHours(23, 59, 59); // End of day
     const matchDate = evDate >= sDate && evDate <= eDate;
     return matchCat && matchDate;
-  });
+  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   // 2. Pagination Logic
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -354,9 +389,9 @@ export default function VendorRiwayatPage() {
     { key: "katalog",  label: "Katalog",  color: "#0891B2" },
   ];
 
-  const todayCount = MOCK_EVENTS.filter(ev => new Date(ev.timestamp).toDateString() === new Date().toDateString()).length;
-  const pendingPO  = MOCK_EVENTS.filter(ev => ev.type === "PO_RECEIVED").length;
-  const released   = MOCK_EVENTS.filter(ev => ev.type === "ESCROW_RELEASED").reduce((s, e) => s + (e.amount ?? 0), 0);
+  const todayCount = events.filter(ev => new Date(ev.timestamp).toDateString() === new Date().toDateString()).length;
+  const pendingPO  = events.filter(ev => ev.type === "PO_RECEIVED").length;
+  const released   = events.filter(ev => ev.type === "ESCROW_RELEASED").reduce((s, e) => s + (e.amount ?? 0), 0);
 
   return (
     <div className="min-h-svh bg-slate-50" data-role="vendor">
@@ -439,7 +474,7 @@ export default function VendorRiwayatPage() {
                   </div>
                   <div>
                     {group.events.map((ev, idx) => (
-                      <ActivityItem key={ev.id} ev={ev} isLast={idx === group.events.length - 1} />
+                      <ActivityItem key={`${ev.type}-${ev.id}`} ev={ev} isLast={idx === group.events.length - 1} />
                     ))}
                   </div>
                 </div>

@@ -145,7 +145,10 @@ export function LoginForm({
   const redirectByRole: Record<string, string> = {
     sekolah: "/sekolah/admin",
     goverment: "/goverment/dashboard",
+    pemerintah: "/goverment/dashboard",
     sppg: "/sppg/dashboard",
+    admin: "/sppg/admin/dashboard",
+    qc: "/sppg/qc/inspeksi",
     vendor: "/vendor/dashboard",
     logistik: "/logistik/dashboard",
   };
@@ -214,137 +217,85 @@ export function LoginForm({
     try {
       if (isSignup) {
         if (role.id === "vendor") {
-          const res = await fetch("http://localhost:3001/api/vendors/register", {
+          // ── REGISTRASI VENDOR MANUAL ──
+          const res = await fetch("http://localhost:3001/api/v1/auth/register-vendor", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               nik,
-              name: `${firstName} ${lastName}`,
+              nama: `${firstName} ${lastName}`,
               email: emailSignup,
-              phone_number: phone,
+              telepon: phone,
               password: passwordSignup,
-              wallet_address: "0x" + Math.random().toString(16).substring(2, 42), // Dummy wallet for Zero-Trust
+              alamatWallet: "0x" + Math.random().toString(16).substring(2, 42),
+              
+              // Profil Bisnis
               business_name: businessName,
               business_email: emailSignup,
               business_phone: phone,
               business_address: businessAddress,
-              nib_number: nibNumber,
+              latitude: lat,
+              longitude: lng,
               npwp_number: npwpNumber,
-              logo_url: "https://boga.storage.id/logos/default-vendor.png",
+              nib_number: nibNumber,
+              logo_url: "https://r2.boga.id/temp/default-logo.png",
+              
+              // Dokumen Legalitas (URL R2)
               akta_document_url: aktaUrl,
               sk_kemenkumham_url: skUrl,
               npwp_document_url: npwpUrl,
               nib_document_url: nibUrl,
               sppg_readiness_document_url: sppgReadyUrl,
+              
+              // Bank
               bank_name: bankName,
               bank_account_number: bankAccountNumber,
-              bank_account_name: bankAccountName,
-              latitude: lat,
-              longitude: lng,
+              bank_account_name: bankAccountName
             }),
           });
           const json = await res.json();
           toast.dismiss(loadingToast);
 
           if (json.status === "success") {
-            toast.success("Pendaftaran berhasil! Akun Anda sedang diverifikasi.");
-            document.cookie = `boga_vendor_status=pending; path=/`;
-            document.cookie = `boga_vendor_id=${json.data.vendor_id}; path=/`;
-            localStorage.setItem("boga_vendor_id", json.data.vendor_id);
-            setTimeout(() => {
-              window.location.href = "/vendor/dashboard";
-            }, 1500);
+            toast.success("Registrasi Berhasil! Silakan Login.");
+            onModeChange?.("login");
+            setVendorStep(1);
             return;
           } else {
             throw new Error(json.message || "Pendaftaran gagal.");
           }
         }
-
         toast.dismiss(loadingToast);
-        toast.error("Registrasi untuk role ini belum tersedia.");
+        toast.error("Registrasi untuk role ini belum tersedia secara manual.");
         return;
       }
 
-      const emailTrimmed = email.trim();
-      const uiRoleAsAppRole = appRoleFromUiRoleId(role.id) ?? "";
-
-      let signedInRole = "";
-      let signedInId = "";
-      let isDemoMode = false;
-
-      if (isDev) {
-        signedInRole = uiRoleAsAppRole;
-        isDemoMode = true;
-        // Map test accounts to real IDs in the DB
-        if (emailTrimmed === "dadang@pangan.com") signedInId = "ACC-VEN-01";
-        else if (emailTrimmed === "cecep@vendor.id") signedInId = "ACC-VEN-02";
-        else signedInId = "ACC-VEN-DEMO";
-      } else {
-        if (!emailTrimmed || !password) {
-          throw new Error("Email dan password wajib diisi.");
-        }
-      }
-
-      try {
-        if (!isDev) {
-          const result = await authClient.signIn.email({
-            email: emailTrimmed,
-            password,
-            rememberMe: true,
-          });
-
-          if (result.error) {
-            throw new Error(result.error.message || "Login gagal.");
-          }
-
-          signedInRole =
-            (result.data?.user as { appRole?: string } | undefined)?.appRole ?? "";
-          signedInId = result.data?.user?.id ?? "";
-        }
-      } catch (error) {
-        const message = error instanceof Error ? error.message : "";
-        const canFallbackToDemo =
-          message.toLowerCase().includes("failed to fetch") ||
-          message.toLowerCase().includes("fetch") ||
-          message.toLowerCase().includes("network") ||
-          message.toLowerCase().includes("not found") ||
-          message.toLowerCase().includes("no such table") ||
-          message.toLowerCase().includes("response server") ||
-          message.toLowerCase().includes("tidak dapat") ||
-          message.toLowerCase().includes("gagal memanggil");
-
-        if (!canFallbackToDemo) {
-          throw error instanceof Error ? error : new Error("Login gagal.");
-        }
-
-        isDemoMode = true;
-        signedInRole = uiRoleAsAppRole;
-        if (emailTrimmed === "dadang@pangan.com") signedInId = "ACC-VEN-01";
-        else if (emailTrimmed === "cecep@vendor.id") signedInId = "ACC-VEN-02";
-      }
-
-      localStorage.setItem("boga_is_auth", "true");
-      localStorage.setItem("boga_user_role", signedInRole || role.id);
-      localStorage.setItem("boga_vendor_id", signedInId);
-      document.cookie = `boga_is_auth=true; path=/`;
-      document.cookie = `boga_user_role=${encodeURIComponent(signedInRole || role.id)}; path=/`;
-      document.cookie = `boga_vendor_id=${encodeURIComponent(signedInId)}; path=/`;
-
+      // ── LOGIN MANUAL (JWT) ──
+      const res = await fetch("http://localhost:3001/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const json = await res.json();
       toast.dismiss(loadingToast);
-      toast.success("Login berhasil!");
-      if (isDemoMode) {
-        toast.message("Auth service belum siap, masuk demo mode.");
+
+      if (json.status !== "success") {
+        throw new Error(json.message || "Email atau Password salah!");
       }
 
-      const nextRequiredRole = safeNext ? requiredRoleForPath(safeNext) : null;
-      const canUseNext = safeNext && (!nextRequiredRole || nextRequiredRole === signedInRole);
+      const { token, user } = json.data;
 
-      const target =
-        (canUseNext ? safeNext : null) ??
-        (signedInRole ? dashboardHrefByRole(signedInRole) : null) ??
-        redirectByRole[role.id] ??
-        `/${role.id}/dashboard`;
+      // Simpan Ke LocalStorage & Cookie
+      localStorage.setItem("boga_token", token);
+      localStorage.setItem("boga_user", JSON.stringify(user));
+      document.cookie = `boga_token=${token}; path=/`;
+      document.cookie = `boga_user_role=${user.peran}; path=/`;
+      document.cookie = `boga_vendor_id=${user.id}; path=/`;
 
+      toast.success(`Selamat datang kembali, ${user.nama}!`);
+
+      // Redirect berdasarkan role
+      const target = redirectByRole[user.peran.toLowerCase()] || "/vendor/dashboard";
       window.location.href = target;
     } catch (error) {
       toast.dismiss(loadingToast);

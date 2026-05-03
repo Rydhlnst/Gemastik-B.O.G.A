@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import LocationPickerMapLibre from "@/components/ui/LocationPickerMapLibre";
+import { logger } from "@/lib/logger";
 
 /* ─── Constants ─── */
 const API = "http://localhost:3001";
@@ -24,9 +25,13 @@ const O_LIGHT = "#DBEAFE";
 /* ─── Types ─── */
 interface Commodity { id: string; name: string; unit: string; current_stock: number; category: string; }
 interface Movement {
-  id: string; commodity_id: string; quantity: number;
-  destination_name: string; destination_location: string;
-  proof_url: string; proof_hash: string;
+  id: string; 
+  commodity_id: string; 
+  commodity_name: string;
+  quantity: number;
+  reason: string;
+  reference_id: string;
+  note: string;
   created_at: string;
 }
 
@@ -152,17 +157,30 @@ function MovementCard({ m, commodities }: { m: Movement; commodities: Commodity[
 
       <div className="px-4 py-3 space-y-2">
         <div className="flex items-start gap-2.5">
-          <Truck size={12} className="text-slate-300 mt-0.5 shrink-0" />
+          <AlertCircle size={12} className="text-slate-300 mt-0.5 shrink-0" />
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tujuan Pengiriman</p>
-            <p className="text-xs text-slate-700 font-semibold mt-0.5">{m.destination_name}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Alasan Pengeluaran</p>
+            <Badge variant="outline" className="text-[9px] font-black mt-1 uppercase">
+              {m.reason.replace('_', ' ')}
+            </Badge>
           </div>
         </div>
+
+        {m.reference_id && (
+          <div className="flex items-start gap-2.5">
+            <FileText size={12} className="text-slate-300 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referensi Pesanan</p>
+              <p className="text-xs text-slate-700 font-semibold mt-0.5">{m.reference_id}</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-start gap-2.5">
-          <MapPin size={12} className="text-slate-300 mt-0.5 shrink-0" />
+          <FileText size={12} className="text-slate-300 mt-0.5 shrink-0" />
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lokasi Tujuan</p>
-            <p className="text-xs text-slate-700 font-semibold mt-0.5">{m.destination_location}</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Keterangan / Catatan</p>
+            <p className="text-xs text-slate-600 font-medium mt-0.5">{m.note || "Tidak ada catatan"}</p>
           </div>
         </div>
         <div className="flex items-start gap-2.5">
@@ -184,65 +202,40 @@ function MovementCard({ m, commodities }: { m: Movement; commodities: Commodity[
 
 /* ─── Main Page ─── */
 export default function VendorOutboundPage() {
-  const [vendorId] = useState("ACC-VEN-5E1FD92B");
+  const [vendorId, setVendorId] = useState<string>("");
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) {
+      setVendorId(id);
+    } else {
+      setLoadingData(false);
+    }
+  }, []);
+
   const fetchData = useCallback(async () => {
+    if (!vendorId) return;
     setLoadingData(true);
     try {
-      const res = await fetch(`${API}/api/vendors/${vendorId}/commodities`);
-      const json = await res.json();
-      if (json.status === "success") setCommodities(json.data ?? []);
-      else throw new Error("API failed");
-    } catch {
-      setCommodities([
-        { id: "1", name: "Beras Premium", unit: "kg", current_stock: 750, category: "Karbohidrat" },
-        { id: "2", name: "Daging Sapi Segar", unit: "kg", current_stock: 300, category: "Protein Hewani" },
-        { id: "3", name: "Telur Ayam Ras", unit: "kg", current_stock: 1200, category: "Protein Hewani" },
-        { id: "4", name: "Ikan Bandeng", unit: "kg", current_stock: 250, category: "Protein Ikan" },
-        { id: "5", name: "Bayam Hijau", unit: "ikat", current_stock: 50, category: "Sayur & Buah" },
-      ]);
+      // 1. Fetch Commodities
+      const resC = await fetch(`${API}/api/vendors/${vendorId}/commodities`);
+      const jsonC = await resC.json();
+      if (jsonC.status === "success") setCommodities(jsonC.data ?? []);
 
-      setMovements([
-        {
-          id: "MOV-OUT-001", commodity_id: "1", quantity: 50,
-          destination_name: "SD Negeri 01 Menteng",
-          destination_location: "Jakarta Pusat",
-          proof_hash: "sha256:d8f7e6a5b4c3d2e1f0g9h8i7j6k5l4m3",
-          proof_url: "", created_at: new Date(Date.now() - 2 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-OUT-002", commodity_id: "2", quantity: 20,
-          destination_name: "SMP Negeri 02 Bekasi",
-          destination_location: "Bekasi Selatan",
-          proof_hash: "sha256:a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-          proof_url: "", created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-OUT-003", commodity_id: "3", quantity: 300,
-          destination_name: "SMA Negeri 03 Bogor",
-          destination_location: "Bogor Tengah",
-          proof_hash: "sha256:q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2",
-          proof_url: "", created_at: new Date(Date.now() - 8 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-OUT-004", commodity_id: "4", quantity: 15,
-          destination_name: "SD Negeri 04 Depok",
-          destination_location: "Beji, Depok",
-          proof_hash: "sha256:m1n2o3p4q5r6s7t8u9v0w1x2y3z4a5b6",
-          proof_url: "", created_at: new Date(Date.now() - 12 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-OUT-005", commodity_id: "5", quantity: 100,
-          destination_name: "SMP Negeri 05 Tangerang",
-          destination_location: "Tangerang Kota",
-          proof_hash: "sha256:z9y8x7w6v5u4t3s2r1q0p9o8n7m6l5k4",
-          proof_url: "", created_at: new Date(Date.now() - 24 * 3600000).toISOString(),
-        },
-      ]);
-    } finally { setLoadingData(false); }
+      // 2. Fetch Outbound Movements
+      const resM = await fetch(`${API}/api/inventory/vendors/${vendorId}/outbound`);
+      const jsonM = await resM.json();
+      if (jsonM.status === "success") setMovements(jsonM.data ?? []);
+
+    } catch (error) {
+      logger.error('VendorOutbound', 'Gagal memuat data dari server', error);
+      toast.error("Gagal sinkronisasi data.");
+    } finally { 
+      setLoadingData(false); 
+    }
   }, [vendorId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -266,9 +259,9 @@ export default function VendorOutboundPage() {
         {/* Outbound Stats — 3 Cards like Screenshot */}
         <div className="grid grid-cols-3 gap-2">
           {[
-            { icon: Package, label: "Komoditas", value: new Set(movements.map(m => m.commodity_id)).size, color: O_COLOR },
-            { icon: ArrowUpToLine, label: "Outbound", value: movements.length, color: "#4F46E5" },
-            { icon: Truck, label: "Titik Tujuan", value: new Set(movements.map(m => m.destination_name)).size, color: "#7C3AED" },
+            { icon: Package, label: "Komoditas Terpengaruh", value: new Set(movements.map(m => m.commodity_id)).size, color: O_COLOR },
+            { icon: ArrowUpToLine, label: "Total Transaksi", value: movements.length, color: "#4F46E5" },
+            { icon: AlertCircle, label: "Kasus Khusus", value: movements.filter(m => m.reason !== 'PO_FULFILLMENT').length, color: "#7C3AED" },
           ].map(({ icon: Icon, label, value, color }) => (
             <div key={label} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
               <Icon size={14} style={{ color }} />

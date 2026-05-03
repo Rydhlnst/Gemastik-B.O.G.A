@@ -4,15 +4,22 @@ const VendorRegistryArtifact = require("../config/BogaVendorRegistry.json");
 // 1. Inisialisasi Koneksi ke Jaringan Private EVM (Hardhat)
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
-// 2. Menyiapkan Dompet Admin Pemerintah menggunakan Private Key
-const adminWallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY, provider);
+// 2. Menyiapkan Dompet Admin Pemerintah (Safe Initialization)
+let adminWallet;
+let vendorContract;
 
-// 3. Menghubungkan ke Smart Contract dengan hak akses Admin
-const vendorContract = new ethers.Contract(
-  process.env.VENDOR_REGISTRY_ADDRESS,
-  VendorRegistryArtifact.abi,
-  adminWallet
-);
+try {
+  if (process.env.ADMIN_PRIVATE_KEY) {
+    adminWallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY, provider);
+    vendorContract = new ethers.Contract(
+      process.env.VENDOR_REGISTRY_ADDRESS,
+      VendorRegistryArtifact.abi,
+      adminWallet
+    );
+  }
+} catch (error) {
+  console.warn("[Blockchain] Gagal inisialisasi wallet/contract. Pastikan .env terisi.");
+}
 
 /**
  * Mendaftarkan Hash Dokumen Vendor ke Blockchain

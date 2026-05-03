@@ -4,13 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import Link from "next/link";
-import {
-  ArrowDownToLine, Package, MapPin, FileText,
-  Loader2, Plus, X, Search, CheckCircle2,
-  Hash, Boxes, Building2, Tag,
-  Wheat, Beef, Fish, Sprout, ChefHat, Apple, Factory, LayoutGrid,
-  UploadCloud, ImageIcon, FileX, Trash2, Clock, AlertCircle
-} from "lucide-react";
+import { Calendar, Package, ArrowUpRight, CheckCircle2, History, TrendingUp, Wallet, AlertCircle, Search, Filter, Info, Download, Trash2, Edit2, Plus, Clock, FileText, ChevronLeft, ChevronRight, X, ArrowDownToLine, MapPin, Loader2, Hash, Boxes, Building2, Tag, Wheat, Beef, Fish, Sprout, ChefHat, Apple, Factory, LayoutGrid, UploadCloud, ImageIcon, FileX } from "lucide-react";
+import { logger } from "@/lib/logger";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -22,9 +17,10 @@ const G = "#065F46";
 const G_LIGHT = "#D1FAE5";
 
 /* ─── Types ─── */
-interface Commodity { id: string; name: string; unit: string; current_stock: number; category: string; }
+interface Commodity { id: string; name: string; unit: string; current_stock: number; target_stock: number; category: string; }
 interface Movement {
   id: string; commodity_id: string; quantity: number;
+  price_per_unit: number;
   origin_source_name: string; origin_source_location: string;
   origin_proof_url: string; origin_proof_hash: string;
   created_at: string;
@@ -32,6 +28,7 @@ interface Movement {
 interface FormState {
   commodity_id: string;
   quantity: string;
+  price_per_unit: string;
   origin_source_name: string;
   origin_lat: string;
   origin_lng: string;
@@ -39,7 +36,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  commodity_id: "", quantity: "",
+  commodity_id: "", quantity: "", price_per_unit: "",
   origin_source_name: "", origin_lat: "", origin_lng: "", origin_proof_url: "",
 };
 
@@ -81,11 +78,13 @@ function CommodityPicker({ commodities, selected, onSelect }: {
   const [search, setSearch] = useState("");
   const [activeCat, setActiveCat] = useState("Semua");
 
-  const filtered = commodities.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = activeCat === "Semua" || c.category === activeCat;
-    return matchSearch && matchCat;
-  });
+  const filtered = commodities
+    .filter(c => {
+      const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
+      const matchCat = activeCat === "Semua" || c.category === activeCat;
+      return matchSearch && matchCat;
+    })
+    .sort((a, b) => a.current_stock - b.current_stock);
 
   return (
     <div className="space-y-4">
@@ -126,11 +125,17 @@ function CommodityPicker({ commodities, selected, onSelect }: {
         )}
         {filtered.map(c => {
           const isSelected = selected === c.id;
+          const isLow = c.current_stock < 50;
           return (
             <button key={c.id} type="button" onClick={() => onSelect(c.id)}
-              className={`relative flex flex-col p-3 rounded-2xl border text-left transition-all ${isSelected ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/50" : "border-slate-100 bg-slate-50 hover:bg-slate-100"}`}>
+              className={`relative flex flex-col p-3 rounded-2xl border text-left transition-all ${
+                isSelected ? "border-emerald-500 bg-emerald-50 ring-1 ring-emerald-500/50" : 
+                isLow ? "border-red-100 bg-red-50/30 shadow-inner" : "border-slate-100 bg-slate-50 hover:bg-slate-100"
+              }`}>
               <div className="flex items-center justify-between mb-2">
-                <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-colors ${
+                  isLow ? "bg-white border-red-200 text-red-500" : "bg-white border-slate-200 text-slate-400"
+                }`}>
                   <Package size={14} />
                 </div>
                 {isSelected && (
@@ -138,12 +143,19 @@ function CommodityPicker({ commodities, selected, onSelect }: {
                     <CheckCircle2 size={10} className="text-white" />
                   </div>
                 )}
+                {!isSelected && isLow && (
+                  <div className="bg-red-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-lg animate-pulse">
+                    KRITIS
+                  </div>
+                )}
               </div>
-              <p className={`text-[11px] font-bold leading-tight ${isSelected ? "text-emerald-700" : "text-slate-700"}`}>{c.name}</p>
-              <p className="text-[9px] text-slate-400 mt-1 font-medium">Stok: <span className="font-bold">{c.current_stock.toLocaleString("id-ID")}</span> {c.unit}</p>
+              <p className={`text-[11px] font-bold leading-tight ${isSelected ? "text-emerald-700" : isLow ? "text-red-700" : "text-slate-700"}`}>{c.name}</p>
+              <p className={`text-[9px] mt-1 font-medium ${isLow ? "text-red-500/70" : "text-slate-400"}`}>
+                Stok: <span className="font-bold">{c.current_stock.toLocaleString("id-ID")}</span> {c.unit}
+              </p>
               
               {/* Category Mini Badge */}
-              <div className="mt-2 text-[8px] font-black uppercase tracking-tighter text-slate-300">
+              <div className={`mt-2 text-[8px] font-black uppercase tracking-tighter ${isLow ? "text-red-300" : "text-slate-300"}`}>
                 {c.category}
               </div>
             </button>
@@ -198,6 +210,16 @@ function MovementCard({ m, commodities }: { m: Movement; commodities: Commodity[
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Zero-Trust Hash Nota</p>
             <p className="text-[10px] text-slate-600 font-mono mt-0.5 break-all">{truncateHash(m.origin_proof_hash)}</p>
           </div>
+        </div>
+        <div className="flex items-center justify-between bg-slate-50/50 rounded-2xl px-3 py-2 border border-slate-100">
+           <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Harga Beli</p>
+              <p className="text-xs font-black text-slate-700">Rp{(m.price_per_unit || 0).toLocaleString("id-ID")}<span className="text-[10px] font-normal text-slate-400 ml-0.5">/{commodity?.unit ?? "unit"}</span></p>
+           </div>
+           <div className="text-right">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Total Modal</p>
+              <p className="text-xs font-black text-emerald-700">Rp{(m.quantity * (m.price_per_unit || 0)).toLocaleString("id-ID")}</p>
+           </div>
         </div>
         {m.origin_proof_url && (
           <a href={m.origin_proof_url} target="_blank" rel="noreferrer"
@@ -279,7 +301,7 @@ function ProofUploader({ value, onChange }: { value: string, onChange: (val: str
 
       <div className="text-center">
         <p className="text-[11px] font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">Ketuk untuk pilih foto</p>
-        <p className="text-[9px] text-slate-300 font-medium tracking-tight mt-0.5">Sistem otomatis unggah ke R2 Storage</p>
+        <p className="text-[9px] text-slate-300 font-medium tracking-tight mt-0.5">Foto akan dianalisis otomatis oleh AI Verifikator</p>
       </div>
     </div>
   );
@@ -297,38 +319,48 @@ function AddInboundSheet({ open, onClose, vendorId, commodities, onAdded }: {
   const selectedCommodity = commodities.find(c => c.id === form.commodity_id);
 
   const handleSubmit = async () => {
-    if (!form.commodity_id) { toast.error("Pilih barang terlebih dahulu."); return; }
+    if (!form.commodity_id) { 
+      logger.warn('VendorInbound', 'Upaya submit tanpa memilih barang');
+      toast.error("Pilih barang terlebih dahulu."); 
+      return; 
+    }
     if (!form.quantity || Number(form.quantity) <= 0) { toast.error("Jumlah stok harus lebih dari 0."); return; }
     if (!form.origin_source_name) { toast.error("Nama sumber/supplier wajib diisi."); return; }
     if (!form.origin_lat || !form.origin_lng) { toast.error("Pilih lokasi asal di peta."); return; }
     if (!form.origin_proof_url) { toast.error("Bukti nota pembayaran wajib dilampirkan."); return; }
 
+    logger.info('VendorInbound', 'Mengirim data Inbound ke server...', { commodity: selectedCommodity?.name, quantity: form.quantity });
     setLoading(true);
     const t = toast.loading("Mencatat stok masuk...");
     try {
-      const res = await fetch(`${API}/api/vendors/${vendorId}/inbound`, {
+      const res = await fetch(`${API}/api/inventory/inbound`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           vendor_id: vendorId,
           commodity_id: form.commodity_id,
           quantity: Number(form.quantity),
+          price_per_unit: Number(form.price_per_unit),
           origin_source_name: form.origin_source_name,
           origin_source_location: `${form.origin_lat},${form.origin_lng}`,
-          origin_proof_url: form.origin_proof_url,
+          origin_proof_url: form.origin_proof_url, // Dikirim untuk dianalisis AI
+          notes: "Inbound via Dashboard",
         }),
       });
       const json = await res.json();
       toast.dismiss(t);
       if (json.status === "success") {
+        logger.info('VendorInbound', 'Inbound Berhasil!', json.data);
         toast.success("Stok berhasil dicatat! Hash nota dikunci.");
         setForm(EMPTY);
         onAdded();
         onClose();
       } else {
+        logger.error('VendorInbound', 'Inbound Gagal (Server Error)', json.message);
         toast.error(json.message ?? "Gagal mencatat stok.");
       }
-    } catch {
+    } catch (error) {
+      logger.error('VendorInbound', 'Kesalahan koneksi saat submit', error);
       toast.dismiss(t);
       toast.error("Tidak dapat terhubung ke server.");
     } finally {
@@ -388,6 +420,21 @@ function AddInboundSheet({ open, onClose, vendorId, commodities, onAdded }: {
                 )}
               </div>
 
+              {/* Harga Beli */}
+              <div>
+                <FLabel>Harga Beli per {selectedCommodity ? selectedCommodity.unit : "Unit"} (Rp)</FLabel>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
+                  <Input type="number" className={`${inputCls} pl-10`} value={form.price_per_unit}
+                    onChange={e => set("price_per_unit", e.target.value)} placeholder="15.000" />
+                </div>
+                {form.quantity && form.price_per_unit && (
+                  <p className="text-[10px] text-slate-400 mt-1.5 ml-1 flex items-center gap-1 font-medium italic">
+                    Estimasi total modal: <span className="text-emerald-600 font-bold">Rp{(Number(form.quantity) * Number(form.price_per_unit)).toLocaleString("id-ID")}</span>
+                  </p>
+                )}
+              </div>
+
               {/* Sumber Barang */}
               <div>
                 <FLabel>Nama Sumber / Supplier</FLabel>
@@ -437,7 +484,7 @@ function AddInboundSheet({ open, onClose, vendorId, commodities, onAdded }: {
               {/* Bukti Nota */}
               <div>
                 <div className="flex items-center justify-between mb-2 px-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto Produk</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto Struk / Nota</p>
                   <p className="text-[10px] text-slate-300 italic font-medium tracking-tight">JPG/PNG (Maks 2MB)</p>
                 </div>
                 <ProofUploader 
@@ -467,78 +514,56 @@ function AddInboundSheet({ open, onClose, vendorId, commodities, onAdded }: {
 
 /* ─── Main Page ─── */
 export default function VendorInboundPage() {
-  const [vendorId, setVendorId] = useState("ACC-VEN-5E1FD92B");
+  const [vendorId, setVendorId] = useState<string>("");
   const [commodities, setCommodities] = useState<Commodity[]>([]);
   const [movements, setMovements] = useState<Movement[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
+  
+  // Default: Awal bulan ini sampai hari ini
+  const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) {
+      setVendorId(id);
+    } else {
+      setLoadingData(false);
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     if (!vendorId) return;
+    logger.info('VendorInbound', 'Memulai pengambilan data stok dan riwayat...', { startDate, endDate });
     setLoadingData(true);
     try {
-      const [comRes] = await Promise.all([
-        fetch(`${API}/api/vendors/${vendorId}/commodities`),
-      ]);
-      const comJson = await comRes.json();
-      if (comJson.status === "success") setCommodities(comJson.data ?? []);
-      else throw new Error("API call failed");
-    } catch (err) { 
-      setCommodities([
-        { id: "1", name: "Beras Premium", unit: "kg", current_stock: 1250, category: "Karbohidrat" },
-        { id: "2", name: "Daging Sapi Segar", unit: "kg", current_stock: 450, category: "Protein Hewani" },
-        { id: "3", name: "Telur Ayam Ras", unit: "kg", current_stock: 800, category: "Protein Hewani" },
-        { id: "4", name: "Ikan Bandeng", unit: "kg", current_stock: 300, category: "Protein Ikan" },
-        { id: "5", name: "Bayam Hijau", unit: "ikat", current_stock: 150, category: "Sayur & Buah" },
-      ]);
-      setMovements([
-        {
-          id: "MOV-IN-001", commodity_id: "1", quantity: 500,
-          origin_source_name: "UD. Pangan Jaya (Karawang)",
-          origin_source_location: "-6.3000,107.3000",
-          origin_proof_url: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400",
-          origin_proof_hash: "sha256:5f4dcc3b5aa765d61d8327deb882cf99",
-          created_at: new Date(Date.now() - 48 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-IN-002", commodity_id: "2", quantity: 150,
-          origin_source_name: "Rumah Potong Halal Bekasi",
-          origin_source_location: "-6.2383,106.9756",
-          origin_proof_url: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400",
-          origin_proof_hash: "sha256:7e8f9d0c1b2a3d4e5f6g7h8i9j0k1l2m",
-          created_at: new Date(Date.now() - 24 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-IN-003", commodity_id: "3", quantity: 2000,
-          origin_source_name: "Peternakan Jaya Abadi (Blitar)",
-          origin_source_location: "-8.0983,112.1681",
-          origin_proof_url: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&q=80&w=400",
-          origin_proof_hash: "sha256:a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-          created_at: new Date(Date.now() - 12 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-IN-004", commodity_id: "4", quantity: 300,
-          origin_source_name: "TPI Muara Angke (Jakarta)",
-          origin_source_location: "-6.1084,106.7738",
-          origin_proof_url: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=400",
-          origin_proof_hash: "sha256:q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2",
-          created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-        },
-        {
-          id: "MOV-IN-005", commodity_id: "5", quantity: 850,
-          origin_source_name: "Kelompok Tani Lembang",
-          origin_source_location: "-6.8172,107.6186",
-          origin_proof_url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=400",
-          origin_proof_hash: "sha256:m1n2o3p4q5r6s7t8u9v0w1x2y3z4a5b6",
-          created_at: new Date(Date.now() - 1 * 3600000).toISOString(),
-        },
-      ]);
-    } finally { setLoadingData(false); }
-  }, [vendorId]);
+      // 1. Ambil Katalog Barang Vendor (untuk dropdown & stok)
+      const resComm = await fetch(`${API}/api/vendors/${vendorId}/commodities`);
+      const jsonComm = await resComm.json();
+      if (jsonComm.status === "success") {
+        setCommodities(jsonComm.data || []);
+        logger.debug('VendorInbound', 'Data stok katalog berhasil dimuat', { count: jsonComm.data?.length });
+      }
+
+    // 2. Ambil Riwayat Inbound dengan Filter Rentang Tanggal
+      const resMov = await fetch(`${API}/api/inventory/vendors/${vendorId}/inbound?start_date=${startDate}&end_date=${endDate}`);
+      const jsonMov = await resMov.json();
+      if (jsonMov.status === "success") {
+        setMovements(jsonMov.data || []);
+        logger.debug('VendorInbound', 'Riwayat transaksi berhasil dimuat', { count: jsonMov.data?.length });
+      }
+    } catch (error) {
+      logger.error('VendorInbound', 'Gagal mengambil data dari server', error);
+      toast.error("Gagal sinkronisasi data server.");
+    } finally {
+      setLoadingData(false);
+    }
+  }, [vendorId, startDate, endDate]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const totalInbound = movements.reduce((a, m) => a + m.quantity, 0);
+  const totalExpenditure = movements.reduce((a, m) => a + (m.quantity * (m.price_per_unit || 0)), 0);
 
   return (
     <div className="min-h-svh bg-slate-50" data-role="vendor">
@@ -568,12 +593,132 @@ export default function VendorInboundPage() {
             style={{ color: G, background: G_LIGHT }}>Muat</button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Section 1: MENDESAK (Stok Kosong / Produk Baru) */}
+        {commodities.filter(c => c.current_stock === 0).length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-[10px] font-black uppercase tracking-widest text-rose-600 flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-rose-600 rounded-full animate-ping" /> Mendesak: Stok Kosong / Baru
+              </p>
+            </div>
+            <div className="space-y-2">
+              {commodities
+                .filter(c => c.current_stock === 0)
+                .slice(0, 3)
+                .map(c => {
+                  const isNew = c.target_stock === 0;
+                  return (
+                    <div key={c.id} className="bg-rose-50/50 rounded-2xl border border-rose-100 px-4 py-4 shadow-sm border-l-4 border-l-rose-500">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-slate-800">{c.name}</p>
+                          <span className="text-[8px] font-black bg-rose-600 text-white px-1.5 py-0.5 rounded-lg">KOSONG</span>
+                        </div>
+                        <p className="text-xs font-black text-rose-600">0 <span className="font-normal text-slate-400">/ {isNew ? "?" : c.target_stock.toLocaleString("id-ID")} {c.unit}</span></p>
+                      </div>
+                      <p className="text-[10px] font-bold text-rose-500 flex items-center gap-1.5 uppercase tracking-wide">
+                        <AlertCircle size={12} /> {isNew ? "Barang baru! Belum ada stok sama sekali." : "Stok habis total! Segera lakukan pengisian."}
+                      </p>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
+        {/* Section 2: PERLU PERHATIAN (Stok Menipis) */}
+        {commodities.filter(c => (c.current_stock > 0 && c.target_stock > 0 && (c.current_stock / c.target_stock) <= 0.5)).length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 flex items-center gap-1.5">
+                <AlertCircle size={12} /> Perlu Perhatian: Stok Menipis
+              </p>
+              <Link href="/vendor/katalog" className="text-[10px] font-bold text-slate-400 hover:text-emerald-600 transition-colors">
+                Lihat Katalog
+              </Link>
+            </div>
+            <div className="space-y-2">
+              {commodities
+                .filter(c => (c.current_stock > 0 && c.target_stock > 0 && (c.current_stock / c.target_stock) <= 0.5))
+                .sort((a, b) => (a.current_stock / a.target_stock) - (b.current_stock / b.target_stock))
+                .slice(0, 3)
+                .map(c => {
+                  const pct = Math.min(100, (c.current_stock / (c.target_stock || 1)) * 100);
+                  const isRed = pct <= 25;
+                  
+                  return (
+                    <div key={c.id} className={`bg-white rounded-2xl border px-4 py-3 shadow-sm transition-all ${isRed ? "border-red-100 bg-red-50/20" : "border-amber-100 bg-amber-50/10"}`}>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-slate-700">{c.name}</p>
+                          {isRed && (
+                            <span className="text-[8px] font-black bg-red-500 text-white px-1.5 py-0.5 rounded-lg animate-pulse">KRITIS</span>
+                          )}
+                        </div>
+                        <p className={`text-xs font-extrabold ${isRed ? "text-red-600" : "text-amber-600"}`}>
+                          {c.current_stock.toLocaleString("id-ID")} <span className="font-normal text-slate-400">/ {c.target_stock.toLocaleString("id-ID")} {c.unit}</span>
+                        </p>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <motion.div className="h-full rounded-full"
+                          initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                          transition={{ duration: 0.6, ease: "easeOut" }}
+                          style={{ background: isRed ? "#EF4444" : "#F59E0B" }} />
+                      </div>
+                      <p className={`text-[10px] font-extrabold mt-2.5 flex items-center gap-1.5 uppercase tracking-wide ${isRed ? "text-red-500" : "text-amber-600"}`}>
+                        <AlertCircle size={10} /> 
+                        {isRed ? "Stok kritis! Segera lakukan Inbound." : "Stok menipis! Siapkan Inbound tambahan."}
+                      </p>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 mb-4 mt-8 px-1">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Riwayat Inbound</p>
+            <p className="text-[10px] text-slate-400 italic font-medium">Data Terfilter</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {/* Filter DARI */}
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">DARI</p>
+              <div className="relative group">
+                <input 
+                  type="date" 
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full h-12 pl-6 pr-12 rounded-full bg-slate-100/50 border-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer appearance-none" 
+                />
+                <Calendar size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-emerald-500 transition-colors pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Filter SAMPAI */}
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">SAMPAI</p>
+              <div className="relative group">
+                <input 
+                  type="date" 
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full h-12 pl-6 pr-12 rounded-full bg-slate-100/50 border-none text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer appearance-none" 
+                />
+                <Calendar size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-emerald-500 transition-colors pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistik Hasil Filter (Pindah kesini biar sinkron sama filter) */}
+        <div className="grid grid-cols-3 gap-2 mb-4 px-1">
           {[
             { icon: Package, label: "Barang", value: commodities.length, color: G },
             { icon: ArrowDownToLine, label: "Inbound", value: movements.length, color: "#1D4ED8" },
-            { icon: Boxes, label: "Total Unit", value: totalInbound.toLocaleString("id-ID"), color: "#7C3AED" },
+            { icon: Boxes, label: "Total Modal", value: `Rp${(totalExpenditure / 1000000).toFixed(1)}jt`, color: "#7C3AED" },
           ].map(({ icon: Icon, label, value, color }) => (
             <div key={label} className="bg-white rounded-2xl border border-slate-100 p-3 shadow-sm">
               <Icon size={14} style={{ color }} />
@@ -582,54 +727,9 @@ export default function VendorInboundPage() {
             </div>
           ))}
         </div>
-
-        {/* Low Stock Alerts (Priority Based) */}
-        {commodities.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-2 px-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1.5">
-                <AlertCircle size={12} /> Perlu Perhatian
-              </p>
-              <Link href="/vendor/katalog" className="text-[10px] font-bold text-slate-400 hover:text-emerald-600 transition-colors">
-                Lihat Katalog
-              </Link>
-            </div>
-            <div className="space-y-2">
-              {commodities
-                .sort((a, b) => (a.current_stock / 2000) - (b.current_stock / 2000))
-                .slice(0, 4)
-                .map(c => {
-                  const pct = Math.min(100, (c.current_stock / 2000) * 100);
-                  const isCritical = pct < 20;
-                  return (
-                    <div key={c.id} className={`bg-white rounded-2xl border px-4 py-3 shadow-sm transition-all ${isCritical ? "border-red-100 bg-red-50/30" : "border-slate-100"}`}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <p className="text-sm font-bold text-slate-700">{c.name}</p>
-                        <p className={`text-xs font-extrabold ${isCritical ? "text-red-600" : "text-emerald-700"}`}>
-                          {c.current_stock.toLocaleString("id-ID")} <span className="font-normal text-slate-400">{c.unit}</span>
-                        </p>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                        <motion.div className="h-full rounded-full"
-                          initial={{ width: 0 }} animate={{ width: `${pct}%` }}
-                          transition={{ duration: 0.6, ease: "easeOut" }}
-                          style={{ background: pct < 20 ? "#EF4444" : pct < 50 ? "#F59E0B" : G }} />
-                      </div>
-                      {isCritical && (
-                        <p className="text-[9px] text-red-500 font-bold mt-2 flex items-center gap-1 uppercase tracking-tighter">
-                           Segera lakukan Inbound untuk menambah stok
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-            </div>
-          </div>
-        )}
-
+        
         {/* Movement History */}
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 ml-1">Riwayat Inbound</p>
           {loadingData ? (
             <div className="space-y-3">
               {[1, 2].map(i => <div key={i} className="h-36 rounded-3xl bg-slate-100 animate-pulse" />)}

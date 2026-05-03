@@ -33,7 +33,7 @@ function authenticateUserToken(req, res, next) {
 
 function authenticateAdminToken(req, res, next) {
     return authenticateUserToken(req, res, () => {
-        if (req.user?.role !== ADMIN_ROLE) {
+        if (req.user?.peran !== ADMIN_ROLE) {
             return res.status(403).json({ error: 'Akses Ditolak! Hanya admin yang diizinkan.' });
         }
         next();
@@ -43,8 +43,8 @@ function authenticateAdminToken(req, res, next) {
 function authorizeRoles(...allowedRoles) {
     const allowSet = new Set(allowedRoles);
     return (req, res, next) => {
-        const role = req.user?.role;
-        if (!role || !allowSet.has(role)) {
+        const peran = req.user?.peran;
+        if (!peran || !allowSet.has(peran)) {
             return res.status(403).json({ error: 'Akses Ditolak! Role tidak diizinkan.' });
         }
         next();

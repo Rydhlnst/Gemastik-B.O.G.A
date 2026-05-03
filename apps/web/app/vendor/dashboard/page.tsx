@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { logger } from "@/lib/logger";
 import {
   AreaChart, Area, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell,
@@ -121,94 +123,66 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 /* ─── Main Dashboard ─── */
 export default function VendorDashboardPage() {
+  const [vendorId, setVendorId] = useState<string>("");
+  const [stats, setStats] = useState({
+    total_revenue: 0,
+    active_orders: 0,
+    active_products: 0,
+    total_inbound: 0
+  });
+  const [loading, setLoading] = useState(true);
+
   const [periodIdx, setPeriodIdx] = useState(1); // Default 30 Hari
   const periods = ["7 Hari", "30 Hari", "3 Bulan", "1 Tahun"];
 
-  // Helper untuk mendapatkan data berdasarkan periode
-  const getDisplayData = () => {
-    switch (periodIdx) {
-      case 0: // 7 Hari
-        return {
-          total: 4200000,
-          orders: 8,
-          inbound: "1x",
-          trend: 12,
-          chart: [
-            { label: "Sen", nilai: 400000 }, { label: "Sel", nilai: 800000 },
-            { label: "Rab", nilai: 300000 }, { label: "Kam", nilai: 1200000 },
-            { label: "Jum", nilai: 600000 }, { label: "Sab", nilai: 200000 },
-            { label: "Min", nilai: 700000 }
-          ],
-          weekly: [
-            { hari: "Sen", tawaran: 2, diterima: 1, ditolak: 0 },
-            { hari: "Sel", tawaran: 3, diterima: 2, ditolak: 1 },
-            { hari: "Rab", tawaran: 2, diterima: 1, ditolak: 0 },
-            { hari: "Kam", tawaran: 4, diterima: 3, ditolak: 0 },
-            { hari: "Jum", tawaran: 1, diterima: 1, ditolak: 0 },
-            { hari: "Sab", tawaran: 1, diterima: 0, ditolak: 0 },
-            { hari: "Min", tawaran: 1, diterima: 0, ditolak: 1 }
-          ]
-        };
-      case 2: // 3 Bulan
-        return {
-          total: 35500000,
-          orders: 64,
-          inbound: "8x",
-          trend: 18,
-          chart: [
-            { label: "Feb", nilai: 9800000 },
-            { label: "Mar", nilai: 12600000 },
-            { label: "Apr", nilai: 13100000 }
-          ],
-          weekly: [
-            { hari: "Feb", tawaran: 12, diterima: 18, ditolak: 2 },
-            { hari: "Mar", tawaran: 15, diterima: 22, ditolak: 3 },
-            { hari: "Apr", tawaran: 14, diterima: 24, ditolak: 1 }
-          ]
-        };
-      case 3: // 1 Tahun
-        return {
-          total: 142000000,
-          orders: 280,
-          inbound: "24x",
-          trend: 24,
-          chart: [
-            { label: "Mei", nilai: 8000000 }, { label: "Jun", nilai: 9500000 },
-            { label: "Jul", nilai: 11000000 }, { label: "Agu", nilai: 10500000 },
-            { label: "Sep", nilai: 13000000 }, { label: "Okt", nilai: 12000000 },
-            { label: "Nov", nilai: 11500000 }, { label: "Des", nilai: 14000000 },
-            { label: "Jan", nilai: 12800000 }, { label: "Feb", nilai: 13500000 },
-            { label: "Mar", nilai: 15000000 }, { label: "Apr", nilai: 16200000 }
-          ],
-          weekly: [
-            { hari: "Mei", tawaran: 8, diterima: 12, ditolak: 1 }, { hari: "Jun", tawaran: 10, diterima: 18, ditolak: 2 },
-            { hari: "Jul", tawaran: 12, diterima: 22, ditolak: 3 }, { hari: "Agu", tawaran: 9, diterima: 19, ditolak: 1 },
-            { hari: "Sep", tawaran: 15, diterima: 25, ditolak: 4 }, { hari: "Okt", tawaran: 14, diterima: 28, ditolak: 2 },
-            { hari: "Nov", tawaran: 11, diterima: 21, ditolak: 0 }, { hari: "Des", tawaran: 18, diterima: 32, ditolak: 5 },
-            { hari: "Jan", tawaran: 13, diterima: 24, ditolak: 1 }, { hari: "Feb", tawaran: 15, diterima: 26, ditolak: 3 },
-            { hari: "Mar", tawaran: 16, diterima: 30, ditolak: 2 }, { hari: "Apr", tawaran: 18, diterima: 33, ditolak: 4 }
-          ]
-        };
-      default: // 30 Hari
-        return {
-          total: 17400000,
-          orders: 24,
-          inbound: "3x",
-          trend: 15,
-          chart: [
-            { label: "Mgg 1", nilai: 3500000 },
-            { label: "Mgg 2", nilai: 4200000 },
-            { label: "Mgg 3", nilai: 3800000 },
-            { label: "Mgg 4", nilai: 5900000 }
-          ],
-          weekly: [
-            { hari: "Mgg 1", tawaran: 4, diterima: 5, ditolak: 1 },
-            { hari: "Mgg 2", tawaran: 6, diterima: 7, ditolak: 0 },
-            { hari: "Mgg 3", tawaran: 3, diterima: 4, ditolak: 2 },
-            { hari: "Mgg 4", tawaran: 7, diterima: 8, ditolak: 1 }
-          ]
-        };
+  // API base
+  const API = "http://localhost:3001";
+
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) {
+      setVendorId(id);
+    } else {
+      setLoading(false);
     }
+  }, []);
+
+  const fetchStats = useCallback(async () => {
+    if (!vendorId) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/vendors/${vendorId}/stats`);
+      const json = await res.json();
+      if (json.status === "success") {
+        setStats(json.data);
+      }
+    } catch (error) {
+      logger.error('VendorDashboard', 'Gagal memuat statistik', error);
+      toast.error("Gagal sinkronisasi dashboard.");
+    } finally {
+      setLoading(false);
+    }
+  }, [vendorId]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  const getDisplayData = () => {
+    // Simulasi data grafik berdasarkan periode
+    const trendMultipliers = [0.8, 1.2, 1.5, 2.0];
+    const baseTrend = trendMultipliers[periodIdx] || 1.2;
+
+    return {
+      total: stats.total_revenue * baseTrend,
+      trend: 12.5 + (periodIdx * 3),
+      chart: PENDAPATAN_DATA.map(d => ({ ...d, nilai: d.nilai * (0.8 + Math.random() * 0.4) })),
+      weekly: WEEKLY_PO.map(d => ({ 
+        hari: d.hari, 
+        jumlah: Math.floor(d.jumlah * baseTrend),
+        tawaran: Math.floor(Math.random() * 10) + 2
+      }))
+    };
   };
 
   const activeData = getDisplayData();
@@ -311,17 +285,16 @@ export default function VendorDashboardPage() {
 
         {/* ── Ringkasan Utama (KPI Grid) ── */}
         <div>
-          <SectionTitle>Ringkasan ({periods[periodIdx]})</SectionTitle>
+          <SectionTitle>Ringkasan Real-Time</SectionTitle>
           <div className="grid grid-cols-2 gap-2">
-            <KpiCard icon={Wallet} label="Total Pendapatan" value={currency(activeData.total)}
-              sub={`${activeData.trend > 0 ? "+" : ""}${activeData.trend}% vs lalu`} color="#065F46"
-              trend={activeData.trend >= 0 ? "up" : "down"} />
-            <KpiCard icon={ShoppingBag} label="Pesanan Masuk" value={String(activeData.orders)}
-              sub="PO Masuk" color="#D97706" trend="up" href="/vendor/pesanan" />
-            <KpiCard icon={Package} label="Produk Aktif" value="5"
+            <KpiCard icon={Wallet} label="Total Pendapatan" value={currency(stats.total_revenue)}
+              sub="Diterima & Selesai" color="#065F46" trend="up" />
+            <KpiCard icon={ShoppingBag} label="Pesanan Masuk" value={String(stats.active_orders)}
+              sub="PO Aktif" color="#D97706" trend="up" href="/vendor/pesanan" />
+            <KpiCard icon={Package} label="Produk Aktif" value={String(stats.active_products)}
               sub="di E-Katalog" color="#0891B2" href="/vendor/katalog" />
-            <KpiCard icon={ArrowDownToLine} label="Penerimaan Stok" value={activeData.inbound}
-              sub="Barang Masuk" color="#7C3AED" href="/vendor/inbound" />
+            <KpiCard icon={ArrowDownToLine} label="Penerimaan Stok" value={String(stats.total_inbound) + "x"}
+              sub="Total Inbound" color="#7C3AED" href="/vendor/inbound" />
           </div>
         </div>
 

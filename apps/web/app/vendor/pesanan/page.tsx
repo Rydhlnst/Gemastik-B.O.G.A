@@ -9,35 +9,14 @@ import {
   RefreshCw, AlertTriangle, ScanLine, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { logger } from "@/lib/logger";
 
 /* ─── Constants ─── */
 const API = "http://localhost:3001";
 const G = "#065F46";
 const G_LIGHT = "#D1FAE5";
 
-/* ─── Types ─── */
-interface POItem { 
-  item_name: string; 
-  quantity: number; 
-  unit: string; 
-  price_at_purchase: number; 
-  subtotal: number; 
-}
-interface Signatures { 
-  qc: "SIGNED" | "PENDING" | "REVISION"; 
-  admin: "SIGNED" | "PENDING" | "REVISION"; 
-  logistik: "SIGNED" | "PENDING" | "REVISION"; 
-}
-interface PO {
-  purchaseOrderId: string;
-  sppgId: string;
-  orderDate: string;
-  financials: { totalAmount: number; escrowStatus: string; signatures: Signatures };
-  items: POItem[];
-  pickup_pin?: string;
-  vendor_status?: "REJECTED";
-  revision_note?: string;
-}
+import { getPOTab, type PO, type POItem, type Signatures, type Tab } from "@/lib/pesanan";
 
 /* ─── Mock demo data ─── */
 const MOCK_POS: PO[] = [
@@ -196,19 +175,8 @@ function DeadlineBar({ orderDate }: { orderDate: string }) {
   );
 }
 
-type Tab = "all" | "pending" | "scan" | "completed" | "expired" | "rejected";
-
-function poTab(po: PO): Tab {
-  if (po.vendor_status === "REJECTED") return "rejected";
-  if (po.financials.escrowStatus === "EXPIRED") return "expired";
-  
-  const sigs = po.financials.signatures;
-  const isDone = sigs.qc === "SIGNED" && sigs.admin === "SIGNED" && sigs.logistik === "SIGNED";
-  if (isDone) return "completed";
-  
-  if (["READY_FOR_PICKUP", "VALIDATING", "REVISION"].includes(po.financials.escrowStatus)) return "scan";
-  return "pending";
-}
+// Logic moved to @/lib/pesanan.ts
+const poTab = getPOTab;
 
 /* ─── QR Code Display ─── */
 function QRCodeDisplay({ pin, poId }: { pin: string; poId: string }) {
@@ -490,27 +458,43 @@ function PesananCard({ po, onAccept, onReject, accepting }: {
 
 /* ─── Main Page ─── */
 export default function VendorPesananPage() {
-  const [vendorId, setVendorId] = useState("ACC-VEN-5E1FD92B");
-  const [pos, setPos] = useState<PO[]>(MOCK_POS);
-  const [loading, setLoading] = useState(false);
+  const [vendorId, setVendorId] = useState<string>("");
+  const [pos, setPos] = useState<PO[]>([]);
+  const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("all");
 
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) {
+      setVendorId(id);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
   const fetchPOs = useCallback(async () => {
     if (!vendorId) return;
+    logger.info('VendorPesanan', 'Memulai pengambilan data pesanan SPPG...', { vendorId });
     setLoading(true);
     try {
       const res = await fetch(`${API}/api/spk/vendor/${vendorId}`);
       const json = await res.json();
-      if (json.status === "success" && json.data.length > 0) setPos(json.data);
-      else setPos(MOCK_POS);
-    } catch { setPos(MOCK_POS); }
+      if (json.status === "success") {
+        setPos(json.data || []);
+        logger.debug('VendorPesanan', 'Data pesanan berhasil dimuat dari server', { count: json.data?.length });
+      }
+    } catch (error) { 
+      logger.error('VendorPesanan', 'Gagal mengambil data pesanan', error);
+      toast.error("Gagal sinkronisasi data pesanan.");
+    }
     finally { setLoading(false); }
   }, [vendorId]);
 
   useEffect(() => { fetchPOs(); }, [fetchPOs]);
 
   const handleAccept = async (poId: string) => {
+    logger.info('VendorPesanan', 'Vendor mengonfirmasi pesanan (Accept)', { poId });
     setAccepting(poId);
     try {
       const res = await fetch(`${API}/api/spk/${poId}/ready-for-pickup`, {
@@ -519,14 +503,19 @@ export default function VendorPesananPage() {
       });
       const json = await res.json();
       if (json.status === "success") {
+        logger.info('VendorPesanan', 'Pesanan berhasil dikonfirmasi ke server', { poId, pin: json.data.pickupPin });
         toast.success("Pesanan dikonfirmasi! PIN serah terima telah dibuat.");
         setPos(prev => prev.map(p =>
           p.purchaseOrderId === poId
             ? { ...p, financials: { ...p.financials, escrowStatus: "READY_FOR_PICKUP" }, pickup_pin: json.data.pickupPin }
             : p
         ));
-      } else toast.error(json.message);
-    } catch {
+      } else {
+        logger.error('VendorPesanan', 'Server menolak konfirmasi pesanan', json.message);
+        toast.error(json.message);
+      }
+    } catch (error) {
+      logger.warn('VendorPesanan', 'Gagal koneksi ke server, menggunakan mode simulasi (Demo)', error);
       const pin = String(Math.floor(100000 + Math.random() * 900000));
       setPos(prev => prev.map(p =>
         p.purchaseOrderId === poId
@@ -538,14 +527,33 @@ export default function VendorPesananPage() {
   };
 
   const handleReject = (poId: string) => {
+    logger.warn('VendorPesanan', 'Vendor memicu pembatalan pesanan (Reject)', { poId });
     toast("Tolak pesanan ini?", {
       action: {
         label: "Ya, Tolak",
-        onClick: () => {
-          setPos(prev => prev.map(p =>
-            p.purchaseOrderId === poId ? { ...p, vendor_status: "REJECTED" } : p
-          ));
-          toast.success("Pesanan berhasil ditolak.");
+        onClick: async () => {
+          logger.info('VendorPesanan', 'Mengirim permintaan penolakan ke server...', { poId });
+          try {
+            const res = await fetch(`${API}/api/spk/${poId}/reject`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ vendorId }),
+            });
+            const json = await res.json();
+            if (json.status === "success") {
+              logger.info('VendorPesanan', 'Pesanan resmi ditolak oleh vendor', { poId });
+              setPos(prev => prev.map(p =>
+                p.purchaseOrderId === poId ? { ...p, vendor_status: "REJECTED" } : p
+              ));
+              toast.success("Pesanan berhasil ditolak.");
+            } else {
+              logger.error('VendorPesanan', 'Gagal menolak pesanan di server', json.message);
+              toast.error(json.message);
+            }
+          } catch (error) {
+            logger.error('VendorPesanan', 'Koneksi gagal saat menolak pesanan', error);
+            toast.error("Gagal koneksi ke server.");
+          }
         },
       },
     });

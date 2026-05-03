@@ -1,0 +1,93 @@
+// apps/api/prisma/SkemaData.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // D1 berbasis SQLite
+  url      = "file:./dev.db"
+}
+
+// 1. Akun Pengguna (Pemerintah, Vendor, Sekolah, SPPG)
+model Akun {
+  id           String   @id @default(uuid())
+  nik          String   @unique
+  nama         String
+  email        String   @unique
+  telepon      String?
+  peran        String // 'PEMERINTAH', 'VENDOR', 'SPPG', 'SEKOLAH'
+  alamatWallet String?  @map("wallet_address")
+  passwordHash String   @map("password_hash")
+  kapanDibuat  DateTime @default(now()) @map("created_at")
+
+  // Relasi ke profil Vendor jika dia adalah Vendor
+  profilVendor Vendor?
+}
+
+// 2. Profil Bisnis Vendor
+model Vendor {
+  id            String   @id
+  akun          Akun     @relation(fields: [id], references: [id])
+  namaBisnis    String   @map("business_name")
+  emailBisnis   String?  @map("business_email")
+  teleponBisnis String?  @map("business_phone")
+  alamatBisnis  String?  @map("business_address")
+  lat           Decimal? @map("latitude")
+  long          Decimal? @map("longitude")
+  nomorNPWP     String?  @map("npwp_number")
+  nomorNIB      String?  @map("nib_number")
+  urlLogo       String?  @map("logo_url")
+
+  // Dokumen Legalitas (R2 URL + Blockchain Hash)
+  urlAkta         String?  @map("akta_document_url")
+  hashAkta        String?  @map("akta_document_hash")
+  urlSK           String?  @map("sk_kemenkumham_url")
+  hashSK          String?  @map("sk_kemenkumham_hash")
+  urlNPWP         String?  @map("npwp_document_url")
+  hashNPWP        String?  @map("npwp_document_hash")
+  urlNIB          String?  @map("nib_document_url")
+  hashNIB         String?  @map("nib_document_hash")
+  urlSPPG         String?  @map("sppg_readiness_document_url")
+  hashSPPG        String?  @map("sppg_readiness_document_hash")
+
+  // Informasi Perbankan
+  namaBank        String?  @map("bank_name")
+  nomorRekening   String?  @map("bank_account_number")
+  namaRekening    String?  @map("bank_account_name")
+
+  status String   @default("PENDING_AI") // PENDING_AI, APPROVED, REJECTED
+  skorAI Decimal? @map("ai_validation_score")
+
+  // Relasi Stok
+  daftarBarang Barang[]
+}
+
+// 3. Katalog Barang / Komoditas
+model Barang {
+  id          String  @id @default(uuid())
+  vendorId    String  @map("vendor_id")
+  vendor      Vendor  @relation(fields: [vendorId], references: [id])
+  namaBarang  String  @map("name")
+  harga       Decimal
+  satuan      String  @map("unit") // kg, liter, dll
+  stokSaatIni Decimal @default(0) @map("current_stock")
+  apakahAktif Boolean @default(true) @map("is_active")
+
+  // Riwayat Pergerakan
+  riwayatStok MutasiStok[]
+}
+
+// 4. Catatan Barang Masuk/Keluar (Logistik)
+model MutasiStok {
+  id           String   @id @default(uuid())
+  barangId     String   @map("commodity_id")
+  barang       Barang   @relation(fields: [barangId], references: [id])
+  jenisMutasi  String   @map("movement_type") // 'INBOUND' atau 'OUTBOUND'
+  jumlah       Decimal  @map("quantity")
+  sumberBarang String?  @map("origin_source_name")
+  lokasiSumber String?  @map("origin_source_location")
+  urlBukti     String?  @map("origin_proof_url")
+  hashBukti    String?  @map("origin_proof_hash")
+  kapanTerjadi DateTime @default(now()) @map("created_at")
+}

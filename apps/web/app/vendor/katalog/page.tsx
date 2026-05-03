@@ -7,12 +7,13 @@ import {
   Plus, Trash2, Package, Tag, Layers, Loader2,
   ChevronRight, X, TrendingUp, AlertTriangle, ImageIcon, Search, Check,
   SlidersHorizontal, ShoppingBag, Star,
-  Wheat, Beef, Fish, Sprout, ChefHat, Apple, Factory, LayoutGrid,
+  Wheat, Beef, Fish, Sprout, ChefHat, Apple, Factory, LayoutGrid, Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { logger } from "@/lib/logger";
 
 /* ─── Constants ─── */
 const API = "http://localhost:3001";
@@ -24,8 +25,8 @@ const CATALOG = [
   {
     id: "KARBO", label: "Karbohidrat", emoji: "🌾",
     items: [
-      { pihps_id: "PIHPS-BERAS",  name: "Beras Premium",      het: 15500,  unit: "kg" },
-      { pihps_id: "PIHPS-BERAS",  name: "Beras Medium",       het: 13500,  unit: "kg" },
+      { name: "Beras Premium", het: 15500, unit: "kg", pihps_id: "PIHPS-BERAS-PREMIUM" },
+      { name: "Beras Medium", het: 13500, unit: "kg", pihps_id: "PIHPS-BERAS-MEDIUM" },
       { pihps_id: "PIHPS-TEPUNG", name: "Tepung Terigu",      het: 12000,  unit: "kg" },
     ],
   },
@@ -89,9 +90,21 @@ function findCatalogItem(name: string): CatalogItem | undefined {
   }
 }
 
+// Helper: cari data item dari catalog berdasarkan pihps_id
+function findCatalogItemByPihps(pihps_id: string): CatalogItem | undefined {
+  for (const cat of CATALOG) {
+    const found = cat.items.find((i) => i.pihps_id === pihps_id);
+    if (found) return found;
+  }
+  // Fallback untuk ID lama agar tidak dianggap HET 0
+  if (pihps_id === "PIHPS-BERAS") return CATALOG[0].items[0]; // Beras Premium
+}
+
 // Helper: cari kategori dari pihps_id untuk tampilan kartu
 function categoryFromPihpsId(pihps_id: string) {
   const catMap: Record<string, { label: string; emoji: string }> = {
+    "PIHPS-BERAS-PREMIUM": { label: "Karbohidrat", emoji: "🌾" },
+    "PIHPS-BERAS-MEDIUM":  { label: "Karbohidrat", emoji: "🌾" },
     "PIHPS-BERAS":   { label: "Karbohidrat",   emoji: "🌾" },
     "PIHPS-TEPUNG":  { label: "Karbohidrat",   emoji: "🌾" },
     "PIHPS-DAGING":  { label: "Protein Hewani", emoji: "🥩" },
@@ -188,6 +201,7 @@ interface FormState {
   unit: string;
   photo_url: string;
   description: string;
+  selected_category_name?: string;
 }
 
 const EMPTY_FORM: FormState = {
@@ -206,12 +220,18 @@ function currency(v: number) {
 /* ─── Product Card ─── */
 function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const rating = item.rating || mockRating(item.id);
-  const bgClass = rating >= 4.5 
-    ? "bg-gradient-to-b from-white to-amber-50/50 border-amber-100/50 shadow-amber-50" 
-    : rating >= 4.0 
-      ? "bg-gradient-to-b from-white to-emerald-50/30 border-emerald-100/30" 
-      : "bg-white border-slate-100";
+  
+  // Hitung Markup secara Real-time
+  const c = findCatalogItemByPihps(item.pihps_id);
+  const het = c?.het || 0;
+  const price = Number(item.price);
+  const isMarkup = price > het;
+  const markupPct = het > 0 ? ((price - het) / het) * 100 : 0;
+
+  // Warna Background berdasarkan Status
+  const bgClass = isMarkup 
+    ? "bg-amber-50/50 border-amber-200 shadow-amber-50" // Kuning Oranye (Bahaya)
+    : "bg-white border-slate-100 shadow-sm"; // Putih Bersih (Normal)
 
   return (
     <motion.div layout initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
@@ -226,17 +246,30 @@ function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void
           alt={item.name} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=60&w=400";
+            const cat = categoryFromPihpsId(item.pihps_id).label;
+            let fallback = "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=60&w=400";
+            if (cat.includes("Hewani")) fallback = "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&q=80&w=400";
+            if (cat.includes("Ikan")) fallback = "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&q=80&w=400";
+            if (cat.includes("Karbo")) fallback = "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=400";
+            (e.target as HTMLImageElement).src = fallback;
           }}
         />
         {/* Markup badge */}
-        {item.is_markup === 1 && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full shadow">
-            <TrendingUp size={9} /> +{item.markup_percentage.toFixed(0)}% HET
+        {isMarkup && (
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full shadow z-10">
+            <TrendingUp size={9} /> +{markupPct.toFixed(0)}% HET
           </div>
         )}
+
+        {/* Produk Baru badge (Overlay - Bottom Left) */}
+        {(!item.rating && !item.total_sold) && (
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-indigo-600/90 backdrop-blur-md text-white text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg shadow-lg z-10 border border-white/20">
+            <Sparkles size={9} /> Produk Baru
+          </div>
+        )}
+
         <button onClick={onDelete}
-          className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow">
+          className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 backdrop-blur flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shadow z-10">
           <Trash2 size={13} />
         </button>
       </div>
@@ -249,17 +282,23 @@ function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void
         </p>
 
         {/* Rating & Sold */}
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-1">
-            <StarRating value={item.rating ?? mockRating(item.id)} />
-            <span className="text-[10px] font-bold text-amber-500">
-              {(item.rating ?? mockRating(item.id)).toFixed(1)}
+        {(!item.rating && !item.total_sold) ? (
+          <div className="flex items-center gap-1.5 mt-2">
+            <span className="text-[10px] text-slate-300 font-medium italic">Belum ada ulasan</span>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-1">
+              <StarRating value={item.rating || 0} />
+              <span className="text-[10px] font-bold text-amber-500">
+                {(item.rating || 0).toFixed(1)}
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-medium">
+              {(item.total_sold || 0).toLocaleString("id-ID")} terjual
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 font-medium">
-            {(item.total_sold ?? mockSold(item.id)).toLocaleString("id-ID")} terjual
-          </span>
-        </div>
+        )}
 
         <div className="flex items-end justify-between mt-2.5">
           <div>
@@ -276,20 +315,15 @@ function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void
 
         {/* HET info */}
         {(() => {
-          // Cari HET: coba exact name dulu, fallback ke pihps_id
-          const allItems = CATALOG.flatMap(c => c.items);
-          const byName = allItems.find(i => i.name === item.name);
-          const byPihps = allItems.filter(i => i.pihps_id === item.pihps_id);
-          const het = byName?.het ?? (byPihps.length > 0 ? Math.min(...byPihps.map(i => i.het)) : null);
           if (!het) return null;
           return (
             <>
-              <div className={`mt-2.5 rounded-xl px-3 py-1.5 flex items-center justify-between ${item.is_markup ? "bg-amber-50" : "bg-emerald-50"}`}>
-                <span className={`text-[9px] font-bold uppercase tracking-wider ${item.is_markup ? "text-amber-500" : "text-emerald-600"}`}>
-                  {item.is_markup ? <AlertTriangle size={8} className="inline mr-1" /> : null}
+              <div className={`mt-2.5 rounded-xl px-3 py-1.5 flex items-center justify-between ${isMarkup ? "bg-amber-50" : "bg-emerald-50"}`}>
+                <span className={`text-[9px] font-bold uppercase tracking-wider ${isMarkup ? "text-amber-500" : "text-emerald-600"}`}>
+                  {isMarkup ? <AlertTriangle size={8} className="inline mr-1" /> : null}
                   HET {currency(het)}/{item.unit}
                 </span>
-                {item.is_markup
+                {isMarkup
                   ? <span className="text-[9px] font-black text-amber-500">Markup</span>
                   : <span className="text-[9px] font-black text-emerald-600">✓ Wajar</span>
                 }
@@ -329,10 +363,10 @@ function ProductCard({ item, onDelete }: { item: Commodity; onDelete: () => void
 
 /* ─── CategoryPicker ─── */
 function CategoryPicker({
-  selectedName, onSelect,
+  selectedItemName, onSelect,
 }: {
-  selectedName: string;
-  onSelect: (name: string, pihps_id: string, unit: string, het: number) => void;
+  selectedItemName: string;
+  onSelect: (pihps_id: string, unit: string, het: number, name: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState(CATALOG[0].id);
   const [search, setSearch] = useState("");
@@ -375,10 +409,10 @@ function CategoryPicker({
           <p className="text-center text-xs text-slate-400 py-6">Komoditas tidak ditemukan</p>
         )}
         {filtered.map((item) => {
-          const isSelected = selectedName === item.name;
+          const isSelected = selectedItemName === item.name;
           return (
             <button key={item.name} type="button"
-              onClick={() => onSelect(item.name, item.pihps_id, item.unit, item.het)}
+              onClick={() => onSelect(item.pihps_id, item.unit, item.het, item.name)}
               className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-left transition-all ${
                 isSelected ? "border-emerald-500 bg-emerald-50" : "border-transparent bg-slate-50 hover:bg-slate-100"
               }`}>
@@ -408,11 +442,12 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
   open: boolean; onClose: () => void; onAdded: () => void; vendorId: string;
 }) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const set = (k: keyof FormState, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
-  const selectedCatalogItem = findCatalogItem(form.name);
+  const selectedCatalogItem = findCatalogItem(form.selected_category_name || "");
   const priceNum = parseFloat(form.price) || 0;
   const isMarkup = selectedCatalogItem && priceNum > selectedCatalogItem.het;
   const markupPct = isMarkup && selectedCatalogItem
@@ -421,34 +456,53 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
 
   const handleSubmit = async () => {
     // 1. Validasi Semua Parameter Wajib
-    if (!form.name.trim()) return toast.error("Nama produk wajib diisi!");
-    if (!form.pihps_id) return toast.error("Jenis komoditas wajib dipilih!");
-    if (!form.description.trim()) return toast.error("Deskripsi produk wajib diisi!");
-    if (!form.price || Number(form.price) <= 0) return toast.error("Harga harus lebih dari Rp 0!");
-    if (!form.unit) return toast.error("Satuan produk wajib dipilih!");
-    if (!form.photo_url) return toast.error("Foto produk wajib diunggah!");
+    if (!form.name.trim()) { logger.warn('VendorKatalog', 'Submit gagal: Nama produk kosong'); return toast.error("Nama produk wajib diisi!"); }
+    if (!form.pihps_id) { logger.warn('VendorKatalog', 'Submit gagal: Jenis komoditas belum dipilih'); return toast.error("Jenis komoditas wajib dipilih!"); }
+    if (!form.description.trim()) { logger.warn('VendorKatalog', 'Submit gagal: Deskripsi kosong'); return toast.error("Deskripsi produk wajib diisi!"); }
+    if (!form.price || Number(form.price) <= 0) { logger.warn('VendorKatalog', 'Submit gagal: Harga tidak valid'); return toast.error("Harga harus lebih dari Rp 0!"); }
+    if (!form.unit) { logger.warn('VendorKatalog', 'Submit gagal: Satuan belum dipilih'); return toast.error("Satuan produk wajib dipilih!"); }
+    if (!form.photo_url) { logger.warn('VendorKatalog', 'Submit gagal: Foto belum diunggah'); return toast.error("Foto produk wajib diunggah!"); }
 
+    logger.info('VendorKatalog', 'Mencoba menambahkan produk baru ke katalog...', { name: form.name });
     setLoading(true);
     try {
+      let finalPhotoUrl = form.photo_url;
+
+      if (selectedFile) {
+        logger.debug('VendorKatalog', 'Memproses konversi foto produk ke base64...');
+        toast.loading("Memproses foto produk...");
+        finalPhotoUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(selectedFile);
+        });
+      }
+
       const res = await fetch(`${API}/api/vendors/${vendorId}/commodities`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          photo_url: finalPhotoUrl,
           price: Number(form.price),
           is_active: 1,
         }),
       });
       const json = await res.json();
+      toast.dismiss();
       if (json.status === "success") {
+        logger.info('VendorKatalog', 'Produk Berhasil Ditambahkan!', { name: form.name, id: json.data?.id });
         toast.success(`${form.name} berhasil ditambahkan!`);
         setForm(EMPTY_FORM);
+        setSelectedFile(null);
         onAdded();
         onClose();
       } else {
+        logger.error('VendorKatalog', 'Gagal menambahkan barang (Server Error)', json.message);
         toast.error(json.message || "Gagal menambahkan barang.");
       }
-    } catch {
+    } catch (error) {
+      logger.error('VendorKatalog', 'Kesalahan koneksi saat menambahkan produk', error);
       toast.error("Tidak dapat terhubung ke server.");
     } finally {
       setLoading(false);
@@ -511,17 +565,14 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                       return;
                     }
 
-                    setLoading(true);
-                    // Simulasi Upload ke R2
-                    toast.loading("Mengunggah ke R2...");
-                    await new Promise(r => setTimeout(r, 1500)); // Simulasi delay
+                    // Simpan filenya untuk diunggah nanti saat submit
+                    setSelectedFile(file);
                     
-                    const mockR2Url = `https://r2.boga.id/uploads/${Date.now()}-${file.name}`;
-                    set("photo_url", mockR2Url);
+                    // Gunakan Object URL untuk Preview Lokal
+                    const localPreview = URL.createObjectURL(file);
+                    set("photo_url", localPreview);
                     
-                    toast.dismiss();
-                    toast.success("Foto berhasil diunggah!");
-                    setLoading(false);
+                    toast.success("Foto dipilih!");
                   }}
                 />
 
@@ -533,7 +584,7 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                       <label htmlFor="photo-upload" className="h-10 px-4 rounded-xl bg-white text-xs font-bold text-slate-700 flex items-center gap-2 cursor-pointer active:scale-95 transition-transform shadow-lg">
                         <ImageIcon size={14} /> Ganti Foto
                       </label>
-                      <button onClick={() => set("photo_url", "")} className="h-10 w-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                      <button onClick={() => { set("photo_url", ""); setSelectedFile(null); }} className="h-10 w-10 rounded-xl bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -563,14 +614,14 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                   Jenis Komoditas
                 </Label>
                 <CategoryPicker
-                  selectedName={form.name}
-                  onSelect={(name, pihps_id, unit, het) => {
+                  selectedItemName={form.selected_category_name || ""}
+                  onSelect={(pihps_id, unit, het, catName) => {
                     setForm((p) => ({
                       ...p,
-                      name,
                       pihps_id,
                       unit,
-                      // auto-fill harga dengan HET sebagai default
+                      selected_category_name: catName,
+                      // auto-fill harga dengan HET sebagai default jika masih kosong
                       price: p.price || String(het),
                     }));
                   }}
@@ -602,6 +653,7 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                 <div>
                   <Label htmlFor="price" className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1.5 block">Harga (Rp)</Label>
                   <Input id="price" type="number" className={inputCls} value={form.price}
+                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
                     onChange={(e) => set("price", e.target.value)} placeholder="15000" />
                 </div>
                 <div>
@@ -620,9 +672,9 @@ function AddSheet({ open, onClose, onAdded, vendorId }: {
                     className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 flex gap-3">
                     <AlertTriangle size={15} className="text-amber-500 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-bold text-amber-700">Harga di atas HET ({markupPct}% markup)</p>
-                      <p className="text-[11px] text-amber-600 mt-0.5 leading-relaxed">
-                        Produk ini akan ditandai markup dan terlihat oleh Pemerintah sebagai monitoring harga.
+                      <p className="text-xs font-extrabold text-amber-700">Indikasi Markup Harga ({markupPct}%)</p>
+                      <p className="text-[11px] text-amber-600 mt-0.5 leading-relaxed font-medium">
+                        Harga penawaran melampaui batas HET. Produk akan masuk dalam kategori pengawasan ketat oleh sistem monitoring harga nasional.
                       </p>
                     </div>
                   </motion.div>
@@ -858,11 +910,17 @@ function FilterSheet({
 
 /* ─── Main Page ─── */
 export default function VendorKatalogPage() {
-  const [items, setItems] = useState<Commodity[]>(MOCK_ITEMS);
+  const [items, setItems] = useState<Commodity[]>([]);
   const [loading, setLoading] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [vendorId, setVendorId] = useState("ACC-VEN-5E1FD92B");
+  const [vendorId, setVendorId] = useState<string>("");
+
+  useEffect(() => {
+    const id = document.cookie.split("; ").find(row => row.startsWith("boga_vendor_id="))?.split("=")[1];
+    if (id) setVendorId(id);
+    else setLoading(false);
+  }, []);
 
   // Search & Filter States
   const [search, setSearch] = useState("");
@@ -871,25 +929,52 @@ export default function VendorKatalogPage() {
 
   const fetchItems = useCallback(async () => {
     if (!vendorId) return;
+    logger.info('VendorKatalog', 'Memulai pengambilan data katalog produk...');
+    setLoading(true);
     try {
       const res = await fetch(`${API}/api/vendors/${vendorId}/commodities`);
       const json = await res.json();
       if (json.status === "success") {
-        setItems(json.data && json.data.length > 0 ? json.data : MOCK_ITEMS);
+        const activeOnly = (json.data || []).filter((i: any) => i.is_active === 1);
+        setItems(activeOnly);
+        logger.debug('VendorKatalog', 'Data katalog berhasil dimuat', { count: activeOnly.length });
       }
-    } catch { setItems(MOCK_ITEMS); }
-    finally { setLoading(false); }
+    } catch (error) { 
+      logger.error('VendorKatalog', 'Gagal mengambil data katalog', error);
+      toast.error("Gagal mengambil data katalog.");
+    } finally { 
+      setLoading(false); 
+    }
   }, [vendorId]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
   const handleDelete = async (id: string) => {
+    const itemToDelete = items.find(i => i.id === id);
+    logger.warn('VendorKatalog', 'Memicu konfirmasi penghapusan barang', { id, name: itemToDelete?.name });
+    
     toast("Hapus barang ini?", {
       action: {
         label: "Hapus",
         onClick: async () => {
-          setItems((prev) => prev.filter((i) => i.id !== id));
-          toast.success("Barang dihapus dari katalog.");
+          logger.info('VendorKatalog', 'Melakukan penghapusan barang dari server...', { id });
+          try {
+            const res = await fetch(`${API}/api/vendors/${vendorId}/commodities/${id}`, {
+              method: "DELETE"
+            });
+            const json = await res.json();
+            if (json.status === "success") {
+              logger.info('VendorKatalog', 'Barang berhasil dihapus', { id });
+              setItems((prev) => prev.filter((i) => i.id !== id));
+              toast.success("Barang dihapus dari katalog.");
+            } else {
+              logger.error('VendorKatalog', 'Gagal menghapus barang (Server Error)', json.message);
+              toast.error(json.message || "Gagal menghapus barang.");
+            }
+          } catch (error) {
+            logger.error('VendorKatalog', 'Kesalahan koneksi saat menghapus', error);
+            toast.error("Tidak dapat terhubung ke server.");
+          }
         },
       },
     });
@@ -908,7 +993,8 @@ export default function VendorKatalogPage() {
         (categoryFilter === "BUMBU" && (item.pihps_id === "PIHPS-BAWANG" || item.pihps_id === "PIHPS-CABAI")) ||
         (categoryFilter === "HORTI" && (item.pihps_id === "PIHPS-SAYUR" || item.pihps_id === "PIHPS-BUAH")) ||
         (categoryFilter === "INDUSTRI" && (item.pihps_id === "PIHPS-MINYAK" || item.pihps_id === "PIHPS-GULA"));
-      return matchSearch && matchCategory;
+      const isActive = item.is_active === 1;
+      return matchSearch && matchCategory && isActive;
     })
     .sort((a, b) => {
       if (sortBy === "stock-desc") return b.current_stock - a.current_stock;
@@ -922,7 +1008,10 @@ export default function VendorKatalogPage() {
       return 0;
     });
 
-  const markupCount = filteredItems.filter((i) => i.is_markup).length;
+  const markupCount = filteredItems.filter((i) => {
+    const c = findCatalogItemByPihps(i.pihps_id);
+    return c && Number(i.price) > c.het;
+  }).length;
 
   return (
     <div className="min-h-svh bg-slate-50" data-role="vendor">
@@ -957,28 +1046,6 @@ export default function VendorKatalogPage() {
           className="w-11 h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm">
           <SlidersHorizontal size={16} />
         </button>
-      </div>
-
-      {/* ── Category Horizontal Tabs (Consistency with Inbound) ── */}
-      <div className="max-w-2xl mx-auto px-4 mt-3">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          {CAT_DATA.map(cat => {
-            const Icon = cat.icon;
-            const isActive = categoryFilter === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setCategoryFilter(cat.id)}
-                className={`shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-[10px] font-bold transition-all border ${isActive ? "text-white shadow-sm border-transparent" : "bg-white border-slate-200 text-slate-500"}`}
-                style={isActive ? { backgroundColor: cat.color } : {}}
-              >
-                <Icon size={12} className={isActive ? "text-white" : "text-slate-400"} />
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* ── Stats Strip ── */}
@@ -1035,13 +1102,6 @@ export default function VendorKatalogPage() {
             </motion.button>
           </motion.div>
         )}
-      </div>
-
-      {/* ── Breadcrumb hint ── */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30">
-        <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-slate-100 shadow">
-          <ChevronRight size={10} /> Produk terverifikasi otomatis muncul pada E-Katalog Nasional SPPG
-        </div>
       </div>
 
       {/* ── Add Sheet ── */}

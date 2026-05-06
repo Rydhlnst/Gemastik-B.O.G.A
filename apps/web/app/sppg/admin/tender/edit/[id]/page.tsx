@@ -372,7 +372,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
               </Button>
             </Link>
             <div>
-              <div className="flex items-center gap-2 text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none mb-1">
+              <div className="flex items-center gap-2 text-[10px] font-black text-[#213555] uppercase tracking-widest leading-none mb-1">
                 <Lock size={10} /> Framework Agreement & Master Menu
               </div>
               <h2 className="text-xl font-bold text-slate-800 leading-none">Draft: FA-SPPG-2026-00{id}</h2>
@@ -391,7 +391,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
               disabled={isPublishing || (!isRevisionMode && (!isCompliant || customMenus.length === 0))}
               className={`rounded-[14px] font-bold px-6 shadow-lg transition-all ${
                 (isCompliant && customMenus.length > 0) || isRevisionMode
-                  ? "bg-[#0d5c46] hover:bg-[#0a4837] text-white shadow-emerald-900/10" 
+                  ? "bg-[#213555] hover:opacity-90 text-white shadow-slate-900/10" 
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
@@ -424,7 +424,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-                  <ChefHat className="text-[#0d5c46]" size={28} />
+                  <ChefHat className="text-[#213555]" size={28} />
                   Master Rencana Menu
                 </h3>
                 <p className="text-slate-500 font-medium text-sm mt-1">Rakit menu gizi harian dan alokasi vendor bahan pokok Multisupplier.</p>
@@ -433,7 +433,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
               {!isMenuDialogOpen && !isRevisionMode ? (
                 <Button 
                   onClick={() => setIsMenuDialogOpen(true)}
-                  className="h-12 px-6 rounded-[16px] bg-emerald-50 text-[#0d5c46] hover:bg-emerald-100 hover:text-[#0a4837] font-bold flex items-center gap-2 shadow-sm border border-emerald-200/50 transition-colors"
+                  className="h-12 px-6 rounded-[16px] bg-[#F2F2F2] text-[#213555] hover:bg-[#D8C4B6] hover:text-[#213555] font-bold flex items-center gap-2 shadow-sm border border-slate-200 transition-colors"
                 >
                   <Plus size={20} />
                   Tambah Menu Makanan
@@ -447,7 +447,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                 <div className="flex items-center justify-between mb-6">
                   <div>
                     <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                      <UtensilsCrossed className="text-emerald-600" size={18} /> Rakit Menu Baru
+                      <UtensilsCrossed className="text-[#213555]" size={18} /> Rakit Menu Baru
                     </h3>
                     <p className="text-slate-500 text-xs mt-1">Isi detail menu harian dan mapping Stainless Steel 304.</p>
                   </div>
@@ -470,7 +470,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                       
                       <div 
                         onClick={() => fileInputRef.current?.click()}
-                        className={`border-2 border-dashed rounded-[20px] p-6 text-center cursor-pointer transition-all ${imagePreview ? "border-emerald-500 bg-emerald-50/50" : "border-slate-300 hover:border-emerald-500 hover:bg-white bg-white/50"}`}
+                        className={`border-2 border-dashed rounded-[20px] p-6 text-center cursor-pointer transition-all ${imagePreview ? "border-[#213555] bg-slate-50" : "border-slate-300 hover:border-[#213555] hover:bg-white bg-white/50"}`}
                       >
                          <input 
                            type="file" 
@@ -482,16 +482,16 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                          
                          {imagePreview ? (
                             <div className="flex flex-col items-center">
-                               <div className="w-full max-w-[200px] h-32 rounded-xl overflow-hidden mb-3 border border-emerald-200 shadow-sm">
+                               <div className="w-full max-w-[200px] h-32 rounded-xl overflow-hidden mb-3 border border-slate-200 shadow-sm">
                                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                                </div>
-                               <p className="text-sm font-bold text-emerald-700">Foto Berhasil Diunggah</p>
+                               <p className="text-sm font-bold text-[#213555]">Foto Berhasil Diunggah</p>
                                <p className="text-xs text-slate-500 mt-1">Klik lagi untuk mengganti foto</p>
                             </div>
                          ) : (
                             <div className="flex flex-col items-center py-4">
-                               <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mb-3">
-                                  <UploadCloud className="text-emerald-600" size={24} />
+                               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                                  <UploadCloud className="text-[#213555]" size={24} />
                                </div>
                                <p className="font-bold text-slate-700">Klik atau Drag & Drop Foto Menu</p>
                                <p className="text-xs text-slate-500 mt-1">Maksimal 2MB (Hanya PNG/JPG)</p>
@@ -508,12 +508,12 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                       <div className="grid grid-cols-2 gap-4">
                         <div className="col-span-2 space-y-2">
                           <Label className="text-xs font-bold text-slate-500">Nama Menu <span className="text-red-500">*</span></Label>
-                          <Input disabled={isRevisionMode} placeholder="Contoh: Paket Nasi Ayam Bakar" className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 shadow-sm" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                          <Input disabled={isRevisionMode} placeholder="Contoh: Paket Nasi Ayam Bakar" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-[#213555] shadow-sm" value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
                         </div>
                         <div className="col-span-2 space-y-2">
                           <Label className="text-xs font-bold text-slate-500 flex justify-between">
                             <span>Jadwal Penyajian (Kalender 31 Hari)</span>
-                            <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-black">{form.selectedDays.length} Hari Terpilih</span>
+                            <span className="text-[#213555] bg-[#D8C4B6]/20 px-2 py-0.5 rounded font-black">{form.selectedDays.length} Hari Terpilih</span>
                           </Label>
                           <div className="flex flex-wrap gap-1.5 p-3 bg-slate-50 rounded-xl border border-slate-100">
                              {Array.from({length: 31}, (_, i) => i + 1).map(day => {
@@ -523,7 +523,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                                    key={day}
                                    type="button"
                                    onClick={() => !isRevisionMode && toggleDay(day)}
-                                   className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-900/20 scale-105' : 'bg-white text-slate-400 border border-slate-200 hover:border-emerald-300 hover:text-emerald-600'}`}
+                                   className={`h-8 w-8 rounded-lg text-xs font-bold transition-all ${isSelected ? 'bg-[#213555] text-white shadow-sm shadow-slate-900/20 scale-105' : 'bg-white text-slate-400 border border-slate-200 hover:border-[#213555] hover:text-[#213555]'}`}
                                  >
                                    {day}
                                  </button>
@@ -536,7 +536,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                           <div className="space-y-2">
                             <Label className="text-xs font-bold text-slate-500">Safety Buffer Kuantitas</Label>
                             <div className="relative">
-                              <Input disabled={isRevisionMode} placeholder="5" type="number" min="0" className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 shadow-sm font-bold" value={form.bufferPercent} onChange={e => setForm({...form, bufferPercent: parseFloat(e.target.value) || 0})} />
+                              <Input disabled={isRevisionMode} placeholder="5" type="number" min="0" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-[#213555] shadow-sm font-bold" value={form.bufferPercent} onChange={e => setForm({...form, bufferPercent: parseFloat(e.target.value) || 0})} />
                               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
                             </div>
                           </div>
@@ -545,14 +545,14 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                             <Label className="text-xs font-bold text-slate-500" title="Biaya Operasional Tenaga & Gas">Overhead / Porsi</Label>
                             <div className="relative">
                               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
-                              <Input disabled={isRevisionMode} placeholder="1500" type="number" min="0" className="h-11 pl-10 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 shadow-sm font-bold" value={form.overheadCost} onChange={e => setForm({...form, overheadCost: parseInt(e.target.value) || 0})} />
+                              <Input disabled={isRevisionMode} placeholder="1500" type="number" min="0" className="h-11 pl-10 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-[#213555] shadow-sm font-bold" value={form.overheadCost} onChange={e => setForm({...form, overheadCost: parseInt(e.target.value) || 0})} />
                             </div>
                           </div>
 
                           <div className="space-y-2">
                             <Label className="text-xs font-bold text-slate-500">Est. Waktu Memasak</Label>
                             <div className="relative">
-                              <Input disabled={isRevisionMode} placeholder="90" type="number" min="0" className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 shadow-sm font-bold" value={form.cookingTime} onChange={e => setForm({...form, cookingTime: parseInt(e.target.value) || 0})} />
+                              <Input disabled={isRevisionMode} placeholder="90" type="number" min="0" className="h-11 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-[#213555] shadow-sm font-bold" value={form.cookingTime} onChange={e => setForm({...form, cookingTime: parseInt(e.target.value) || 0})} />
                               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Menit</span>
                             </div>
                           </div>
@@ -567,7 +567,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                           <Textarea 
                             disabled={isRevisionMode}
                             placeholder="Penjelasan singkat tentang menu ini (misal: Ayam bakar bumbu nusantara tinggi protein)..." 
-                            className="min-h-[80px] resize-none rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 shadow-sm text-sm" 
+                            className="min-h-[80px] resize-none rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-[#213555] shadow-sm text-sm" 
                             maxLength={500}
                             value={form.description} 
                             onChange={e => setForm({...form, description: e.target.value})} 
@@ -575,14 +575,14 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                         </div>
 
                         {/* Automated Pricing display (Read-only) */}
-                        <div className="col-span-2 p-5 rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="col-span-2 p-5 rounded-2xl border-2 border-slate-100 bg-[#F2F2F2] flex flex-col md:flex-row items-center justify-between gap-4">
                           <div>
-                             <p className="text-xs font-black text-emerald-800 uppercase tracking-widest flex items-center gap-1.5"><CheckCircle2 size={14}/> Auto-Costing Aktif</p>
-                             <p className="text-xs font-medium text-emerald-700/80 mt-1">Biaya HPP porsi dikalkulasi dari {selectedIngredients.length} bahan pokok + {form.bufferPercent}% buffer.</p>
+                             <p className="text-xs font-black text-[#213555] uppercase tracking-widest flex items-center gap-1.5"><CheckCircle2 size={14}/> Auto-Costing Aktif</p>
+                             <p className="text-xs font-medium text-slate-500 mt-1">Biaya HPP porsi dikalkulasi dari {selectedIngredients.length} bahan pokok + {form.bufferPercent}% buffer.</p>
                           </div>
                           <div className="text-right shrink-0">
                              <p className="text-sm font-bold text-slate-500">Total Biaya Porsi</p>
-                             <p className="text-2xl font-black text-emerald-600">{formatRupiah(currentMenuPrice)}</p>
+                             <p className="text-2xl font-black text-[#213555]">{formatRupiah(currentMenuPrice)}</p>
                           </div>
                         </div>
                       </div>
@@ -593,26 +593,26 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                       <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-2">
                         <Box size={14} /> Pemetaan Kompartemen (Stainless 304)
                       </div>
-                      <div className="grid grid-cols-2 gap-4 bg-white p-5 rounded-[20px] border border-slate-200 shadow-sm">
+                      <div className="grid grid-cols-2 gap-4 bg-slate-50 p-5 rounded-[20px] border border-slate-200 shadow-sm">
                         <div className="space-y-2">
                           <Label className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-400"></div> Sekat 1: Karbohidrat</Label>
-                          <Input placeholder="Contoh: Nasi Putih 150g" className="h-10 rounded-lg bg-slate-50 border-slate-100" value={form.karbo} onChange={e => setForm({...form, karbo: e.target.value})} />
+                          <Input placeholder="Contoh: Nasi Putih 150g" className="h-10 rounded-lg bg-white border-slate-200" value={form.karbo} onChange={e => setForm({...form, karbo: e.target.value})} />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-400"></div> Sekat 2: Lauk Utama</Label>
-                          <Input placeholder="Contoh: Ayam Bakar Dada" className="h-10 rounded-lg bg-slate-50 border-slate-100" value={form.proteinUtama} onChange={e => setForm({...form, proteinUtama: e.target.value})} />
+                          <Input placeholder="Contoh: Ayam Bakar Dada" className="h-10 rounded-lg bg-white border-slate-200" value={form.proteinUtama} onChange={e => setForm({...form, proteinUtama: e.target.value})} />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-400"></div> Sekat 3: Lauk Pendamping</Label>
-                          <Input placeholder="Contoh: Tahu/Tempe Goreng" className="h-10 rounded-lg bg-slate-50 border-slate-100" value={form.proteinNabati} onChange={e => setForm({...form, proteinNabati: e.target.value})} />
+                          <Input placeholder="Contoh: Tahu/Tempe Goreng" className="h-10 rounded-lg bg-white border-slate-200" value={form.proteinNabati} onChange={e => setForm({...form, proteinNabati: e.target.value})} />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-400"></div> Sekat 4: Sayuran</Label>
-                          <Input placeholder="Contoh: Tumis Buncis Jagung" className="h-10 rounded-lg bg-slate-50 border-slate-100" value={form.sayur} onChange={e => setForm({...form, sayur: e.target.value})} />
+                          <Input placeholder="Contoh: Tumis Buncis Jagung" className="h-10 rounded-lg bg-white border-slate-200" value={form.sayur} onChange={e => setForm({...form, sayur: e.target.value})} />
                         </div>
                         <div className="col-span-2 space-y-2">
                           <Label className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-blue-400"></div> Sekat 5: Pelengkap (Buah/Susu)</Label>
-                          <Input placeholder="Contoh: Pisang Ambon & Susu UHT 200ml" className="h-10 rounded-lg bg-slate-50 border-slate-100" value={form.buah} onChange={e => setForm({...form, buah: e.target.value})} />
+                          <Input placeholder="Contoh: Pisang Ambon & Susu UHT 200ml" className="h-10 rounded-lg bg-white border-slate-200" value={form.buah} onChange={e => setForm({...form, buah: e.target.value})} />
                         </div>
                       </div>
                     </div>
@@ -632,14 +632,14 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                             type="button"
                             variant="outline" 
                             size="sm" 
-                            className="h-8 rounded-lg font-bold text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 shadow-sm"
+                            className="h-8 rounded-lg font-bold text-[#213555] border-slate-200 bg-[#F2F2F2] hover:bg-[#D8C4B6] shadow-sm"
                           >
                             <Search size={14} className="mr-1" /> Buka Katalog
                           </Button>
                        </div>
 
                       {/* List Bahan Terpilih dengan Input Gramasi */}
-                      <div className="min-h-[100px] p-5 rounded-[20px] bg-white border border-slate-200 shadow-sm">
+                      <div className="min-h-[100px] p-5 rounded-[20px] bg-slate-50 border border-slate-200 shadow-sm">
                         {selectedIngredients.length === 0 ? (
                            <div className="h-full flex flex-col items-center justify-center text-slate-400 py-4">
                              <ListChecks size={32} className="mb-3 opacity-30" />
@@ -659,7 +659,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                                const itemBufferedCost = itemPortionCost * (1 + (form.bufferPercent / 100));
 
                                return (
-                               <div key={item.id} className="flex flex-col gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                               <div key={item.id} className="flex flex-col gap-3 bg-white p-4 rounded-xl border border-slate-100">
                                  {/* Item Header */}
                                  <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
@@ -675,7 +675,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                                     </div>
                                     <div className="flex items-start gap-4">
                                       <div className="text-right">
-                                         <p className="text-[11px] font-black text-[#0d5c46]">{item.price}<span className="text-[9px] text-slate-400 font-medium ml-1">/{item.unit}</span></p>
+                                         <p className="text-[11px] font-black text-[#213555]">{item.price}<span className="text-[9px] text-slate-400 font-medium ml-1">/{item.unit}</span></p>
                                          <p className="text-[9px] font-bold text-slate-400 mt-0.5">Sisa: {item.stock} {item.unit}</p>
                                       </div>
                                       <Button 
@@ -689,7 +689,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                                  </div>
 
                                  {/* Quantity Input Area */}
-                                 <div className="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-200">
+                                 <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-lg border border-slate-100">
                                     <div className="flex-1">
                                       <Label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Kebutuhan per Porsi Siswa</Label>
                                       <div className="relative">
@@ -699,18 +699,18 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                                            value={item.amountPerPortion || ''}
                                            disabled={isRevisionMode}
                                            onChange={(e) => updateIngredientAmount(item.id, e.target.value)}
-                                           className="h-10 pr-16 bg-slate-50 focus-visible:ring-emerald-500 font-bold"
+                                           className="h-10 pr-16 bg-white focus-visible:ring-[#213555] font-bold"
                                          />
-                                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 bg-slate-50">{inputUnit}</span>
+                                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 bg-white">{inputUnit}</span>
                                       </div>
                                     </div>
                                     
-                                    <div className="flex-1 bg-slate-50 p-2.5 rounded-md border border-slate-100 flex items-center justify-between">
+                                    <div className="flex-1 bg-white p-2.5 rounded-md border border-slate-100 flex items-center justify-between">
                                       <div>
                                          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Modal per Porsi</p>
                                          <p className="text-[9px] text-slate-400 mt-0.5">Termasuk {form.bufferPercent}% buffer</p>
                                       </div>
-                                      <p className="font-black text-sm text-emerald-700">{formatRupiah(itemBufferedCost)}</p>
+                                      <p className="font-black text-sm text-[#213555]">{formatRupiah(itemBufferedCost)}</p>
                                     </div>
                                  </div>
                                </div>
@@ -724,7 +724,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                 
                 <div className="mt-8 flex justify-end gap-3 pt-6 border-t border-slate-200">
                   <Button variant="outline" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl font-bold h-11 px-6 bg-white border-slate-300">Batal</Button>
-                  <Button onClick={handleAddMenu} className="rounded-xl bg-[#0d5c46] hover:bg-[#0a4837] font-bold text-white shadow-md h-11 px-8">
+                  <Button onClick={handleAddMenu} className="rounded-xl bg-[#213555] hover:opacity-90 font-bold text-white shadow-md h-11 px-8">
                     Simpan ke Rencana Induk
                   </Button>
                 </div>
@@ -736,7 +736,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
 
           {/* List of Created Menus */}
           {customMenus.length === 0 ? (
-            <div className="py-16 text-center border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50/50 flex flex-col items-center justify-center">
+            <div className="py-16 text-center border-2 border-dashed border-slate-200 rounded-[24px] bg-[#F2F2F2] flex flex-col items-center justify-center">
               <UtensilsCrossed size={48} className="text-slate-300 mb-4" />
               <h4 className="text-lg font-bold text-slate-600 mb-1">Belum Ada Menu</h4>
               <p className="text-sm text-slate-500 max-w-sm">Klik "Tambah Menu Makanan" untuk merancang menu harian untuk instansi terkait.</p>
@@ -744,8 +744,8 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
           ) : (
             <div className="grid grid-cols-1 gap-6">
               {customMenus.map((menu, idx) => (
-                <div key={menu.id} className="group relative flex flex-col lg:flex-row gap-6 p-6 rounded-[28px] bg-white border border-slate-200 hover:border-[#0d5c46]/30 shadow-sm hover:shadow-xl hover:shadow-[#0d5c46]/5 transition-all duration-300">
-                  <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-[#0d5c46] text-white flex items-center justify-center font-black text-sm border-4 border-white shadow-sm">
+                <div key={menu.id} className="group relative flex flex-col lg:flex-row gap-6 p-6 rounded-[28px] bg-[#F2F2F2] border border-slate-200 hover:border-[#213555]/30 shadow-sm hover:shadow-xl hover:shadow-[#213555]/5 transition-all duration-300">
+                  <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-[#213555] text-white flex items-center justify-center font-black text-sm border-4 border-white shadow-sm">
                     {idx + 1}
                   </div>
                   
@@ -768,7 +768,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                          <div className="text-right">
                            <div className="flex justify-end gap-2 mb-1">
                              <p className="text-[9px] font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-1.5 rounded-md border border-amber-100 flex items-center gap-1"><ChefHat size={12} /> {menu.cookingTime} Mnt</p>
-                             <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100">Jadwal: {menu.frequency} Hari</p>
+                             <p className="text-[10px] font-bold text-[#213555] uppercase tracking-widest bg-[#D8C4B6] px-2 py-1.5 rounded-md border border-[#D8C4B6]/20">Jadwal: {menu.frequency} Hari</p>
                            </div>
                            <p className="text-[9px] font-medium text-slate-400 mt-1 max-w-[150px] leading-tight text-right">Tgl: {menu.selectedDays.join(', ')}</p>
                          </div>
@@ -786,7 +786,7 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                     </div>
                     
                     {/* Compartment Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-slate-50 p-3 rounded-[16px] border border-slate-100">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-white p-3 rounded-[16px] border border-slate-100">
                       <div>
                         <p className="text-[9px] font-black text-slate-400 uppercase mb-1 flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Karbo</p>
                         <p className="text-xs font-bold text-slate-700 truncate" title={menu.compartments.karbo}>{menu.compartments.karbo || "-"}</p>
@@ -825,11 +825,11 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                              const bufferedDemand = rawDemand * (1 + (menu.bufferPercent / 100));
                              
                              return (
-                            <div key={bahan.id} className="flex flex-col gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
+                            <div key={bahan.id} className="flex flex-col gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 shadow-sm">
                               <p className="text-[10px] font-bold text-slate-700 leading-tight truncate">{bahan.name}</p>
                               <div className="flex justify-between items-end">
                                 <p className="text-[9px] font-medium text-slate-500 leading-none">{bahan.vendor}</p>
-                                <p className="text-xs font-black text-[#0d5c46] leading-none">{bufferedDemand.toFixed(1)} <span className="text-[9px] font-bold opacity-70 uppercase">{bahan.unit}</span></p>
+                                <p className="text-xs font-black text-[#213555] leading-none">{bufferedDemand.toFixed(1)} <span className="text-[9px] font-bold opacity-70 uppercase">{bahan.unit}</span></p>
                               </div>
                             </div>
                           )})}
@@ -843,9 +843,9 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
             </div>
           )}
 
-          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-start gap-5">
-            <div className="w-12 h-12 rounded-[16px] bg-blue-50 flex items-center justify-center shrink-0">
-              <Info className="text-blue-600" size={24} />
+          <div className="bg-[#F2F2F2] p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-start gap-5">
+            <div className="w-12 h-12 rounded-[16px] bg-[#D8C4B6]/20 flex items-center justify-center shrink-0">
+              <Info className="text-[#213555]" size={24} />
             </div>
             <div>
               <h4 className="font-bold text-slate-800 text-lg mb-1">Catatan Operasional Framework Agreement</h4>
@@ -861,41 +861,41 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
 
         {/* Sidebar Summary */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#0d5c46] p-8 rounded-[32px] text-white shadow-xl shadow-emerald-900/10">
+          <div className="bg-[#213555] p-8 rounded-[32px] text-white shadow-xl shadow-slate-900/10">
             <h3 className="text-lg font-black uppercase tracking-widest mb-6 border-b border-white/10 pb-4 flex items-center gap-2">
-              <FileText size={20} /> Master Rencana
+              <FileText size={20} className="text-[#D8C4B6]" /> Master Rencana
             </h3>
             
             <div className="space-y-6">
               <div>
-                <p className="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-2">Instansi Sasaran</p>
+                <p className="text-[10px] font-black text-[#D8C4B6] uppercase tracking-widest mb-2">Instansi Sasaran</p>
                 <div className="flex items-start gap-3">
-                  <Building2 size={20} className="text-emerald-400 shrink-0" />
+                  <Building2 size={20} className="text-[#D8C4B6] shrink-0" />
                   <p className="font-bold leading-tight">SDN 01 Bojongsoang, Kab. Bandung</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-2">Kuota Harian</p>
+                  <p className="text-[10px] font-black text-[#D8C4B6] uppercase tracking-widest mb-2">Kuota Harian</p>
                   <div className="flex items-center gap-2">
-                    <Users size={18} className="text-emerald-400" />
+                    <Users size={18} className="text-[#D8C4B6]" />
                     <p className="text-xl font-black">{STUDENTS_COUNT} <span className="text-xs font-bold opacity-60">PORSI</span></p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-2">Total Jadwal</p>
+                  <p className="text-[10px] font-black text-[#D8C4B6] uppercase tracking-widest mb-2">Total Jadwal</p>
                   <div className="flex items-center gap-2">
-                    <Calendar size={18} className="text-emerald-400" />
+                    <Calendar size={18} className="text-[#D8C4B6]" />
                     <p className="text-xl font-black">{totalDays} <span className="text-xs font-bold opacity-60">HARI</span></p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <p className="text-[10px] font-black text-emerald-300 uppercase tracking-widest mb-2">Wilayah Distribusi</p>
+                <p className="text-[10px] font-black text-[#D8C4B6] uppercase tracking-widest mb-2">Wilayah Distribusi</p>
                 <div className="flex items-center gap-2">
-                  <MapPin size={18} className="text-emerald-400" />
+                  <MapPin size={18} className="text-[#D8C4B6]" />
                   <p className="font-bold text-sm">Zona A - Bojongsoang & Sekitarnya</p>
                 </div>
               </div>
@@ -903,14 +903,14 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
           </div>
 
           {/* NEW: Multisupplier Tracker Widget */}
-          <div className={`p-6 rounded-[28px] border-2 shadow-sm ${isCompliant ? 'bg-emerald-50 border-emerald-200' : 'bg-white border-slate-100 border-dashed'}`}>
+          <div className={`p-6 rounded-[28px] border-2 shadow-sm ${isCompliant ? 'bg-[#F2F2F2] border-[#213555]' : 'bg-white border-slate-100 border-dashed'}`}>
              <div className="flex items-start justify-between mb-4">
                 <div>
                    <p className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5"><Store size={14} /> Pemasok Terlibat</p>
                    <p className="text-[10px] font-medium text-slate-500 mt-1">Syarat BGN 2026: Min. {targetVendors} Vendor</p>
                 </div>
                 {isCompliant ? (
-                   <span className="px-2 py-1 bg-emerald-100 text-[10px] font-black text-emerald-700 rounded-lg uppercase flex items-center gap-1">
+                   <span className="px-2 py-1 bg-[#213555]/10 text-[10px] font-black text-[#213555] rounded-lg uppercase flex items-center gap-1">
                       <CheckCircle2 size={10} /> Terpenuhi
                    </span>
                 ) : (
@@ -921,13 +921,13 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
              </div>
              
              <div className="flex items-end gap-2 mb-3">
-                <span className={`text-4xl font-black leading-none ${isCompliant ? 'text-emerald-600' : 'text-slate-800'}`}>{uniqueVendorsCount}</span>
+                <span className={`text-4xl font-black leading-none ${isCompliant ? 'text-[#213555]' : 'text-slate-800'}`}>{uniqueVendorsCount}</span>
                 <span className="text-sm font-bold text-slate-400 mb-1">/ {targetVendors} Vendor Lokal</span>
              </div>
              
-             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+             <div className="w-full h-2 bg-white rounded-full overflow-hidden">
                 <div 
-                   className={`h-full rounded-full transition-all duration-500 ${isCompliant ? 'bg-emerald-500' : 'bg-amber-400'}`}
+                   className={`h-full rounded-full transition-all duration-500 ${isCompliant ? 'bg-[#213555]' : 'bg-amber-400'}`}
                    style={{ width: `${progressPercentage}%` }}
                 ></div>
              </div>
@@ -942,17 +942,17 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
 
           {/* NEW: Global PO Summary Widget */}
           {globalPOs.length > 0 && (
-          <div className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-sm">
+          <div className="bg-[#F2F2F2] p-6 rounded-[28px] border border-slate-100 shadow-sm">
              <div className="flex items-center justify-between mb-4">
-                <p className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
-                   <Store size={14} className="text-emerald-600" /> Resume Pesanan (PO)
-                </p>
-                <span className="px-2 py-1 bg-emerald-50 text-[10px] font-bold text-emerald-600 rounded-lg uppercase">Total Global</span>
+                 <p className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                    <Store size={14} className="text-[#213555]" /> Resume Pesanan (PO)
+                 </p>
+                 <span className="px-2 py-1 bg-white text-[10px] font-bold text-[#213555] rounded-lg uppercase">Total Global</span>
              </div>
              
              <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2">
                 {globalPOs.map((po, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 transition-all hover:border-emerald-200 hover:shadow-sm">
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-100 transition-all hover:border-[#213555] hover:shadow-sm">
                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-slate-200">
                            <img src={po.image} alt={po.name} className="w-full h-full object-cover" />
@@ -962,29 +962,29 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
                            <p className="text-[9px] font-medium text-slate-500 mt-0.5 truncate" title={po.vendor}>{po.vendor}</p>
                         </div>
                      </div>
-                     <div className="text-right shrink-0">
-                        <p className="text-sm font-black text-[#0d5c46]">{po.total.toFixed(1)}</p>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-black text-[#213555]">{po.total.toFixed(1)}</p>
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{po.unit}</p>
-                     </div>
+                      </div>
                   </div>
                 ))}
              </div>
           </div>
           )}
 
-          <div className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-sm border-dashed">
+          <div className="bg-[#F2F2F2] p-6 rounded-[28px] border border-slate-100 shadow-sm border-dashed">
              <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Kalkulasi Anggaran SPK</p>
-                <span className="px-2 py-1 bg-slate-50 text-[10px] font-bold text-slate-500 rounded-lg uppercase">BOM Output</span>
+                <span className="px-2 py-1 bg-white text-[10px] font-bold text-slate-500 rounded-lg uppercase">BOM Output</span>
              </div>
              <div className="space-y-3">
                 <div className="flex justify-between text-sm font-medium text-slate-600">
                    <span>Unit Cost Rata-rata</span>
                    <span className="font-bold text-slate-800">{totalDays > 0 ? formatRupiah(averageUnitCost) : "-"}</span>
                 </div>
-                <div className="pt-3 border-t border-slate-50 flex justify-between items-center">
+                 <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
                    <span className="text-xs font-black text-slate-800 uppercase">Total Anggaran Proyek</span>
-                   <span className="text-lg font-black text-[#0d5c46]">{totalBudget > 0 ? formatRupiah(totalBudget) : "-"}</span>
+                   <span className="text-lg font-black text-[#213555]">{totalBudget > 0 ? formatRupiah(totalBudget) : "-"}</span>
                 </div>
              </div>
           </div>

@@ -135,12 +135,15 @@
   --app-font-serif: var(--font-jakarta);
   --radius: 0.875rem;
 
-  /* Role palettes */
-  --gov-primary: 222 47% 20%;
-  --gov-primary-hover: 222 47% 15%;
-  --gov-accent: 38 90% 55%;
-  --gov-accent-hover: 38 90% 48%;
-  --gov-surface: 222 47% 97%;
+  /* Role palettes — SPPG Navy-Beige palette */
+  /* #213555 ≈ hsl(214 44% 23%)  #3E5879 ≈ hsl(214 32% 36%) */
+  /* #D8C4B6 ≈ hsl(24 25% 79%)   #F5EFE7 ≈ hsl(33 47% 95%)  */
+  --gov-primary: 214 44% 23%;
+  --gov-primary-hover: 214 44% 17%;
+  --gov-secondary: 214 32% 36%;
+  --gov-accent: 24 25% 79%;
+  --gov-accent-hover: 24 25% 70%;
+  --gov-surface: 33 47% 95%;
 
   --vendor-primary: 160 84% 35%;
   --vendor-primary-hover: 160 84% 28%;
@@ -236,20 +239,27 @@
   --role-primary-hover: var(--gov-primary-hover);
   --role-accent: var(--gov-accent);
   --role-surface: var(--gov-surface);
-  --role-badge: var(--gov-accent);
+  --role-badge: var(--gov-secondary);
 
-  /* Make ShadCN primitives follow the active role */
+  /* ShadCN primitives follow active role */
   --primary: var(--gov-primary);
   --primary-foreground: 0 0% 100%;
-  --ring: var(--gov-primary);
+  --ring: var(--gov-secondary);
 
-  /* Government sidebar: dark navy */
+  /* Content area background: warm cream #F5EFE7 */
+  --background: 33 47% 95%;
+  --surface: 0 0% 100%;
+  --surface-raised: 33 30% 91%;
+  --border: 24 20% 84%;
+  --muted-bg: 33 30% 91%;
+
+  /* Sidebar: dark navy #213555 with medium blue accents */
   --sidebar: var(--gov-primary);
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-border: 222 35% 22%;
-  --sidebar-accent: 222 35% 22%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-ring: var(--ring);
+  --sidebar-foreground: 33 47% 95%;
+  --sidebar-border: 214 35% 18%;
+  --sidebar-accent: var(--gov-secondary);
+  --sidebar-accent-foreground: 33 47% 97%;
+  --sidebar-ring: var(--gov-secondary);
 }
 
 .role-vendor,

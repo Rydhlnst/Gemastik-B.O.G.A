@@ -19,70 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-interface CatalogItem {
-  id: string;
-  name: string;
-  vendor: string;
-  price: string;
-  category: string;
-  image: string;
-  stock: number;
-  unit: string;
-  het: string;
-  isMarkup: boolean;
-  markupText?: string;
-  rating: number;
-  reviews: number;
-  isNew: boolean;
-  distance: number;
-  description?: string;
-  gallery?: string[];
-}
-
-type SelectedIngredient = CatalogItem & { amountPerPortion: number };
-
-const STUDENTS_COUNT = 450;
-
-// Minimal 15 Vendor Lokal untuk memenuhi aturan BGN 2026
-const mockCatalogItems: CatalogItem[] = [
-  { id: "c1", name: "Beras Premium Slyp Super", vendor: "Koperasi Tani Makmur", price: "Rp 14.500", category: "Karbohidrat", unit: "kg", stock: 1500, het: "Rp 15.000", isMarkup: false, rating: 4.8, reviews: 1250, isNew: false, distance: 3.2, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=300&auto=format&fit=crop", description: "Beras premium kualitas super tanpa pemutih, cocok untuk konsumsi harian sekolah." , gallery: ["https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c2", name: "Daging Ayam Segar Potong", vendor: "CV Unggas Jaya", price: "Rp 36.500", category: "Protein Hewani", unit: "ekor", stock: 200, het: "Rp 35.000", isMarkup: true, markupText: "+4% HET", rating: 4.5, reviews: 320, isNew: false, distance: 8.5, image: "https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=300&auto=format&fit=crop", description: "Ayam broiler potong segar diproses secara higienis dengan sertifikasi halal MUI." , gallery: ["https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c3", name: "Telur Ayam Ras Biasa", vendor: "Sukamaju Farm", price: "Rp 28.000", category: "Protein Hewani", unit: "kg", stock: 100, het: "Rp 29.000", isMarkup: false, rating: 0, reviews: 0, isNew: true, distance: 5.1, image: "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?q=80&w=300&auto=format&fit=crop", description: "Telur ayam ras segar dari peternakan lokal dengan jaminan cangkang tebal dan kualitas grade A." , gallery: ["https://images.unsplash.com/photo-1587486913049-53fc88980cfc?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1587486913049-53fc88980cfc?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c4", name: "Tempe Kedelai Super", vendor: "Koperasi Tahu Tempe", price: "Rp 5.000", category: "Protein Nabati", unit: "papan", stock: 350, het: "Rp 6.000", isMarkup: false, rating: 4.7, reviews: 640, isNew: false, distance: 1.2, image: "https://images.unsplash.com/photo-1621245051662-794d13e3cebf?q=80&w=300&auto=format&fit=crop", description: "Tempe padat kaya protein dari kedelai pilihan non-GMO." , gallery: ["https://images.unsplash.com/photo-1621245051662-794d13e3cebf?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1621245051662-794d13e3cebf?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1621245051662-794d13e3cebf?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1621245051662-794d13e3cebf?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c5", name: "Buncis Segar", vendor: "Kebun Sayur Cikole", price: "Rp 12.000", category: "Sayuran", unit: "kg", stock: 80, het: "Rp 12.500", isMarkup: false, rating: 0, reviews: 0, isNew: true, distance: 15.4, image: "https://images.unsplash.com/photo-1599818815152-19e4876b0521?q=80&w=300&auto=format&fit=crop", description: "Buncis segar hasil panen pagi hari dari perkebunan organik Cikole, kaya akan serat." , gallery: ["https://images.unsplash.com/photo-1599818815152-19e4876b0521?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1599818815152-19e4876b0521?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1599818815152-19e4876b0521?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1599818815152-19e4876b0521?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c6", name: "Minyak Goreng Kemasan", vendor: "PT Sawit Sejahtera", price: "Rp 16.500", category: "Bahan Dapur", unit: "liter", stock: 500, het: "Rp 16.500", isMarkup: false, rating: 4.6, reviews: 920, isNew: false, distance: 12.0, image: "https://images.unsplash.com/photo-1472555353163-f222839a98dd?q=80&w=300&auto=format&fit=crop", description: "Minyak goreng bening difortifikasi vitamin A, cocok untuk menggoreng lauk pauk." , gallery: ["https://images.unsplash.com/photo-1472555353163-f222839a98dd?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1472555353163-f222839a98dd?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1472555353163-f222839a98dd?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1472555353163-f222839a98dd?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c7", name: "Ikan Nila Segar", vendor: "Kelompok Budidaya Tirta", price: "Rp 28.000", category: "Protein Hewani", unit: "kg", stock: 150, het: "Rp 30.000", isMarkup: false, rating: 4.9, reviews: 45, isNew: true, distance: 7.3, image: "https://images.unsplash.com/photo-1516480579958-89c099eceb27?q=80&w=300&auto=format&fit=crop", description: "Ikan nila air tawar segar tanpa bau tanah, kaya akan protein dan Omega 3." , gallery: ["https://images.unsplash.com/photo-1516480579958-89c099eceb27?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1516480579958-89c099eceb27?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1516480579958-89c099eceb27?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1516480579958-89c099eceb27?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c8", name: "Susu Sapi Murni", vendor: "Koperasi Susu Lembang", price: "Rp 12.000", category: "Minuman", unit: "liter", stock: 200, het: "Rp 13.000", isMarkup: false, rating: 4.9, reviews: 2000, isNew: false, distance: 18.0, image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=300&auto=format&fit=crop", description: "Susu sapi perah murni pasteurisasi tanpa pengawet tambahan, sumber kalsium tinggi." , gallery: ["https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1550583724-b2692b85b150?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c9", name: "Pisang Ambon", vendor: "Petani Buah Garut", price: "Rp 15.000", category: "Buah", unit: "sisir", stock: 50, het: "Rp 15.000", isMarkup: false, rating: 4.5, reviews: 34, isNew: false, distance: 22.1, image: "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=300&auto=format&fit=crop", description: "Pisang ambon matang sempurna, manis alami, sangat cocok sebagai buah pencuci mulut." , gallery: ["https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1481349518771-20055b2a7b24?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c10", name: "Bawang Merah Brebes", vendor: "Pasar Induk Caringin", price: "Rp 40.000", category: "Bahan Dapur", unit: "kg", stock: 300, het: "Rp 35.000", isMarkup: true, markupText: "+14% HET", rating: 4.2, reviews: 890, isNew: false, distance: 9.0, image: "https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=300&auto=format&fit=crop", description: "Bawang merah super Brebes kering, aromatik dan tahan lama." , gallery: ["https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1618512496248-a07ce83aa8cb?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c11", name: "Bawang Putih Kating", vendor: "Distributor Rempah Jaya", price: "Rp 35.000", category: "Bahan Dapur", unit: "kg", stock: 400, het: "Rp 35.000", isMarkup: false, rating: 4.8, reviews: 512, isNew: false, distance: 11.2, image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=300&auto=format&fit=crop", description: "Bawang putih kating impor kualitas premium dengan aroma bawang yang sangat kuat." , gallery: ["https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c12", name: "Wortel Brastagi", vendor: "Asosiasi Petani Sayur", price: "Rp 14.000", category: "Sayuran", unit: "kg", stock: 90, het: "Rp 15.000", isMarkup: false, rating: 4.7, reviews: 110, isNew: false, distance: 14.5, image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=300&auto=format&fit=crop", description: "Wortel manis segar dari Brastagi, kaya akan vitamin A dan baik untuk mata." , gallery: ["https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c13", name: "Daging Sapi Has Dalam", vendor: "RPH Baleendah", price: "Rp 135.000", category: "Protein Hewani", unit: "kg", stock: 50, het: "Rp 130.000", isMarkup: true, markupText: "+3% HET", rating: 4.6, reviews: 200, isNew: false, distance: 4.2, image: "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=300&auto=format&fit=crop", description: "Daging sapi has dalam tekstur empuk, bebas lemak, sangat baik untuk pemenuhan gizi anak." , gallery: ["https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c14", name: "Garam Yodium", vendor: "PT Garam Indo", price: "Rp 3.000", category: "Bahan Dapur", unit: "bungkus", stock: 1000, het: "Rp 3.500", isMarkup: false, rating: 4.9, reviews: 300, isNew: false, distance: 25.0, image: "https://images.unsplash.com/photo-1621360144962-d35b91b97dc3?q=80&w=300&auto=format&fit=crop", description: "Garam beryodium kemasan standar BPOM, penting untuk pertumbuhan optimal." , gallery: ["https://images.unsplash.com/photo-1621360144962-d35b91b97dc3?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1621360144962-d35b91b97dc3?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1621360144962-d35b91b97dc3?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1621360144962-d35b91b97dc3?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c15", name: "Jeruk Medan Segar", vendor: "Supplier Buah Segar", price: "Rp 25.000", category: "Buah", unit: "kg", stock: 120, het: "Rp 28.000", isMarkup: false, rating: 4.4, reviews: 88, isNew: true, distance: 8.9, image: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?q=80&w=300&auto=format&fit=crop", description: "Jeruk manis tanpa biji kaya vitamin C untuk menjaga imunitas tubuh anak-anak." , gallery: ["https://images.unsplash.com/photo-1582979512210-99b6a53386f9?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?q=80&w=303&auto=format&fit=crop"] },
-  { id: "c16", name: "Tahu Sumedang Mentah", vendor: "Pabrik Tahu Sari", price: "Rp 4.000", category: "Protein Nabati", unit: "bungkus", stock: 500, het: "Rp 5.000", isMarkup: false, rating: 4.8, reviews: 600, isNew: false, distance: 10.5, image: "https://images.unsplash.com/photo-1546069901-d5bfd20bfb65?q=80&w=300&auto=format&fit=crop", description: "Tahu mentah tanpa pengawet formalin, sumber protein nabati yang sangat baik." , gallery: ["https://images.unsplash.com/photo-1546069901-d5bfd20bfb65?q=80&w=300&auto=format&fit=crop", "https://images.unsplash.com/photo-1546069901-d5bfd20bfb65?q=80&w=301&auto=format&fit=crop", "https://images.unsplash.com/photo-1546069901-d5bfd20bfb65?q=80&w=302&auto=format&fit=crop", "https://images.unsplash.com/photo-1546069901-d5bfd20bfb65?q=80&w=303&auto=format&fit=crop"] },
-];
-
-interface CustomMenu {
-  id: string;
-  name: string;
-  description: string;
-  price: number; 
-  frequency: number; // Hari penyajian
-  selectedDays: number[]; // Tanggal kalender
-  bufferPercent: number; // Safety stock
-  overheadCost: number; // Biaya gas/tenaga
-  cookingTime: number; // Waktu masak (menit)
-  image: string;
-  compartments: {
-    karbo: string;
-    proteinUtama: string;
-    proteinNabati: string;
-    sayur: string;
-    buah: string;
-  };
-  ingredients: SelectedIngredient[];
-}
+import { 
+  CatalogItem, SelectedIngredient, CustomMenu, mockCatalogItems, STUDENTS_COUNT 
+} from "@/lib/tender-utils";
 
 export default function EditTenderDraftPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
@@ -137,7 +76,32 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
   
   // Dialog States
   const [isMenuDialogOpen, setIsMenuDialogOpen] = useState(false);
-  const [isCatalogDialogOpen, setIsCatalogDialogOpen] = useState(false);
+
+  // Persistence Logic: Load draft from SessionStorage
+  React.useEffect(() => {
+    const savedDraft = sessionStorage.getItem(`tender-draft-${id}`);
+    if (savedDraft) {
+      const { customMenus: savedMenus, currentForm, isMenuOpen, ingredients } = JSON.parse(savedDraft);
+      if (savedMenus) setCustomMenus(savedMenus);
+      if (currentForm) setForm(currentForm);
+      if (isMenuOpen) setIsMenuDialogOpen(isMenuOpen);
+      if (ingredients) setSelectedIngredients(ingredients);
+      
+      // Clear after loading to avoid stale data next time, 
+      // but we actually want it to stay until explicitly cleared or published
+      // sessionStorage.removeItem(`tender-draft-${id}`);
+    }
+  }, [id]);
+
+  const saveDraftToSession = () => {
+    const draftData = {
+      customMenus,
+      currentForm: form,
+      isMenuOpen: isMenuDialogOpen,
+      ingredients: selectedIngredients
+    };
+    sessionStorage.setItem(`tender-draft-${id}`, JSON.stringify(draftData));
+  };
   
   // Filter & Sort States for Catalog
   const [catalogSearch, setCatalogSearch] = useState("");
@@ -655,21 +619,24 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
 
                     {/* Section 4: Bahan Pokok (Vendor Catalog Integration) */}
                     <div className="space-y-4 pt-4">
-                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                         <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
-                           <Store size={14} /> Input Gramasi Resep (Multisupplier)
-                         </div>
-                         
-                         <Button 
-                           onClick={() => setIsCatalogDialogOpen(true)}
-                           type="button"
-                           variant="outline" 
-                           size="sm" 
-                           className="h-8 rounded-lg font-bold text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 shadow-sm"
-                         >
-                           <Search size={14} className="mr-1" /> Buka Katalog
-                         </Button>
-                      </div>
+                       <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                          <div className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-widest">
+                            <Store size={14} /> Input Gramasi Resep (Multisupplier)
+                          </div>
+                          
+                          <Button 
+                            onClick={() => {
+                              saveDraftToSession();
+                              router.push(`/sppg/admin/tender/edit/${id}/catalog`);
+                            }}
+                            type="button"
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 rounded-lg font-bold text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 shadow-sm"
+                          >
+                            <Search size={14} className="mr-1" /> Buka Katalog
+                          </Button>
+                       </div>
 
                       {/* List Bahan Terpilih dengan Input Gramasi */}
                       <div className="min-h-[100px] p-5 rounded-[20px] bg-white border border-slate-200 shadow-sm">
@@ -764,175 +731,6 @@ export default function EditTenderDraftPage({ params }: { params: Promise<{ id: 
               </div>
             )}
               
-            {/* Pop-up Katalog (List View Super Lengkap dengan Filter & Rating) */}
-            <Dialog open={isCatalogDialogOpen || isRevisionMode} onOpenChange={setIsCatalogDialogOpen}>
-               <DialogContent className="max-w-[75vw] h-[96vh] fixed top-[2vh] right-[2vh] bottom-[2vh] m-0 rounded-[40px] border border-slate-200 bg-white p-0 z-[60] flex flex-col shadow-[-40px_0_80px_rgba(0,0,0,0.15)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]">
-                 {/* Compact Premium Header */}
-                 <div className="p-6 bg-white border-b border-slate-100 shrink-0 z-20 rounded-t-[40px]">
-                    <div className="flex items-center justify-between mb-6">
-                       <div className="flex items-center gap-4">
-                          <Button variant="ghost" size="icon" onClick={() => setIsCatalogDialogOpen(false)} className="rounded-full hover:bg-slate-100 h-10 w-10">
-                             <ArrowLeft size={20} className="text-slate-500" />
-                          </Button>
-                          <div className="flex items-center gap-3">
-                             <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                                <Store className="text-emerald-600" size={20} />
-                             </div>
-                             <div>
-                                <DialogTitle className="text-xl font-black text-slate-800 leading-none mb-1">Katalog Mitra Lokal</DialogTitle>
-                                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">BGN Logistics Portal</p>
-                             </div>
-                          </div>
-                       </div>
-                       <Button variant="ghost" onClick={() => setIsCatalogDialogOpen(false)} className="h-10 px-4 rounded-xl text-slate-400 font-bold hover:bg-slate-50 hover:text-slate-600 transition-colors">Tutup</Button>
-                    </div>
-                    
-                    <div className="flex gap-3 items-center">
-                       <div className="relative flex-1">
-                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                          <Input 
-                            placeholder="Cari bahan baku atau mitra..." 
-                            className="pl-10 h-11 rounded-xl bg-slate-50 border-slate-200 text-sm focus-visible:ring-emerald-500"
-                            value={catalogSearch}
-                            onChange={e => setCatalogSearch(e.target.value)}
-                          />
-                       </div>
-                       <select 
-                         className="h-11 px-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 outline-none cursor-pointer"
-                         value={filterCategory}
-                         onChange={(e) => setFilterCategory(e.target.value)}
-                       >
-                         <option value="all">Semua Kategori</option>
-                         <option value="Karbohidrat">Karbohidrat</option>
-                         <option value="Protein Hewani">Protein Hewani</option>
-                         <option value="Protein Nabati">Protein Nabati</option>
-                         <option value="Sayuran">Sayuran</option>
-                         <option value="Buah">Buah</option>
-                       </select>
-                    </div>
-                 </div>
-                 
-                 {/* Compact Scrollable Content */}
-                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-slate-50/30">
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                      {filteredCatalog.map(item => {
-                         const isSelected = selectedIngredients.some(i => i.id === item.id);
-                         return (
-                           <div key={item.id} className={`flex flex-col p-6 rounded-[32px] border transition-all duration-300 ${isSelected ? "border-emerald-500 bg-white shadow-xl shadow-emerald-900/5 ring-1 ring-emerald-500" : "border-slate-200 bg-white hover:border-emerald-300 hover:shadow-xl hover:shadow-slate-200/40"}`}>
-                             <div className="flex items-start w-full gap-5">
-                               {/* Image: Compact */}
-                               <div className="w-24 h-24 rounded-2xl overflow-hidden shrink-0 border border-slate-100 relative shadow-sm">
-                                  <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                               </div>
-                               
-                               {/* Info Section */}
-                               <div className="flex-1 min-w-0">
-                                 <div className="flex items-center gap-1.5 mb-2">
-                                   {item.isNew && (
-                                     <span className="text-[8px] font-black uppercase tracking-widest text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">BARU</span>
-                                   )}
-                                   {item.category && (
-                                     <span className="text-[8px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">{item.category}</span>
-                                   )}
-                                 </div>
-                                 <h4 className="text-lg font-black text-slate-800 truncate leading-tight mb-1">{item.name}</h4>
-                                 
-                                 <div className="flex items-center gap-3 mb-3">
-                                    <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500">
-                                      <Star size={12} className="fill-amber-500" /> {item.rating}
-                                    </div>
-                                    <div className="w-1 h-1 bg-slate-200 rounded-full"></div>
-                                    <p className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5">
-                                      <Store size={12} /> {item.vendor}
-                                    </p>
-                                 </div>
-
-                                 <details className="group cursor-pointer outline-none">
-                                    <summary className="text-[10px] font-black text-emerald-600 flex items-center gap-1 list-none hover:text-emerald-700 transition-colors uppercase tracking-widest">
-                                      Deskripsi
-                                      <ChevronDown size={10} className="transition-transform group-open:rotate-180" />
-                                    </summary>
-                                    <div className="bg-slate-50 mt-2 p-3 rounded-xl border border-slate-100 shadow-inner">
-                                      <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-                                        {item.description || "Tidak ada deskripsi."}
-                                      </p>
-                                    </div>
-                                 </details>
-                               </div>
-                             </div>
-
-                             {/* Gallery: Compact Tiles */}
-                             {item.gallery && item.gallery.length > 0 && (
-                               <div className="mt-4 pt-4 border-t border-slate-50 w-full">
-                                 <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-                                   {item.gallery.slice(0, 5).map((img, idx) => (
-                                     <div key={idx} className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-100 hover:border-emerald-500 transition-all group/gallery shadow-sm">
-                                       <img src={img} alt={`${item.name} detail ${idx+1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover/gallery:scale-110" />
-                                     </div>
-                                   ))}
-                                 </div>
-                               </div>
-                             )}
-
-                             {/* Price & Action Section */}
-                             <div className="mt-4 flex items-center justify-between bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-                               <div>
-                                  <p className="text-xl font-black text-slate-900">{item.price}</p>
-                                  <p className="text-[9px] text-slate-400 font-bold uppercase">per {item.unit}</p>
-                               </div>
-                               <Button 
-                                 onClick={() => { if (isRevisionMode && item.vendor !== "Sayur Mayur Lembang" && customMenus.find(m => m.ingredients.find(i => i.id === item.id))) { toast.error("Vendor yang sudah disetujui tidak dapat dihapus!"); return; } toggleIngredient(item); }}
-                                 variant={isSelected ? "default" : "outline"}
-                                 className={`h-10 px-6 rounded-xl font-black text-xs transition-all ${isSelected ? "bg-emerald-600 text-white hover:bg-emerald-700" : "text-emerald-700 border-emerald-200 bg-white hover:bg-emerald-50"}`}
-                               >
-                                 {isSelected ? "BATAL" : "PILIH BAHAN"}
-                               </Button>
-                             </div>
-                           </div>
-                         );
-                      })}
-                    </div>
-                 </div>
-                 
-                 {/* Compact Footer Section */}
-                 <div className="p-6 bg-white border-t border-slate-200 flex items-center justify-between shrink-0 rounded-b-[40px] z-20">
-                    <div className="flex items-center gap-4 px-2">
-                       <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center">
-                          <ListChecks className="text-emerald-600" size={20} />
-                       </div>
-                       <div>
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Total Terpilih</p>
-                          <p className="text-lg font-black text-slate-900">
-                             <span className="text-emerald-600">{selectedIngredients.length}</span> Item Produk
-                          </p>
-                       </div>
-                    </div>
-                    <div className="flex gap-3">
-                       <Button 
-                         onClick={() => {
-                           if (isRevisionMode) {
-                             toast.promise(
-                               new Promise(resolve => setTimeout(resolve, 2000)),
-                               {
-                                 loading: 'Menyimpan...',
-                                 success: () => {
-                                   router.push('/sppg/admin/tender/list');
-                                   return 'Mitra lokal berhasil diaktifkan!';
-                                 }
-                               }
-                             );
-                           } else {
-                             setIsCatalogDialogOpen(false);
-                           }
-                         }} 
-                         className="rounded-xl font-black bg-[#0d5c46] hover:bg-[#0a4837] text-white px-8 h-12 text-sm shadow-lg shadow-[#0d5c46]/20 transition-all hover:scale-105 active:scale-95"
-                       >
-                         {isRevisionMode ? "SIMPAN REVISI" : "KONFIRMASI PILIHAN"}
-                       </Button>
-                    </div>
-                 </div>
-               </DialogContent>
-            </Dialog>
 
           </div>
 

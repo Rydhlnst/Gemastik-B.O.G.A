@@ -128,7 +128,7 @@ export function RoleAppSidebar({
                       className={cn(
                         "transition-colors border-l-2 border-transparent text-sidebar-foreground/80",
                         "group-hover/menu-item:bg-sidebar-accent group-hover/menu-item:text-sidebar-accent-foreground",
-                        "data-[active=true]:bg-role-accent/25 data-[active=true]:text-role-badge data-[active=true]:border-role-badge"
+                        "data-[active=true]:bg-white data-[active=true]:text-[#213555] data-[active=true]:border-white data-[active=true]:shadow-sm"
                       )}
                     >
                       <Link href={item.href} className="min-w-0">

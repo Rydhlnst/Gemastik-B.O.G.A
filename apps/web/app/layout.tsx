@@ -3,7 +3,7 @@ import Navbar from "@/components/ui/navbar";
 import { Providers } from "@/components/providers";
 import { Toaster } from "sonner";
 import MainWrapper from "@/components/ui/main-wrapper";
-import BootOverlay from "@/components/ui/boot-overlay";
+
 import { Plus_Jakarta_Sans } from "next/font/google";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en" className={jakartaSans.variable}>
       <body className="min-h-screen flex flex-col relative font-sans antialiased bg-background text-foreground">
         <Providers>
-          <BootOverlay />
+
           <Navbar />
           <MainWrapper>{children}</MainWrapper>
         </Providers>

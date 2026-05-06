@@ -113,13 +113,8 @@ function DesktopViewSiswa() {
 
 export default function SiswaPage() {
   return (
-    <main>
-      <div className="hidden md:block">
-        <DesktopViewSiswa />
-      </div>
-      <div className="block md:hidden">
-        <MobileSiswaLayout />
-      </div>
+    <main className="bg-muted/20 min-h-screen">
+      <MobileSiswaLayout />
     </main>
   );
 }

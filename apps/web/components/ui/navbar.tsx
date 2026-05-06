@@ -119,6 +119,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const isHomePage = pathname === "/";
+  const isContactPage = pathname === "/contact";
   const isAuthPage = pathname.startsWith("/auth");
   const isAppRoute = ["/goverment", "/sppg", "/supplier", "/vendor", "/logistik", "/sekolah"].some((r) =>
     pathname.startsWith(r)
@@ -144,7 +145,7 @@ export default function Navbar() {
     });
   };
 
-  if (isAuthPage || isAppRoute) return null;
+  if (isHomePage || isContactPage || isAuthPage || isAppRoute) return null;
 
   return (
     <header

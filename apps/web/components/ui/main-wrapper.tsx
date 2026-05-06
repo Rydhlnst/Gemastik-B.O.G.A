@@ -56,6 +56,8 @@ export default function MainWrapper({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const isAppSurface = APP_SURFACE_ROUTES.some((r) => pathname.startsWith(r));
   const isAuth = pathname.startsWith("/auth");
+  const isHome = pathname === "/";
+  const isContact = pathname === "/contact";
 
   if (isAppSurface) {
     // App surfaces: full screen, tanpa footer marketing
@@ -65,7 +67,7 @@ export default function MainWrapper({ children }: { children: React.ReactNode })
   return (
     <>
       <main className="flex-1 w-full">{children}</main>
-      {!isAuth && (
+      {!isAuth && !isHome && !isContact && (
         <Footer />
       )}
     </>

@@ -74,10 +74,10 @@ export default function PerformanceRanking({ type, selectedId, onSelectVendor, h
   }, [type, selectedId]);
 
   return (
-    <div className="bg-white relative overflow-hidden shadow-sm border border-slate-100 rounded-[2rem] p-4 sm:p-8 w-full font-sans">
+    <div className="bg-white relative shadow-sm border border-slate-100 rounded-[2rem] px-2 py-4 sm:p-6 w-full font-sans min-w-[700px]">
       
       {/* Header Info */}
-      <div className="relative z-10 flex justify-between items-end mb-8 px-2">
+      <div className="relative z-10 flex justify-between items-end mb-6 px-2">
         <div>
           <h3 className="text-xl font-black text-slate-800 tracking-tight">
             Peringkat Performa {type === "vendor" ? "Vendor" : "Unit Pelayanan (SPPG)"}

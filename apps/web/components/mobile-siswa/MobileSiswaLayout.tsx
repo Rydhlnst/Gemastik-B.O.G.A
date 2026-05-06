@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SchoolDetailPanel } from "@/components/ui/SchoolDetailPanel";
 
 import { TopHeader } from "./TopHeader";
-import { StoryCarousel } from "./StoryCarousel";
+
 import { HeroGreeting } from "./HeroGreeting";
 import { InteractiveMapCard } from "./InteractiveMapCard";
 import { StatsAndLeaderboard } from "./StatsAndLeaderboard";
@@ -29,7 +29,7 @@ export const MobileSiswaLayout = () => {
       case "home":
         return (
           <>
-            <StoryCarousel />
+
             <HeroGreeting onViewMap={() => setActiveTab("map")} />
             <TodayMenuCard />
             <StatsAndLeaderboard />
@@ -112,7 +112,7 @@ export const MobileSiswaLayout = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-[linear-gradient(to_bottom,#eff6ff,transparent_55%)] text-foreground font-sans pb-24 max-w-[100vw] overflow-x-hidden md:hidden">
+    <div className="relative min-h-screen bg-[linear-gradient(to_bottom,#eff6ff,transparent_55%)] text-foreground font-sans pb-24 max-w-md mx-auto overflow-x-hidden shadow-2xl border-x border-border/50">
       <TopHeader />
       <div>{renderContent()}</div>
       <FloatingBottomNav activeTab={activeTab} onTabChange={setActiveTab} />

@@ -235,38 +235,59 @@ export const SplashScene: React.FC<SplashSceneProps> = ({ onLift }) => {
       <div className="absolute -right-24 -bottom-24 w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.18),transparent_65%)] animate-pulse pointer-events-none z-[2]" />
 
       {/* BOGA Title Row */}
-      <div className="relative z-[5] flex items-center justify-center">
+      <div className="relative z-[5] flex items-center justify-center overflow-visible">
+        {/* B.O. — flies left off-screen when split */}
         <motion.div
-          animate={phase !== "burst" ? { opacity: 1, y: 0, scale: 1, x: phase === "split" ? -20 : 0 } : { opacity: 0, y: 50, scale: 0.88 }}
-          transition={{ duration: 0.9, type: "spring", stiffness: 100 }}
-          className="text-white font-sans text-[64px] md:text-[110px] font-black tracking-[-4px] leading-none drop-shadow-2xl"
+          animate={
+            phase === "burst"
+              ? { opacity: 0, y: 50, scale: 0.88, x: 0 }
+              : phase === "split"
+                ? { opacity: 0, x: "-50vw", scale: 1 }
+                : { opacity: 1, y: 0, scale: 1, x: 0 }
+          }
+          transition={{ duration: 0.9, type: "spring", stiffness: 80, damping: 18 }}
+          className="text-white font-sans text-[72px] md:text-[140px] font-black tracking-[-3px] md:tracking-[-4px] leading-none drop-shadow-2xl"
+          style={{ fontFamily: "var(--font-jakarta), sans-serif" }}
         >
           B.O.
         </motion.div>
 
+        {/* G.A — flies right off-screen when split */}
         <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: phase === "split" ? "auto" : 0 }}
-          transition={{ duration: 0.8, ease: [0.34, 1.1, 0.64, 1] }}
-          className="overflow-hidden flex items-center"
-        >
-          <div className="flex items-center gap-4 px-1 opacity-0 scale-75 transition-all duration-500 delay-300" 
-            style={{ opacity: phase === "split" ? 1 : 0, transform: phase === "split" ? "scale(1)" : "scale(0.75)" }}
-          >
-            <div className="w-[1.5px] h-16 bg-white/35" />
-            <div className="text-white/90 font-sans text-[14px] md:text-[26px] font-extrabold text-center uppercase whitespace-nowrap">
-              Blockchain Operasional Gizi Akuntabel
-            </div>
-            <div className="w-[1.5px] h-16 bg-white/35" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          animate={phase !== "burst" ? { opacity: 1, y: 0, scale: 1, x: phase === "split" ? 20 : 0 } : { opacity: 0, y: 50, scale: 0.88 }}
-          transition={{ duration: 0.9, type: "spring", stiffness: 100 }}
-          className="text-white font-sans text-[64px] md:text-[110px] font-black tracking-[-4px] leading-none drop-shadow-2xl"
+          animate={
+            phase === "burst"
+              ? { opacity: 0, y: 50, scale: 0.88, x: 0 }
+              : phase === "split"
+                ? { opacity: 0, x: "50vw", scale: 1 }
+                : { opacity: 1, y: 0, scale: 1, x: 0 }
+          }
+          transition={{ duration: 0.9, type: "spring", stiffness: 80, damping: 18 }}
+          className="text-white font-sans text-[72px] md:text-[140px] font-black tracking-[-3px] md:tracking-[-4px] leading-none drop-shadow-2xl"
+          style={{ fontFamily: "var(--font-jakarta), sans-serif" }}
         >
           G.A
+        </motion.div>
+
+        {/* Center reveal text — appears big when B.O.G.A splits */}
+        <motion.div
+          animate={
+            phase === "split"
+              ? { opacity: 1, scale: 1, y: 0 }
+              : { opacity: 0, scale: 0.7, y: 20 }
+          }
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: phase === "split" ? 0.15 : 0 }}
+          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        >
+          <div className="flex items-center gap-4 md:gap-8">
+            <div className="w-[2px] h-12 md:h-24 bg-white/40" />
+            <div 
+              className="text-white font-sans text-[18px] md:text-[42px] font-black text-center uppercase whitespace-nowrap drop-shadow-lg"
+              style={{ fontFamily: "var(--font-jakarta), sans-serif", letterSpacing: "0.06em" }}
+            >
+              Blockchain Operasional<br className="md:hidden" /> Gizi Akuntabel
+            </div>
+            <div className="w-[2px] h-12 md:h-24 bg-white/40" />
+          </div>
         </motion.div>
       </div>
 

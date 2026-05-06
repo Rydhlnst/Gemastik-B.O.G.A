@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/sekolah/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -8,6 +9,17 @@ export default function SekolahLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isSiswa = pathname?.includes("/sekolah/siswa");
+
+  if (isSiswa) {
+    return (
+      <div data-role="student" className="min-h-svh bg-background text-foreground">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div data-role="school" className="role-sekolah min-h-svh bg-background text-foreground">
       <SidebarProvider>

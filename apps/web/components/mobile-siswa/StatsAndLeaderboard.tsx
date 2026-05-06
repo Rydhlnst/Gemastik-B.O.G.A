@@ -25,7 +25,7 @@ export const StatsAndLeaderboard = () => {
               <Crown className="w-6 h-6 text-amber-400" fill="currentColor" />
               <h3 className="text-xl font-black text-white tracking-tight">Battle Leaderboard</h3>
             </div>
-            <p className="text-slate-400 text-xs font-medium mb-6">Siapa vendor tercepat dan terenak hari ini? 🔥</p>
+            <p className="text-slate-400 text-xs font-medium mb-6">siapa sppg dan vendor top 1 untuk saat ini ?</p>
             
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 flex items-center justify-between mb-4 border border-white/10">
                <div>
@@ -56,7 +56,7 @@ export const StatsAndLeaderboard = () => {
                 className="overflow-hidden mt-6"
               >
                   {/* Container for Desktop Component injected into Mobile */}
-                  <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden rounded-3xl">
+                  <div className="max-h-[60vh] overflow-y-auto overflow-x-auto rounded-3xl -mx-4 px-2">
                      <VendorRanking />
                   </div>
               </motion.div>

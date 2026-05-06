@@ -318,7 +318,7 @@ function ProductCard({ item, isSelected, isExpanded, onToggleExpand, onSelect }:
              <div className="h-8 w-px bg-slate-100"></div>
              <div className="flex flex-col">
                 <p className={`${isExpanded ? 'text-[10px]' : 'text-[8px]'} font-black text-slate-400 uppercase tracking-widest mb-1`}>Stok</p>
-                <p className={`${isExpanded ? 'text-lg text-sm'} font-black leading-none`} style={{ color: "#213555" }}>{item.stock}</p>
+                <p className={`${isExpanded ? 'text-lg' : 'text-sm'} font-black leading-none`} style={{ color: "#213555" }}>{item.stock}</p>
              </div>
           </div>
 
